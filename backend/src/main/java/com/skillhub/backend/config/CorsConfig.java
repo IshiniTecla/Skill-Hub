@@ -10,7 +10,7 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Apply CORS to all endpoints
+        registry.addMapping("/api/**") // Apply CORS to all endpoints
                 .allowedOrigins("http://localhost:5173") // React client address
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // Include OPTIONS for preflight
                 .allowedHeaders("*") // Allow any headers

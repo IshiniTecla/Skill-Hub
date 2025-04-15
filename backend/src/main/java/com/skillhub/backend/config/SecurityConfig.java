@@ -21,18 +21,22 @@ public class SecurityConfig {
                 http
                                 .csrf().disable()
                                 .authorizeRequests()
-                                .requestMatchers("/api/auth/signup", "/api/auth/signin", "/oauth2/**", "/uploads/**",
-                                                "/api/skills/**")
-                                .permitAll() // Public routes
-                                .anyRequest().authenticated() // Any other routes require authentication
+                                .requestMatchers("/api/auth/**", "/oauth2/**", "/uploads/**",
+                                                "/api/skills/**", "/api/posts/**", "/api/endorsements/**") // Match
+                                                                                                           // paths in
+                                                                                                           // your
+                                                                                                           // controller
+                                .permitAll() // Allow public access to these routes
+                                .anyRequest().authenticated() // Require authentication for other routes
                                 .and()
                                 .oauth2Login(oauth -> oauth
-                                                .loginPage("http://localhost:5173/signin") // Redirect to React signin
+                                                .loginPage("http://localhost:5173/signin") // Redirect to React sign-in
                                                 .defaultSuccessUrl("http://localhost:5173/dashboard", true)
                                                 .failureUrl("http://localhost:5173/signin?error=true"))
                                 .logout(logout -> logout
                                                 .logoutSuccessUrl("http://localhost:5173/signin")
-                                                .permitAll());
+                                                .permitAll())
+                                .cors(); // Enable CORS globally
 
                 return http.build();
         }
