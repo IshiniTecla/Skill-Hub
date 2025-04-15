@@ -58,7 +58,7 @@ const PostForm = ({ onPostSubmit }) => {
                 placeholder="What's on your mind?"
                 required
                 style={{
-                    width: "100%",
+                    width: "90%",
                     padding: "0.9rem",
                     fontSize: "1rem",
                     borderRadius: "6px",
@@ -109,7 +109,7 @@ const PostForm = ({ onPostSubmit }) => {
                     value={visibility}
                     onChange={(e) => setVisibility(e.target.value)}
                     style={{
-                        width: "100%",
+                        width: "95%",
                         padding: "0.7rem",
                         fontSize: "1rem",
                         borderRadius: "6px",

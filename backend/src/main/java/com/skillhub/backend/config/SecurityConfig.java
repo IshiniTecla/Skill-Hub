@@ -21,7 +21,8 @@ public class SecurityConfig {
                 http
                                 .csrf().disable()
                                 .authorizeRequests()
-                                .requestMatchers("/api/auth/signup", "/api/auth/signin", "/oauth2/**", "/uploads/**")
+                                .requestMatchers("/api/auth/signup", "/api/auth/signin", "/oauth2/**", "/uploads/**",
+                                                "/api/skills/**")
                                 .permitAll() // Public routes
                                 .anyRequest().authenticated() // Any other routes require authentication
                                 .and()

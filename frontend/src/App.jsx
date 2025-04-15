@@ -6,6 +6,9 @@ import PostItem from './pages/PostItem';
 import PostList from './pages/PostList';
 import Feed from './components/Feed';
 import Home from './pages/Home';
+import SkillForm from './pages/SkillForm';
+import SkillItem from './pages/SkillItem';
+import SkillList from './pages/SkillList';
 import './App.css';
 
 function App() {
@@ -17,7 +20,10 @@ function App() {
         <Route path="/feed" element={<Feed />} />
         <Route path="/posts" element={<PostList />} />
         <Route path="/view" element={<PostItem />} />
-        <Route path="/create" element={<PostForm />} />
+        <Route path="/post-create" element={<PostForm />} />
+        <Route path="/skill-create" element={<SkillForm />} />
+        <Route path="/skill-item" element={<SkillItem />} />
+        <Route path="/skill-list" element={<SkillList />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
       </Routes>

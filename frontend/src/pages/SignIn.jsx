@@ -48,7 +48,7 @@ const SignIn = () => {
             marginBottom: "20px",
         },
         input: {
-            width: "100%",
+            width: "90%",
             padding: "12px",
             margin: "10px 0",
             borderRadius: "5px",
@@ -56,7 +56,7 @@ const SignIn = () => {
             fontSize: "14px",
         },
         button: {
-            width: "100%",
+            width: "20%",
             background: "#2563eb",
             color: "#fff",
             padding: "12px",

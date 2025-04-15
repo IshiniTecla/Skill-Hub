@@ -26,14 +26,14 @@ const SocialLogin = () => {
 
     const googleStyle = {
         ...buttonStyle,
-        backgroundColor: "#DB4437",
-        color: "#fff"
+        backgroundColor: "#D3D3D3",
+        color: "#000000"
     };
 
     const githubStyle = {
         ...buttonStyle,
-        backgroundColor: "#24292e",
-        color: "#fff"
+        backgroundColor: "#D3D3D3",
+        color: "#000000"
     };
 
     const iconStyle = {

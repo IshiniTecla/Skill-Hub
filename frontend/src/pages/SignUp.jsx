@@ -67,7 +67,7 @@ const SignUp = () => {
             fontSize: "14px",
         },
         fullInput: {
-            width: "100%",
+            width: "90%",
             padding: "12px",
             marginTop: "10px",
             borderRadius: "5px",
@@ -75,7 +75,7 @@ const SignUp = () => {
             fontSize: "14px",
         },
         button: {
-            width: "100%",
+            width: "20%",
             background: "#2563eb",
             color: "#fff",
             padding: "12px",
