@@ -22,10 +22,10 @@ public class SecurityConfig {
                                 .csrf().disable()
                                 .authorizeRequests()
                                 .requestMatchers("/api/auth/**", "/oauth2/**", "/uploads/**",
-                                                "/api/skills/**", "/api/posts/**", "/api/endorsements/**") // Match
-                                                                                                           // paths in
-                                                                                                           // your
-                                                                                                           // controller
+                                                "/api/skills/**", "/api/posts/**") // Match
+                                                                                   // paths in
+                                                                                   // your
+                                                                                   // controller
                                 .permitAll() // Allow public access to these routes
                                 .anyRequest().authenticated() // Require authentication for other routes
                                 .and()

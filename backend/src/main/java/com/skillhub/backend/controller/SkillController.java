@@ -42,4 +42,11 @@ public class SkillController {
         skillService.deleteSkill(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/endorse")
+    public ResponseEntity<Skill> endorseSkill(@PathVariable String id) {
+        Skill endorsedSkill = skillService.endorseSkill(id);
+        return ResponseEntity.ok(endorsedSkill);
+    }
+
 }

@@ -38,4 +38,12 @@ public class SkillService {
     public void deleteSkill(String id) {
         skillRepository.deleteById(id);
     }
+
+    public Skill endorseSkill(String id) {
+        Skill skill = skillRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Skill not found"));
+        skill.setEndorsementCount(skill.getEndorsementCount() + 1);
+        return skillRepository.save(skill);
+    }
+
 }

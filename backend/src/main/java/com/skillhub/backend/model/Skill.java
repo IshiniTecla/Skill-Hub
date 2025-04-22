@@ -9,6 +9,7 @@ public class Skill {
     @Id
     private String id;
     private String name;
+    private int endorsementCount = 0;
 
     public Skill() {
     }
@@ -32,4 +33,13 @@ public class Skill {
     public void setName(String name) {
         this.name = name;
     }
+
+    public int getEndorsementCount() {
+        return endorsementCount;
+    }
+
+    public void setEndorsementCount(int endorsementCount) {
+        this.endorsementCount = endorsementCount;
+    }
+
 }
