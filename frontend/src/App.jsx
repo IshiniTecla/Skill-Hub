@@ -6,10 +6,10 @@ import PostItem from './pages/PostItem';
 import PostList from './pages/PostList';
 import Feed from './components/Feed';
 import Home from './pages/Home';
-import SkillForm from './pages/SkillForm';
-import SkillItem from './pages/SkillItem';
-import SkillList from './pages/SkillList';
+import SkillFormCard from './pages/SkillFormCard';
 import './App.css';
+import SkillCard from './pages/SkillCard';
+import SkillEditCard from './pages/SkillEditCard';
 
 function App() {
   return (
@@ -21,9 +21,9 @@ function App() {
         <Route path="/posts" element={<PostList />} />
         <Route path="/view" element={<PostItem />} />
         <Route path="/post-create" element={<PostForm />} />
-        <Route path="/skill-create" element={<SkillForm />} />
-        <Route path="/skill-item" element={<SkillItem />} />
-        <Route path="/skill-list" element={<SkillList />} />
+        <Route path="/skills/add" element={<SkillFormCard />} />
+        <Route path="/skill-card" element={<SkillCard />} />
+        <Route path="/skills/edit/:id" element={<SkillEditCard />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
       </Routes>
