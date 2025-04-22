@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 
-const SkillCard = () => {
+const SkillEndorseCard = () => {
     const [skills, setSkills] = useState([]);
-    const navigate = useNavigate();
+    const [endorsedSkills, setEndorsedSkills] = useState([]);
 
     useEffect(() => {
         fetchSkills();
@@ -20,46 +18,69 @@ const SkillCard = () => {
         }
     };
 
+    const handleEndorse = async (skillId) => {
+        try {
+            const res = await fetch(`http://localhost:8080/api/skills/${skillId}/endorse`, {
+                method: "POST",
+            });
+
+            if (!res.ok) throw new Error("Failed to endorse");
+
+            const updatedSkill = await res.json();
+            setSkills((prev) =>
+                prev.map((s) => (s.id === skillId ? updatedSkill : s))
+            );
+            setEndorsedSkills((prev) => [...prev, skillId]);
+        } catch (err) {
+            alert("Could not endorse the skill.");
+        }
+    };
 
     return (
         <div style={cardStyle}>
             <div style={headerStyle}>
                 <h3 style={titleStyle}>Skills</h3>
-                <div style={iconGroup}>
-                    <button onClick={() => navigate("/skills/add")} style={iconBtnStyle} title="Add Skill"><FaPlus /></button>
-
-                </div>
             </div>
 
-            <div>
-                {skills.length === 0 ? (
-                    <p style={{ textAlign: "center", color: "#999" }}>No skills added yet.</p>
-                ) : (
-                    skills.map((skill) => (
-                        <div key={skill.id} style={skillItemStyle}>
+            {skills.length === 0 ? (
+                <p style={{ textAlign: "center", color: "#999" }}>No skills available to endorse.</p>
+            ) : (
+                skills.map((skill) => (
+                    <div key={skill.id} style={skillItemStyle}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
                             {skill.iconUrl && (
                                 <img src={skill.iconUrl} alt={skill.name} style={logoStyle} />
                             )}
                             <div style={skillTextGroup}>
                                 <span style={skillNameStyle}>{skill.name}</span>
-                                <span style={skillSourceStyle}>{skill.source || "Endorsed by community"}</span>
-                            </div>
-                            <div style={skillActions}>
-                                <button
-                                    onClick={() => navigate(`/skills/edit/${skill.id}`)}
-                                    style={smallBtn}
-                                    title="Edit Skill"
-                                ><FaEdit /></button>
-
+                                <span style={skillSourceStyle}>
+                                    {skill.source || "Endorsed by community"}
+                                </span>
                             </div>
                         </div>
-                    ))
-                )}
-            </div>
+
+                        <button
+                            style={{
+                                ...endorseBtn,
+                                backgroundColor: endorsedSkills.includes(skill.id)
+                                    ? "#28a745"
+                                    : "#0073b1",
+                            }}
+                            onClick={() => handleEndorse(skill.id)}
+                            disabled={endorsedSkills.includes(skill.id)}
+                        >
+                            {endorsedSkills.includes(skill.id) ? "Endorsed ✅" : "Endorse"}
+                        </button>
+                    </div>
+                ))
+            )}
         </div>
     );
 };
 
+export default SkillEndorseCard;
+
+// === Inline Styles ===
 const cardStyle = {
     background: "#fff",
     borderRadius: "12px",
@@ -84,21 +105,6 @@ const titleStyle = {
     color: "#222",
 };
 
-const iconGroup = {
-    display: "flex",
-    gap: "0.5rem",
-};
-
-const iconBtnStyle = {
-    background: "#f0f2f5",
-    border: "none",
-    borderRadius: "6px",
-    fontSize: "1.2rem",
-    padding: "0.4rem 0.7rem",
-    cursor: "pointer",
-    transition: "background 0.3s",
-};
-
 const skillItemStyle = {
     display: "flex",
     alignItems: "center",
@@ -121,10 +127,8 @@ const logoStyle = {
 };
 
 const skillTextGroup = {
-    flex: 1,
     display: "flex",
     flexDirection: "column",
-    marginLeft: "1rem",
 };
 
 const skillNameStyle = {
@@ -139,18 +143,12 @@ const skillSourceStyle = {
     marginTop: "0.2rem",
 };
 
-const skillActions = {
-    display: "flex",
-    gap: "0.5rem",
-};
-
-const smallBtn = {
-    background: "none",
+const endorseBtn = {
     border: "none",
-    fontSize: "1.1rem",
+    padding: "0.5rem 1rem",
+    fontSize: "0.95rem",
+    borderRadius: "6px",
+    color: "#fff",
     cursor: "pointer",
-    padding: "0.2rem",
-    color: "#555",
+    transition: "background 0.3s ease",
 };
-
-export default SkillCard;

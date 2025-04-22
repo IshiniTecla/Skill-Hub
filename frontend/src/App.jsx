@@ -10,6 +10,7 @@ import SkillFormCard from './pages/SkillFormCard';
 import './App.css';
 import SkillCard from './pages/SkillCard';
 import SkillEditCard from './pages/SkillEditCard';
+import SkillEndorseCard from './pages/SkillEndorseCard';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/post-create" element={<PostForm />} />
         <Route path="/skills/add" element={<SkillFormCard />} />
         <Route path="/skill-card" element={<SkillCard />} />
+        <Route path="/skill-endorsecard" element={<SkillEndorseCard />} />
         <Route path="/skills/edit/:id" element={<SkillEditCard />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
