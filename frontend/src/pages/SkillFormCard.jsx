@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaSave } from "react-icons/fa"; // Removed FaTrash
+import { FaSave, FaArrowLeft } from "react-icons/fa";
 
 const SkillFormCard = ({ editMode = false }) => {
     const [skillName, setSkillName] = useState("");
@@ -43,7 +43,13 @@ const SkillFormCard = ({ editMode = false }) => {
 
     return (
         <div style={cardContainer}>
-            <h2 style={cardHeader}>{editMode ? "Edit Skill" : "Add New Skill"}</h2>
+            <button onClick={() => navigate(-1)} style={backBtn} title="Go Back">
+                <FaArrowLeft />
+            </button>
+            <h2 style={cardHeader}>
+                {editMode ? "Edit Skill" : "Add New Skill"}
+            </h2>
+
             <form onSubmit={handleSubmit} style={formStyle}>
                 <input
                     type="text"
@@ -88,11 +94,30 @@ const cardContainer = {
     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
     fontFamily: "'Segoe UI', sans-serif",
     border: "1px solid #e1e4e8",
+    position: "relative", // for absolute back button
+};
+
+const backBtn = {
+    position: "absolute",
+    top: "1rem",
+    left: "1rem",
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    background: "#f0f2f5",
+    border: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "1.1rem",
+    cursor: "pointer",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+    transition: "background 0.3s",
 };
 
 const cardHeader = {
     margin: 0,
-    marginBottom: "1rem",
+    marginBottom: "1.5rem",
     fontSize: "1.5rem",
     color: "#222",
     textAlign: "center",

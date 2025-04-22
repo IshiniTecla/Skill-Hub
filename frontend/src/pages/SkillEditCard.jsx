@@ -1,4 +1,3 @@
-// SkillEditCard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaSave, FaTrash, FaArrowLeft } from "react-icons/fa";
@@ -41,7 +40,9 @@ const SkillEditCard = () => {
     const handleDelete = async () => {
         if (!window.confirm("Are you sure you want to delete this skill?")) return;
         try {
-            await fetch(`http://localhost:8080/api/skills/${id}`, { method: "DELETE" });
+            await fetch(`http://localhost:8080/api/skills/${id}`, {
+                method: "DELETE",
+            });
             navigate("/skill-card");
         } catch (err) {
             alert("Failed to delete skill");
@@ -52,12 +53,11 @@ const SkillEditCard = () => {
 
     return (
         <div style={cardStyle}>
-            <div style={headerStyle}>
-                <button onClick={() => navigate(-1)} style={backBtn}>
-                    <FaArrowLeft />
-                </button>
-                <h2>Edit Skill</h2>
-            </div>
+            <button onClick={() => navigate(-1)} style={backBtn} title="Go Back">
+                <FaArrowLeft />
+            </button>
+
+            <h2 style={cardHeader}>Edit Skill</h2>
 
             <input
                 type="text"
@@ -79,6 +79,8 @@ const SkillEditCard = () => {
     );
 };
 
+export default SkillEditCard;
+
 // === Inline Styles ===
 const cardStyle = {
     maxWidth: "450px",
@@ -88,24 +90,33 @@ const cardStyle = {
     borderRadius: "12px",
     boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
     fontFamily: "'Segoe UI', sans-serif",
-};
-
-const headerStyle = {
-    display: "flex",
-    alignItems: "center",
-    gap: "1rem",
-    marginBottom: "1.5rem",
+    position: "relative",
+    border: "1px solid #e1e4e8",
 };
 
 const backBtn = {
-    background: "none",
+    position: "absolute",
+    top: "1rem",
+    left: "1rem",
+    width: "36px",
+    height: "36px",
+    borderRadius: "50%",
+    background: "#f0f2f5",
     border: "none",
-    color: "#0073b1",
-    fontSize: "0.9rem",
-    cursor: "pointer",
     display: "flex",
     alignItems: "center",
-    gap: "0.3rem",
+    justifyContent: "center",
+    fontSize: "1.1rem",
+    cursor: "pointer",
+    boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+    transition: "background 0.3s",
+};
+
+const cardHeader = {
+    margin: "0 0 1.5rem 0",
+    fontSize: "1.5rem",
+    color: "#222",
+    textAlign: "center",
 };
 
 const inputStyle = {
@@ -146,5 +157,3 @@ const deleteBtn = {
     alignItems: "center",
     gap: "0.5rem",
 };
-
-export default SkillEditCard;
