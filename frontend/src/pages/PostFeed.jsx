@@ -29,30 +29,40 @@ const PostFeed = () => {
     }, []);
 
     if (loading) return <p>Loading posts...</p>;
-    if (error) return <p style={{ color: "red" }}>{error}</p>;
+    if (error) return <p style={{ color: "red", fontSize: "16px" }}>{error}</p>;
 
     return (
-        <div>
-            <h2>Your Posts</h2>
+        <div style={{ padding: "2rem", backgroundColor: "#f4f4f9" }}>
+            <h2 style={{ textAlign: "center", marginBottom: "2rem", color: "#333" }}>Your Posts</h2>
             {posts.length === 0 ? (
-                <p>No posts found.</p>
+                <p style={{ fontSize: "18px", textAlign: "center", color: "#777" }}>No posts found.</p>
             ) : (
                 posts.map((post) => (
-                    <div key={post.id} style={{ marginBottom: "20px" }}>
-                        <h3>{post.title}</h3>
-                        <p>{post.content}</p>
+                    <div key={post.id} style={{ backgroundColor: "#fff", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)", marginBottom: "20px" }}>
+                        <h3 style={{ fontSize: "20px", color: "#333", marginBottom: "0.5rem" }}>{post.title}</h3>
+                        <p style={{ fontSize: "16px", color: "#555", marginBottom: "1rem" }}>{post.content}</p>
                         
                         {/* Display image or video preview */}
                         {post.media && post.media.type.startsWith("image") && (
-                            <img src={post.media.url} alt="Post Media" />
+                            <img src={post.media.url} alt="Post Media" style={{ width: "100%", borderRadius: "8px", marginBottom: "1rem" }} />
                         )}
                         {post.media && post.media.type.startsWith("video") && (
-                            <video controls style={{ width: "100%", borderRadius: "8px", marginTop: "0.5rem" }}>
+                            <video controls style={{ width: "100%", borderRadius: "8px", marginBottom: "1rem" }}>
                                 <source src={post.media.url} type={post.media.type} />
                             </video>
                         )}
-                        <br />
-                        <Link to={`/post/${post.id}`}>View Post</Link>
+                        
+                        <Link
+                            to={`/post/${post.id}`}
+                            style={{
+                                fontSize: "16px",
+                                color: "#007bff",
+                                textDecoration: "none",
+                                fontWeight: "bold",
+                            }}
+                        >
+                            View Post
+                        </Link>
                     </div>
                 ))
             )}

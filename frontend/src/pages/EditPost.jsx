@@ -9,13 +9,20 @@ const EditPost = () => {
 
     useEffect(() => {
         const fetchPost = async () => {
-            const res = await fetch(`http://localhost:8080/api/posts/${id}`);
-            const data = await res.json();
-            if (res.ok) {
+            try {
+                const res = await fetch(`http://localhost:8080/api/posts/${id}`);
+                if (!res.ok) {
+                    throw new Error("Failed to fetch post");
+                }
+                const data = await res.json();
                 setContent(data.content);
                 setVisibility(data.visibility);
+            } catch (err) {
+                console.error("Error fetching post:", err);
+                alert("Failed to load post for editing.");
             }
         };
+
         fetchPost();
     }, [id]);
 
@@ -32,17 +39,20 @@ const EditPost = () => {
             });
 
             if (res.ok) {
-                navigate("/view");
+                alert("Post updated successfully!");
+                navigate("/view"); // Navigate to the view page after update
             } else {
-                alert("Update failed");
+                const data = await res.json();
+                alert(`Update failed: ${data.message || "Unknown error"}`);
             }
         } catch (err) {
-            alert("Server error");
+            console.error("Error during post update:", err);
+            alert("Server error during update.");
         }
     };
 
     return (
-        <div style={{ maxWidth: '700px', margin: '2rem auto' }}>
+        <div style={{ maxWidth: '700px', margin: '2rem auto', padding: '1rem', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
             <h2>Edit Post</h2>
             <form onSubmit={handleSubmit}>
                 <textarea
@@ -50,16 +60,41 @@ const EditPost = () => {
                     onChange={(e) => setContent(e.target.value)}
                     rows="5"
                     required
-                    style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                    style={{
+                        width: "100%",
+                        padding: "10px",
+                        borderRadius: "8px",
+                        border: "1px solid #ccc",
+                        marginBottom: "10px",
+                        fontSize: "1rem",
+                        backgroundColor: "#fff"
+                    }}
                 />
                 <br />
-                <select value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+                <select
+                    value={visibility}
+                    onChange={(e) => setVisibility(e.target.value)}
+                    style={{
+                        padding: "10px",
+                        borderRadius: "8px",
+                        border: "1px solid #ccc",
+                        marginBottom: "20px",
+                        fontSize: "1rem"
+                    }}
+                >
                     <option value="anyone">Anyone</option>
                     <option value="friends">Friends</option>
                     <option value="onlyMe">Only Me</option>
                 </select>
-                <br /><br />
-                <button type="submit">Update Post</button>
+                <br />
+                <button type="submit" style={{
+                    backgroundColor: "#4CAF50",
+                    color: "white",
+                    padding: "10px 15px",
+                    border: "none",
+                    borderRadius: "8px",
+                    cursor: "pointer"
+                }}>Update Post</button>
             </form>
         </div>
     );
