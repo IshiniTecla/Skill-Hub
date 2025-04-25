@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import PostForm from './pages/PostForm';
-import PostItem from './pages/PostItem';
+import PostFeed from './pages/PostFeed';
 import PostList from './pages/PostList';
 import Feed from './components/Feed';
 import Home from './pages/Home';
@@ -17,7 +17,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/posts" element={<PostList />} />
-        <Route path="/view" element={<PostItem />} />
+        <Route path="/view" element={<PostFeed />} />
         <Route path="/post-create" element={<PostForm />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
