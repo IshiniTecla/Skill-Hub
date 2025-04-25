@@ -47,13 +47,14 @@ const PostForm = ({ onPostSubmit }) => {
             style={{
                 display: "flex",
                 flexDirection: "column",
-                maxWidth: "400px",
-                margin: "20px auto",
-                padding: "20px",
-                border: "1px solid #ccc",
-                borderRadius: "10px",
-                backgroundColor: "#f9f9f9",
-                boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)"
+                gap: "16px",
+                maxWidth: "500px",
+                margin: "30px auto",
+                padding: "24px",
+                borderRadius: "16px",
+                backgroundColor: "#ffffff",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                border: "1px solid #e0e0e0"
             }}
         >
             <textarea
@@ -61,29 +62,39 @@ const PostForm = ({ onPostSubmit }) => {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="What's on your mind?"
                 required
+                rows={4}
                 style={{
-                    padding: "10px",
-                    fontSize: "16px",
-                    marginBottom: "10px",
-                    borderRadius: "6px",
-                    border: "1px solid #ccc",
-                    resize: "vertical"
+                    padding: "12px",
+                    fontSize: "15px",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                    resize: "vertical",
+                    outline: "none",
+                    fontFamily: "inherit",
+                    backgroundColor: "#fdfdfd"
                 }}
             />
             <input
                 type="file"
                 accept="image/*,video/*"
                 onChange={handleMediaChange}
-                style={{ marginBottom: "10px" }}
+                style={{
+                    fontSize: "14px",
+                    padding: "6px",
+                    backgroundColor: "#f0f0f0",
+                    borderRadius: "8px",
+                    border: "1px solid #ccc",
+                }}
             />
             <select
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value)}
                 style={{
-                    padding: "8px",
-                    borderRadius: "6px",
+                    padding: "10px",
+                    borderRadius: "8px",
                     border: "1px solid #ccc",
-                    marginBottom: "10px"
+                    backgroundColor: "#fafafa",
+                    fontSize: "14px"
                 }}
             >
                 <option value="anyone">Anyone</option>
@@ -93,13 +104,18 @@ const PostForm = ({ onPostSubmit }) => {
             <button
                 type="submit"
                 style={{
-                    padding: "10px",
+                    padding: "12px",
                     backgroundColor: "#007bff",
                     color: "#fff",
                     border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer"
+                    borderRadius: "8px",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    transition: "background-color 0.3s ease"
                 }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#0056b3"}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#007bff"}
             >
                 Post
             </button>
