@@ -1,8 +1,10 @@
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import PostFeed from './pages/PostFeed';
 import PostDetail from './pages/PostDetail';
-import ManagePost from './pages/ManagePost'; // ✅ make sure this import is correct
+import ManagePost from './pages/ManagePost';
+import EditPost from './pages/EditPost';
 import './App.css';
 
 function App() {
@@ -13,9 +15,10 @@ function App() {
         <Route path="/view" element={<PostFeed />} />
         <Route path="/post/:id" element={<PostDetail />} />
         <Route path="/manage" element={<ManagePost />} />
+        <Route path="/edit/:id" element={<EditPost />} />
       </Routes>
     </Router>
   );
 }
 
-export default App; // ✅ THIS LINE IS IMPORTANT!
+export default App;
