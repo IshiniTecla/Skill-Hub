@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const PostForm = ({ onPostSubmit = () => {} }) => {
+const PostForm = ({ onPostSubmit }) => {
     const [content, setContent] = useState("");
     const [media, setMedia] = useState(null);
     const [visibility, setVisibility] = useState("anyone");
@@ -24,8 +24,8 @@ const PostForm = ({ onPostSubmit = () => {} }) => {
             const data = await res.json();
 
             if (res.ok) {
-                onPostSubmit(data); // will not crash even if not passed
-                setContent("");
+                onPostSubmit(); // Notify parent to refresh post feed
+                setContent(""); // Clear form
                 setMedia(null);
                 setVisibility("anyone");
             } else {
@@ -45,12 +45,15 @@ const PostForm = ({ onPostSubmit = () => {} }) => {
         <form
             onSubmit={handleSubmit}
             style={{
-                background: "#f9f9f9",
+                backgroundColor: "#f9f9f9",
                 marginBottom: "2rem",
                 padding: "1.5rem",
                 border: "1px solid #e1e4e8",
                 borderRadius: "10px",
                 boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                width: "100%",
+                maxWidth: "600px",
+                margin: "auto",
             }}
         >
             <textarea
@@ -59,12 +62,13 @@ const PostForm = ({ onPostSubmit = () => {} }) => {
                 placeholder="What's on your mind?"
                 required
                 style={{
-                    width: "90%",
+                    width: "100%",
                     padding: "0.9rem",
                     fontSize: "1rem",
                     borderRadius: "6px",
                     border: "1px solid #d1d5da",
                     resize: "vertical",
+                    marginBottom: "1rem",
                 }}
             />
             <input
@@ -72,9 +76,11 @@ const PostForm = ({ onPostSubmit = () => {} }) => {
                 accept="image/*,video/*"
                 onChange={handleMediaChange}
                 style={{
-                    marginTop: "1rem",
+                    marginBottom: "1rem",
                     display: "block",
                     fontSize: "0.95rem",
+                    padding: "0.5rem",
+                    width: "100%",
                 }}
             />
             {media && (
@@ -99,18 +105,29 @@ const PostForm = ({ onPostSubmit = () => {} }) => {
                                 marginTop: "0.5rem",
                             }}
                         >
-                            <source src={URL.createObjectURL(media)} type={media.type} />
+                            <source
+                                src={URL.createObjectURL(media)}
+                                type={media.type}
+                            />
                         </video>
                     ) : null}
                 </div>
             )}
             <div style={{ marginTop: "1rem" }}>
-                <label>Who can view this post?</label>
+                <label
+                    style={{
+                        fontWeight: "bold",
+                        marginBottom: "0.5rem",
+                        display: "inline-block",
+                    }}
+                >
+                    Who can view this post?
+                </label>
                 <select
                     value={visibility}
                     onChange={(e) => setVisibility(e.target.value)}
                     style={{
-                        width: "95%",
+                        width: "100%",
                         padding: "0.7rem",
                         fontSize: "1rem",
                         borderRadius: "6px",
@@ -121,7 +138,6 @@ const PostForm = ({ onPostSubmit = () => {} }) => {
                     <option value="anyone">Anyone</option>
                     <option value="friends">Friends</option>
                     <option value="onlyMe">Only Me</option>
-                    <option value="custom">Custom</option>
                 </select>
             </div>
             <button
