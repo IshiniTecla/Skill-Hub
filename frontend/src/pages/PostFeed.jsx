@@ -1,4 +1,3 @@
-// src/pages/PostFeed.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -42,7 +41,16 @@ const PostFeed = () => {
                     <div key={post.id} style={{ marginBottom: "20px" }}>
                         <h3>{post.title}</h3>
                         <p>{post.content}</p>
-                        {post.mediaUrl && <img src={post.mediaUrl} alt="Post Media" />}
+                        
+                        {/* Display image or video preview */}
+                        {post.media && post.media.type.startsWith("image") && (
+                            <img src={post.media.url} alt="Post Media" />
+                        )}
+                        {post.media && post.media.type.startsWith("video") && (
+                            <video controls style={{ width: "100%", borderRadius: "8px", marginTop: "0.5rem" }}>
+                                <source src={post.media.url} type={post.media.type} />
+                            </video>
+                        )}
                         <br />
                         <Link to={`/post/${post.id}`}>View Post</Link>
                     </div>

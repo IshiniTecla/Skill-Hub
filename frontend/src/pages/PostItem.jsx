@@ -1,133 +1,163 @@
-import React from "react";
+import React, { useState } from "react";
 
-const PostItem = ({ post, onDelete, onEdit, onComment, onLike, onRepost, onShare }) => {
+const PostForm = ({ onPostSubmit }) => {
+    const [content, setContent] = useState("");
+    const [media, setMedia] = useState(null);
+    const [visibility, setVisibility] = useState("anyone");
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        formData.append("content", content);
+        formData.append("visibility", visibility);
+        if (media) {
+            formData.append("media", media);
+        }
+
+        try {
+            const res = await fetch("http://localhost:8080/api/posts", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                onPostSubmit(); // Notify parent to refresh post feed
+                setContent(""); // Clear form
+                setMedia(null);
+                setVisibility("anyone");
+            } else {
+                alert("Post failed: " + (data.message || "Unknown error"));
+            }
+        } catch (err) {
+            console.error("Error:", err);
+            alert("Server error");
+        }
+    };
+
+    const handleMediaChange = (e) => {
+        setMedia(e.target.files[0]);
+    };
+
     return (
-        <div style={{
-            border: "1px solid #e1e4e8",
-            padding: "1.2rem",
-            borderRadius: "10px",
-            marginBottom: "1.5rem",
-            background: "#fff",
-            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)"
-        }}>
-            <p style={{ fontSize: "1rem", marginBottom: "0.8rem" }}>{post.content}</p>
-
-            {post.imageUrl && (
-                <img
-                    src={post.imageUrl}
-                    alt="Post media"
-                    style={{ width: "100%", borderRadius: "10px", marginTop: "0.5rem" }}
-                />
+        <form
+            onSubmit={handleSubmit}
+            style={{
+                backgroundColor: "#f9f9f9",
+                marginBottom: "2rem",
+                padding: "1.5rem",
+                border: "1px solid #e1e4e8",
+                borderRadius: "10px",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                width: "100%",
+                maxWidth: "600px",
+                margin: "auto",
+            }}
+        >
+            <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="What's on your mind?"
+                required
+                style={{
+                    width: "100%",
+                    padding: "0.9rem",
+                    fontSize: "1rem",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5da",
+                    resize: "vertical",
+                    marginBottom: "1rem",
+                }}
+            />
+            <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={handleMediaChange}
+                style={{
+                    marginBottom: "1rem",
+                    display: "block",
+                    fontSize: "0.95rem",
+                    padding: "0.5rem",
+                    width: "100%",
+                }}
+            />
+            {media && (
+                <div style={{ marginTop: "1rem" }}>
+                    <p>Preview:</p>
+                    {media.type.startsWith("image") ? (
+                        <img
+                            src={URL.createObjectURL(media)}
+                            alt="Preview"
+                            style={{
+                                width: "100%",
+                                borderRadius: "8px",
+                                marginTop: "0.5rem",
+                            }}
+                        />
+                    ) : media.type.startsWith("video") ? (
+                        <video
+                            controls
+                            style={{
+                                width: "100%",
+                                borderRadius: "8px",
+                                marginTop: "0.5rem",
+                            }}
+                        >
+                            <source
+                                src={URL.createObjectURL(media)}
+                                type={media.type}
+                            />
+                        </video>
+                    ) : null}
+                </div>
             )}
-
-            {post.videoUrl && (
-                <video
-                    src={post.videoUrl}
-                    controls
-                    width="100%"
-                    style={{ borderRadius: "10px", marginTop: "0.5rem" }}
-                />
-            )}
-
-            <div style={{
-                display: "flex",
-                justifyContent: "flex-start",
-                gap: "1rem",
-                marginTop: "0.75rem"
-            }}>
-                <button
-                    onClick={onLike}
+            <div style={{ marginTop: "1rem" }}>
+                <label
                     style={{
-                        background: "#007bff",
-                        border: "none",
-                        color: "#fff",
-                        padding: "0.5rem 1rem",
-                        borderRadius: "5px",
                         fontWeight: "bold",
-                        cursor: "pointer"
+                        marginBottom: "0.5rem",
+                        display: "inline-block",
                     }}
                 >
-                    Like
-                </button>
-                <button
-                    onClick={onComment}
+                    Who can view this post?
+                </label>
+                <select
+                    value={visibility}
+                    onChange={(e) => setVisibility(e.target.value)}
                     style={{
-                        background: "#28a745",
-                        border: "none",
-                        color: "#fff",
-                        padding: "0.5rem 1rem",
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        cursor: "pointer"
+                        width: "100%",
+                        padding: "0.7rem",
+                        fontSize: "1rem",
+                        borderRadius: "6px",
+                        border: "1px solid #d1d5da",
+                        marginTop: "0.5rem",
                     }}
                 >
-                    Comment
-                </button>
-                <button
-                    onClick={onRepost}
-                    style={{
-                        background: "#17a2b8",
-                        border: "none",
-                        color: "#fff",
-                        padding: "0.5rem 1rem",
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        cursor: "pointer"
-                    }}
-                >
-                    Repost
-                </button>
-                <button
-                    onClick={onShare}
-                    style={{
-                        background: "#ffc107",
-                        border: "none",
-                        color: "#fff",
-                        padding: "0.5rem 1rem",
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        cursor: "pointer"
-                    }}
-                >
-                    Share
-                </button>
+                    <option value="anyone">Anyone</option>
+                    <option value="friends">Friends</option>
+                    <option value="onlyMe">Only Me</option>
+                </select>
             </div>
-<div style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: "0.5rem",
-                marginTop: "0.75rem"
-            }}>
-                <button
-                    onClick={onEdit}
-                    style={{
-                        background: "#ffc107",
-                        border: "none",
-                        padding: "0.5rem 1rem",
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        cursor: "pointer"
-                    }}
-                >
-                    Edit
-                </button>
-                <button
-                    onClick={onDelete}
-                    style={{
-                        background: "#dc3545",
-                        border: "none",
-                        color: "#fff",
-                        padding: "0.5rem 1rem",
-                        borderRadius: "5px",
-                        fontWeight: "bold",
-                        cursor: "pointer"
-                    }}
-                >
-                    Delete
-                </button>
-            </div>
-        </div>
+            <button
+                type="submit"
+                style={{
+                    backgroundColor: "#0073b1",
+                    color: "white",
+                    padding: "0.7rem 1.5rem",
+                    fontSize: "1rem",
+                    border: "none",
+                    borderRadius: "6px",
+                    marginTop: "1rem",
+                    cursor: "pointer",
+                    float: "right",
+                }}
+            >
+                Post
+            </button>
+        </form>
     );
 };
 
-export default PostItem;
+export default PostForm;
