@@ -1,104 +1,136 @@
 package com.skillhub.backend.services;
 
-import com.skillhub.backend.dtos.request.UserRequestDTO;
-import com.skillhub.backend.dtos.response.UserResponseDTO;
-import com.skillhub.backend.models.AuthRequest;
-import com.skillhub.backend.models.AuthResponse;
+import com.skillhub.backend.exceptions.InvalidCredentialsException;
+import com.skillhub.backend.exceptions.UserAlreadyExistsException;
+import com.skillhub.backend.exceptions.UserNotFoundException;
 import com.skillhub.backend.models.User;
 import com.skillhub.backend.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
 
-    public AuthResponse authenticate(AuthRequest request) {
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
-        if (!user.getPassword().equals(request.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
-        
-        return new AuthResponse("dummy-token", user.getId());
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public void delete(String id) {
+    // CREATE
+    public User createUser(User user) {
+        // Check if user already exists
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new UserAlreadyExistsException("email");
+        }
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new UserAlreadyExistsException("username");
+        }
+
+        return userRepository.save(user);
+    }
+
+    // READ
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public Optional<User> getUserById(String id) {
+        return userRepository.findById(id);
+    }
+
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public Optional<User> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    // UPDATE
+    public User updateUser(String id, User userDetails) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException());
+
+        // Check if email is being changed and if it's already in use
+        if (userDetails.getEmail() != null && !user.getEmail().equals(userDetails.getEmail()) &&
+                userRepository.existsByEmail(userDetails.getEmail())) {
+            throw new UserAlreadyExistsException("email");
+        }
+
+        // Check if username is being changed and if it's already in use
+        if (userDetails.getUsername() != null && !user.getUsername().equals(userDetails.getUsername()) &&
+                userRepository.existsByUsername(userDetails.getUsername())) {
+            throw new UserAlreadyExistsException("username");
+        }
+
+        // Update user fields
+        if (userDetails.getUsername() != null)
+            user.setUsername(userDetails.getUsername());
+        if (userDetails.getEmail() != null)
+            user.setEmail(userDetails.getEmail());
+        if (userDetails.getPassword() != null)
+            user.setPassword(userDetails.getPassword());
+        if (userDetails.getFirstName() != null)
+            user.setFirstName(userDetails.getFirstName());
+        if (userDetails.getLastName() != null)
+            user.setLastName(userDetails.getLastName());
+        if (userDetails.getBio() != null)
+            user.setBio(userDetails.getBio());
+        if (userDetails.getProfileImage() != null)
+            user.setProfileImage(userDetails.getProfileImage());
+        if (userDetails.getPhoneNumber() != null)
+            user.setPhoneNumber(userDetails.getPhoneNumber());
+        user.setPrivateProfile(userDetails.isPrivateProfile());
+
+        if (userDetails.getSkills() != null)
+            user.setSkills(userDetails.getSkills());
+        if (userDetails.getFollowing() != null)
+            user.setFollowing(userDetails.getFollowing());
+        if (userDetails.getFollowers() != null)
+            user.setFollowers(userDetails.getFollowers());
+        if (userDetails.getPendingFollowRequests() != null)
+            user.setPendingFollowRequests(userDetails.getPendingFollowRequests());
+
+        return userRepository.save(user);
+    }
+
+    // DELETE
+    public void deleteUser(String id) {
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException();
+        }
         userRepository.deleteById(id);
     }
 
-    public UserResponseDTO update(String id, UserRequestDTO dto) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    // Authentication
+    public User authenticate(String email, String password) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
         
-        // Update user fields
-        user.setUsername(dto.getUsername());
-        user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword()); // Plain text as requested
-        // Update other fields as needed
-        
-        user = userRepository.save(user);
-        return new UserResponseDTO(user);
-    }
-
-    public List<UserResponseDTO> searchUsers(String name, String skill) {
-        if (name != null && skill != null) {
-            return userRepository.findByFirstNameContainingOrLastNameContainingAndSkillsContaining(name, name, skill)
-                    .stream()
-                    .map(UserResponseDTO::new)
-                    .collect(Collectors.toList());
-        } else if (name != null) {
-            return userRepository.findByFirstNameContainingOrLastNameContaining(name, name)
-                    .stream()
-                    .map(UserResponseDTO::new)
-                    .collect(Collectors.toList());
-        } else if (skill != null) {
-            return userRepository.findBySkillsContaining(skill)
-                    .stream()
-                    .map(UserResponseDTO::new)
-                    .collect(Collectors.toList());
-        } else {
-            return findAll();
-        }
-    }
-
-    public UserResponseDTO findById(String id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        return new UserResponseDTO(user);
-    }
-
-    public List<UserResponseDTO> findAll() {
-        return userRepository.findAll()
-                .stream()
-                .map(UserResponseDTO::new)
-                .collect(Collectors.toList());
-    }
-
-    public UserResponseDTO register(UserRequestDTO dto) {
-        if (userRepository.existsByUsername(dto.getUsername())) {
-            throw new RuntimeException("Username already exists");
+        if (userOpt.isEmpty()) {
+            throw new UserNotFoundException();
         }
         
-        if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new RuntimeException("Email already exists");
+        User user = userOpt.get();
+        if (!user.getPassword().equals(password)) {
+            throw new InvalidCredentialsException();
         }
         
-        User user = new User();
-        user.setUsername(dto.getUsername());
-        user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword()); // Storing plain text as requested
-        user.setFirstName(dto.getFirstName());
-        user.setLastName(dto.getLastName());
-        // Set other fields as needed
-        
-        user = userRepository.save(user);
-        return new UserResponseDTO(user);
+        return user;
+    }
+
+    // Add these methods for your UserService class
+    public List<User> findBySkillsContaining(String skill) {
+        return userRepository.findBySkillsContaining(skill);
+    }
+
+    public List<User> findByFirstNameContainingOrLastNameContaining(String firstName, String lastName) {
+        return userRepository.findByFirstNameContainingOrLastNameContaining(firstName, lastName);
+    }
+
+    public List<User> findByFirstNameContainingOrLastNameContainingAndSkillsContaining(
+            String firstName, String lastName, String skill) {
+        return userRepository.findByFirstNameContainingOrLastNameContainingAndSkillsContaining(firstName, lastName,
+                skill);
     }
 }
