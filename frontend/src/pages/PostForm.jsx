@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 
-const PostForm = ({ onPostSubmit }) => {
+const PostForm = ({ onPostSubmit = () => {} }) => {
     const [content, setContent] = useState("");
     const [media, setMedia] = useState(null);
-    const [visibility, setVisibility] = useState("anyone"); // Default: Anyone
+    const [visibility, setVisibility] = useState("anyone");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const formData = new FormData();
         formData.append("content", content);
-        formData.append("visibility", visibility); // Adding visibility to the formData
+        formData.append("visibility", visibility);
         if (media) {
             formData.append("media", media);
         }
@@ -24,9 +24,10 @@ const PostForm = ({ onPostSubmit }) => {
             const data = await res.json();
 
             if (res.ok) {
-                onPostSubmit(data);
+                onPostSubmit(data); // will not crash even if not passed
                 setContent("");
                 setMedia(null);
+                setVisibility("anyone");
             } else {
                 alert("Post failed: " + (data.message || "Unknown error"));
             }
@@ -117,7 +118,7 @@ const PostForm = ({ onPostSubmit }) => {
                         marginTop: "0.5rem",
                     }}
                 >
-<option value="anyone">Anyone</option>
+                    <option value="anyone">Anyone</option>
                     <option value="friends">Friends</option>
                     <option value="onlyMe">Only Me</option>
                     <option value="custom">Custom</option>
