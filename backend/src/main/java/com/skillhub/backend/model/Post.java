@@ -14,6 +14,7 @@ public class Post {
     private String content;
     private String imageUrl;
     private String videoUrl;
+    private String visibility;
     private LocalDateTime createdAt;
 
     public Post() {
@@ -60,6 +61,14 @@ public class Post {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
+    }
+
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
     }
 
     public LocalDateTime getCreatedAt() {

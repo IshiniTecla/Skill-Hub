@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -50,7 +51,6 @@ public class PostController {
             }
         }
 
-        // Save the post with media reference to MongoDB
         return ResponseEntity.ok(postRepository.save(post));
     }
 
@@ -58,6 +58,37 @@ public class PostController {
     @GetMapping
     public ResponseEntity<List<Post>> getAllPosts() {
         return ResponseEntity.ok(postRepository.findAll());
+    }
+
+    // Get single post by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Post> getPostById(@PathVariable String id) {
+        Optional<Post> post = postRepository.findById(id);
+        return post.map(ResponseEntity::ok)
+                   .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Update a post by ID
+    @PutMapping("/{id}")
+    public ResponseEntity<Post> updatePost(@PathVariable String id, @RequestBody Post updatedPost) {
+        return postRepository.findById(id)
+                .map(existingPost -> {
+                    existingPost.setContent(updatedPost.getContent());
+                    existingPost.setVisibility(updatedPost.getVisibility());
+                    return ResponseEntity.ok(postRepository.save(existingPost));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Delete a post by ID
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable String id) {
+        if (!postRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        postRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     // Retrieve media by file ID from GridFS
@@ -69,7 +100,6 @@ public class PostController {
         if (file == null)
             return ResponseEntity.notFound().build();
 
-        // Retrieve the file as GridFsResource
         GridFsResource resource = gridFsTemplate.getResource(file);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(Objects.requireNonNull(resource.getContentType())))
