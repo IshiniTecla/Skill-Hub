@@ -31,7 +31,7 @@ public class SecurityConfig {
                                 .and()
                                 .oauth2Login(oauth -> oauth
                                                 .loginPage("http://localhost:5173/signin") // Redirect to React sign-in
-                                                .defaultSuccessUrl("http://localhost:5173/dashboard", true)
+                                                .defaultSuccessUrl("http://localhost:5173/skills/add", true)
                                                 .failureUrl("http://localhost:5173/signin?error=true"))
                                 .logout(logout -> logout
                                                 .logoutSuccessUrl("http://localhost:5173/signin")

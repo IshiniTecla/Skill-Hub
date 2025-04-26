@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // add useNavigate
 import SocialLogin from "../components/SocialLogin";
 
 const SignUp = () => {
     const [form, setForm] = useState({
         firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: ""
     });
+    const navigate = useNavigate(); // <-- add this
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -29,6 +30,7 @@ const SignUp = () => {
             if (res.ok) {
                 alert("User registered successfully");
                 console.log("Response:", data);
+                navigate("/signin"); // ✅ redirect after signup success
             } else {
                 alert(data.message || "Something went wrong");
             }
@@ -75,7 +77,7 @@ const SignUp = () => {
             fontSize: "14px",
         },
         button: {
-            width: "20%",
+            width: "100%", // updated from 20% to 100%
             background: "#2563eb",
             color: "#fff",
             padding: "12px",
