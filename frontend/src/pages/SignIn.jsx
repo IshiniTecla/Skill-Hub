@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SocialLogin from "../components/SocialLogin";
 
 const SignIn = () => {
     const [form, setForm] = useState({ email: "", password: "" });
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -16,14 +17,21 @@ const SignIn = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(form),
+                credentials: "include", // In case you later send cookies
             });
 
             const data = await res.json();
+
             if (res.ok) {
                 alert("Login successful");
-                console.log("Response:", data);
+
+                // OPTIONAL: Save user info to localStorage
+                localStorage.setItem("user", JSON.stringify(data.user)); // or "data", depending on your backend
+
+                // Redirect to dashboard or skills page
+                navigate("/skill-card");
             } else {
-                alert("Invalid credentials");
+                alert(data.message || "Invalid credentials");
             }
         } catch (error) {
             console.error("Login error:", error);
