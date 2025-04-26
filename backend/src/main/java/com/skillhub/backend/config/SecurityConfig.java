@@ -19,22 +19,19 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                .csrf().disable()
+                                .csrf().disable() // Disable CSRF protection (ensure this aligns with your use case)
                                 .authorizeRequests()
-                                .requestMatchers("/api/auth/**", "/oauth2/**",
-                                                "/api/skills/**") // Match
-                                                                  // paths in
-                                                                  // your
-                                                                  // controller
-                                .permitAll() // Allow public access to these routes
-                                .anyRequest().authenticated() // Require authentication for other routes
+                                .requestMatchers("/api/auth/**", "/oauth2/**", "/api/skills/**") // Public routes
+                                .permitAll() // Allow access without authentication to these paths
+                                .anyRequest().authenticated() // All other requests require authentication
                                 .and()
                                 .oauth2Login(oauth -> oauth
-                                                .loginPage("http://localhost:5173/signin") // Redirect to React sign-in
+                                                .loginPage("http://localhost:5173/signin") // React login page
                                                 .defaultSuccessUrl("http://localhost:5173/skills/add", true)
                                                 .failureUrl("http://localhost:5173/signin?error=true"))
                                 .logout(logout -> logout
-                                                .logoutSuccessUrl("http://localhost:5173/signin")
+                                                .logoutSuccessUrl("http://localhost:5173/signin") // Redirect after
+                                                                                                  // logout
                                                 .permitAll())
                                 .cors(); // Enable CORS globally
 
@@ -43,12 +40,12 @@ public class SecurityConfig {
 
         @Bean
         public UserDetailsService userDetailsService() {
-                return new UserDetailsServiceImpl();
+                return new UserDetailsServiceImpl(); // Custom UserDetailsService for authentication
         }
 
         @Bean
         public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
+                return new BCryptPasswordEncoder(); // Password encoder for hashing passwords
         }
 
         @Bean
@@ -56,8 +53,8 @@ public class SecurityConfig {
                 AuthenticationManagerBuilder authenticationManagerBuilder = http
                                 .getSharedObject(AuthenticationManagerBuilder.class);
                 authenticationManagerBuilder
-                                .userDetailsService(userDetailsService())
-                                .passwordEncoder(passwordEncoder());
+                                .userDetailsService(userDetailsService()) // Inject custom user details service
+                                .passwordEncoder(passwordEncoder()); // Use BCrypt for password hashing
                 return authenticationManagerBuilder.build();
         }
 }
