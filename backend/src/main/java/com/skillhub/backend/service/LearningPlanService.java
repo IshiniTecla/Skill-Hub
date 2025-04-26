@@ -2,45 +2,53 @@ package com.skillhub.backend.service;
 
 import com.skillhub.backend.model.LearningPlan;
 import com.skillhub.backend.repository.LearningPlanRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LearningPlanService {
 
-    private final LearningPlanRepo repository;
+    @Autowired
+    private LearningPlanRepo repository;
 
-    public LearningPlanService(LearningPlanRepo repository) {
-        this.repository = repository;
+    // CREATE - Save a new Learning Plan
+    public LearningPlan createPlan(LearningPlan plan) {
+        return repository.save(plan);
     }
 
+    // READ - Get all Learning Plans
     public List<LearningPlan> getAllPlans() {
         return repository.findAll();
     }
 
-    public LearningPlan getPlan(String id) {
-        return repository.findById(id).orElse(null);
+    // READ - Get a single Learning Plan by ID
+    public Optional<LearningPlan> getPlanById(String id) {
+        return repository.findById(id);
     }
 
-    public LearningPlan createPlan(LearningPlan plan) {
-        plan.setCreatedAt(LocalDateTime.now());
-        plan.setUpdatedAt(LocalDateTime.now());
-        return repository.save(plan);
-    }
-
+    // UPDATE - Update an existing Learning Plan by ID
     public LearningPlan updatePlan(String id, LearningPlan updatedPlan) {
-        LearningPlan plan = repository.findById(id).orElse(null);
-        if (plan == null) return null;
-
-        plan.setTitle(updatedPlan.getTitle());
-        plan.setDescription(updatedPlan.getDescription());
-        plan.setUpdatedAt(LocalDateTime.now());
-        return repository.save(plan);
+        Optional<LearningPlan> existingPlan = repository.findById(id);
+        if (existingPlan.isPresent()) {
+            LearningPlan plan = existingPlan.get();
+            plan.setTitle(updatedPlan.getTitle());
+            plan.setDescription(updatedPlan.getDescription());
+            plan.setAuthor(updatedPlan.getAuthor());
+            plan.setProgress(updatedPlan.getProgress());
+            return repository.save(plan);  // Save updated plan
+        }
+        return null;  // If plan not found, return null or handle as needed
     }
 
-    public void deletePlan(String id) {
-        repository.deleteById(id);
+    // DELETE - Delete a Learning Plan by ID
+    public boolean deletePlan(String id) {
+        Optional<LearningPlan> plan = repository.findById(id);
+        if (plan.isPresent()) {
+            repository.deleteById(id);  // Delete the plan
+            return true;  // Return true if deleted successfully
+        }
+        return false;  // Return false if plan not found
     }
 }
