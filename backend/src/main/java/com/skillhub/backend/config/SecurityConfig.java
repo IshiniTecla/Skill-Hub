@@ -11,6 +11,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -19,21 +22,20 @@ public class SecurityConfig {
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                .csrf().disable() // Disable CSRF protection (ensure this aligns with your use case)
+                                .cors().and() // Ensure CORS is enabled first
+                                .csrf().disable()
                                 .authorizeRequests()
-                                .requestMatchers("/api/auth/**", "/oauth2/**", "/api/skills/**") // Public routes
-                                .permitAll() // Allow access without authentication to these paths
-                                .anyRequest().authenticated() // All other requests require authentication
+                                .requestMatchers("/api/auth/**", "/oauth2/**", "/api/skills/**")
+                                .permitAll()
+                                .anyRequest().authenticated()
                                 .and()
                                 .oauth2Login(oauth -> oauth
-                                                .loginPage("http://localhost:5173/signin") // React login page
-                                                .defaultSuccessUrl("http://localhost:5173/skills/add", true)
+                                                .loginPage("http://localhost:5173/signin")
+                                                .defaultSuccessUrl("http://localhost:5173/skill-card", true)
                                                 .failureUrl("http://localhost:5173/signin?error=true"))
                                 .logout(logout -> logout
-                                                .logoutSuccessUrl("http://localhost:5173/signin") // Redirect after
-                                                                                                  // logout
-                                                .permitAll())
-                                .cors(); // Enable CORS globally
+                                                .logoutSuccessUrl("http://localhost:5173/signin")
+                                                .permitAll());
 
                 return http.build();
         }
@@ -56,5 +58,17 @@ public class SecurityConfig {
                                 .userDetailsService(userDetailsService()) // Inject custom user details service
                                 .passwordEncoder(passwordEncoder()); // Use BCrypt for password hashing
                 return authenticationManagerBuilder.build();
+        }
+
+        @Bean
+        public CorsFilter corsFilter() {
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowCredentials(true);
+                config.addAllowedOrigin("http://localhost:5173"); // React frontend URL
+                config.addAllowedHeader("*"); // Allow any headers
+                config.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, etc.)
+                source.registerCorsConfiguration("/**", config); // Apply this to all endpoints
+                return new CorsFilter(source);
         }
 }
