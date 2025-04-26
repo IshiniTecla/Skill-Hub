@@ -3,6 +3,7 @@ import React, { useState } from "react";
 const PostForm = ({ onPostSubmit }) => {
     const [content, setContent] = useState("");
     const [media, setMedia] = useState(null);
+    const [previewURL, setPreviewURL] = useState(null);
     const [visibility, setVisibility] = useState("anyone");
 
     const handleSubmit = async (e) => {
@@ -27,6 +28,7 @@ const PostForm = ({ onPostSubmit }) => {
                 onPostSubmit(); // Notify parent to refresh post feed
                 setContent("");
                 setMedia(null);
+                setPreviewURL(null);
                 setVisibility("anyone");
             } else {
                 alert("Post failed: " + (data.message || "Unknown error"));
@@ -38,7 +40,30 @@ const PostForm = ({ onPostSubmit }) => {
     };
 
     const handleMediaChange = (e) => {
-        setMedia(e.target.files[0]);
+        const file = e.target.files[0];
+        setMedia(file);
+        if (file) {
+            setPreviewURL(URL.createObjectURL(file));
+        } else {
+            setPreviewURL(null);
+        }
+    };
+
+    const renderPreview = () => {
+        if (!previewURL) return null;
+
+        if (media.type.startsWith("image/")) {
+            return <img src={previewURL} alt="Preview" style={{ maxWidth: "100%", borderRadius: "10px" }} />;
+        } else if (media.type.startsWith("video/")) {
+            return (
+                <video controls style={{ maxWidth: "100%", borderRadius: "10px" }}>
+                    <source src={previewURL} type={media.type} />
+                    Your browser does not support the video tag.
+                </video>
+            );
+        } else {
+            return <p>Unsupported file type.</p>;
+        }
     };
 
     return (
@@ -86,6 +111,10 @@ const PostForm = ({ onPostSubmit }) => {
                     border: "1px solid #ccc",
                 }}
             />
+
+            {/* File Preview */}
+            {renderPreview()}
+
             <select
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value)}
