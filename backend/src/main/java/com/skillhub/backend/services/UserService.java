@@ -1,136 +1,77 @@
 package com.skillhub.backend.services;
 
-import com.skillhub.backend.exceptions.InvalidCredentialsException;
-import com.skillhub.backend.exceptions.UserAlreadyExistsException;
-import com.skillhub.backend.exceptions.UserNotFoundException;
+
 import com.skillhub.backend.models.User;
-import com.skillhub.backend.repositories.UserRepository;
+import com.skillhub.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    // CREATE
-    public User createUser(User user) {
-        // Check if user already exists
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new UserAlreadyExistsException("email");
+    public User registerUser(User user) {
+        if (userRepository.existsByUsername(user.getUsername()) || userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("Username or email already exists");
         }
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new UserAlreadyExistsException("username");
-        }
-
         return userRepository.save(user);
-    }
-
-    // READ
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
     }
 
     public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
 
-    public Optional<User> getUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    // UPDATE
-    public User updateUser(String id, User userDetails) {
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User updateProfile(String id, User updatedUser) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException());
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Check if email is being changed and if it's already in use
-        if (userDetails.getEmail() != null && !user.getEmail().equals(userDetails.getEmail()) &&
-                userRepository.existsByEmail(userDetails.getEmail())) {
-            throw new UserAlreadyExistsException("email");
-        }
-
-        // Check if username is being changed and if it's already in use
-        if (userDetails.getUsername() != null && !user.getUsername().equals(userDetails.getUsername()) &&
-                userRepository.existsByUsername(userDetails.getUsername())) {
-            throw new UserAlreadyExistsException("username");
-        }
-
-        // Update user fields
-        if (userDetails.getUsername() != null)
-            user.setUsername(userDetails.getUsername());
-        if (userDetails.getEmail() != null)
-            user.setEmail(userDetails.getEmail());
-        if (userDetails.getPassword() != null)
-            user.setPassword(userDetails.getPassword());
-        if (userDetails.getFirstName() != null)
-            user.setFirstName(userDetails.getFirstName());
-        if (userDetails.getLastName() != null)
-            user.setLastName(userDetails.getLastName());
-        if (userDetails.getBio() != null)
-            user.setBio(userDetails.getBio());
-        if (userDetails.getProfileImage() != null)
-            user.setProfileImage(userDetails.getProfileImage());
-        if (userDetails.getPhoneNumber() != null)
-            user.setPhoneNumber(userDetails.getPhoneNumber());
-        user.setPrivateProfile(userDetails.isPrivateProfile());
-
-        if (userDetails.getSkills() != null)
-            user.setSkills(userDetails.getSkills());
-        if (userDetails.getFollowing() != null)
-            user.setFollowing(userDetails.getFollowing());
-        if (userDetails.getFollowers() != null)
-            user.setFollowers(userDetails.getFollowers());
-        if (userDetails.getPendingFollowRequests() != null)
-            user.setPendingFollowRequests(userDetails.getPendingFollowRequests());
+        user.setFirstName(updatedUser.getFirstName());
+        user.setLastName(updatedUser.getLastName());
+        user.setBio(updatedUser.getBio());
+        user.setProfileImage(updatedUser.getProfileImage());
+        user.setPhoneNumber(updatedUser.getPhoneNumber());
+        user.setPrivateProfile(updatedUser.isPrivateProfile());
 
         return userRepository.save(user);
     }
 
-    // DELETE
     public void deleteUser(String id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException();
-        }
         userRepository.deleteById(id);
     }
 
-    // Authentication
-    public User authenticate(String email, String password) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        
-        if (userOpt.isEmpty()) {
-            throw new UserNotFoundException();
+    public User followUser(String followerId, String followeeId) {
+        User follower = userRepository.findById(followerId).orElseThrow(() -> new RuntimeException("Follower not found"));
+        User followee = userRepository.findById(followeeId).orElseThrow(() -> new RuntimeException("User to follow not found"));
+
+        if (!follower.getFollowing().contains(followeeId)) {
+            follower.getFollowing().add(followeeId);
+            followee.getFollowers().add(followerId);
+            userRepository.save(followee);
         }
-        
-        User user = userOpt.get();
-        if (!user.getPassword().equals(password)) {
-            throw new InvalidCredentialsException();
-        }
-        
-        return user;
+
+        return userRepository.save(follower);
     }
 
-    // Add these methods for your UserService class
-    public List<User> findBySkillsContaining(String skill) {
-        return userRepository.findBySkillsContaining(skill);
-    }
+    public User unfollowUser(String followerId, String followeeId) {
+        User follower = userRepository.findById(followerId).orElseThrow(() -> new RuntimeException("Follower not found"));
+        User followee = userRepository.findById(followeeId).orElseThrow(() -> new RuntimeException("User to unfollow not found"));
 
-    public List<User> findByFirstNameContainingOrLastNameContaining(String firstName, String lastName) {
-        return userRepository.findByFirstNameContainingOrLastNameContaining(firstName, lastName);
-    }
+        follower.getFollowing().remove(followeeId);
+        followee.getFollowers().remove(followerId);
 
-    public List<User> findByFirstNameContainingOrLastNameContainingAndSkillsContaining(
-            String firstName, String lastName, String skill) {
-        return userRepository.findByFirstNameContainingOrLastNameContainingAndSkillsContaining(firstName, lastName,
-                skill);
+        userRepository.save(followee);
+        return userRepository.save(follower);
     }
 }

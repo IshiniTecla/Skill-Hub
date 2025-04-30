@@ -1,5 +1,5 @@
 package com.skillhub.backend.config;
 
-public class SecurityConfig {
+public class JwtFilter {
     
 }
