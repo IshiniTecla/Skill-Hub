@@ -15,24 +15,26 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "users" )
+@Document(collection = "users")
 public class User {
+
     @Id
-     private String id;
+    private String id;
 
     private String username;
     private String email;
-
-    private String password; 
+    private String password;
 
     private String firstName;
     private String lastName;
     private String bio;
     private String profileImage;
     private String phoneNumber;
-    private boolean privateProfile;
+    private String profilePic;
 
+    @Builder.Default
     private Set<String> followers = new HashSet<>();
+
+    @Builder.Default
     private Set<String> following = new HashSet<>();
-    
 }
