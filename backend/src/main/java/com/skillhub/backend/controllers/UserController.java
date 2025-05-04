@@ -1,114 +1,92 @@
 package com.skillhub.backend.controllers;
 
+import com.skillhub.backend.models.User;
+import com.skillhub.backend.services.UserService;
+import com.skillhub.backend.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.skillhub.backend.models.User;
-import com.skillhub.backend.repository.UserRepository;
-
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*") // Allow frontend to access this endpoint
+@CrossOrigin(origins = "*") // Allow frontend to access APIs
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
-    // CREATE
-    @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User saved = userRepository.save(user);
-        return ResponseEntity.ok(saved);
+    // Register new user
+    @PostMapping("/register")
+    public ResponseEntity<User> registerUser(@RequestBody User user) {
+        User createdUser = userService.registerUser(user);
+        return ResponseEntity.ok(createdUser);
     }
 
-    // READ - Get All
+    // Login
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody User loginRequest) {
+        User user = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
+        if (user != null) {
+            String token = JwtUtils.generateToken(user.getEmail());  // Generate JWT token
+            return ResponseEntity.ok(token);  // Return token
+        } else {
+            return ResponseEntity.status(401).body("Invalid credentials");
+        }
+    }
+
+    // Get all users (Requires Authentication)
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    // READ - Get by ID
+    // Get user by ID
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable String id) {
-        Optional<User> user = userRepository.findById(id);
-        return user.map(ResponseEntity::ok)
+        return userService.getUserById(id)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // UPDATE
+    // Update user
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User updatedUser) {
-        return userRepository.findById(id).map(existing -> {
-            existing.setUsername(updatedUser.getUsername());
-            existing.setEmail(updatedUser.getEmail());
-            existing.setFirstName(updatedUser.getFirstName());
-            existing.setLastName(updatedUser.getLastName());
-            existing.setBio(updatedUser.getBio());
-            existing.setProfileImage(updatedUser.getProfileImage());
-            existing.setPhoneNumber(updatedUser.getPhoneNumber());
-            existing.setPrivateProfile(updatedUser.isPrivateProfile());
-            return ResponseEntity.ok(userRepository.save(existing));
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User user) {
+        User updatedUser = userService.updateUser(id, user);
+        if (updatedUser != null) {
+            return ResponseEntity.ok(updatedUser);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // DELETE
+    // Delete user
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
-    // Follow a user
-    @PutMapping("/{userId}/follow/{targetId}")
-    public ResponseEntity<?> followUser(@PathVariable String userId, @PathVariable String targetId) {
-        if (userId.equals(targetId)) {
-            return ResponseEntity.badRequest().body("You cannot follow yourself.");
+    // Follow another user
+    @PostMapping("/{userId}/follow/{targetUserId}")
+    public ResponseEntity<User> followUser(@PathVariable String userId, @PathVariable String targetUserId) {
+        User user = userService.followUser(userId, targetUserId);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.badRequest().build();
         }
-
-        Optional<User> userOpt = userRepository.findById(userId);
-        Optional<User> targetOpt = userRepository.findById(targetId);
-
-        if (userOpt.isPresent() && targetOpt.isPresent()) {
-            User user = userOpt.get();
-            User target = targetOpt.get();
-
-            user.getFollowing().add(targetId);
-            target.getFollowers().add(userId);
-
-            userRepository.save(user);
-            userRepository.save(target);
-
-            return ResponseEntity.ok("User followed successfully.");
-        }
-        return ResponseEntity.notFound().build();
     }
 
     // Unfollow a user
-    @PutMapping("/{userId}/unfollow/{targetId}")
-    public ResponseEntity<?> unfollowUser(@PathVariable String userId, @PathVariable String targetId) {
-        Optional<User> userOpt = userRepository.findById(userId);
-        Optional<User> targetOpt = userRepository.findById(targetId);
-
-        if (userOpt.isPresent() && targetOpt.isPresent()) {
-            User user = userOpt.get();
-            User target = targetOpt.get();
-
-            user.getFollowing().remove(targetId);
-            target.getFollowers().remove(userId);
-
-            userRepository.save(user);
-            userRepository.save(target);
-
-            return ResponseEntity.ok("User unfollowed successfully.");
+    @PostMapping("/{userId}/unfollow/{targetUserId}")
+    public ResponseEntity<User> unfollowUser(@PathVariable String userId, @PathVariable String targetUserId) {
+        User user = userService.unfollowUser(userId, targetUserId);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.notFound().build();
     }
-
 }
