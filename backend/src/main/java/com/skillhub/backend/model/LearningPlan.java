@@ -3,18 +3,23 @@ package com.skillhub.backend.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
-@Document(collection = "learning_plans") 
+@Document(collection = "learning_plans")
 public class LearningPlan {
     @Id
     private String id;
 
-    private String title;         
-    private String description;   
-    private String author;        
-    private String progress;      
+    private String title;
+    private String description;
+    private String author;
+    private String authorNote;
+    private String courseCategory;
+    private String courseType;
+    private String thumbnail;
 
-    // Getters and Setters for all attributes
+    // Default constructor (required by Spring)
+    public LearningPlan() {
+    }
+
     public String getId() {
         return id;
     }
@@ -47,11 +52,35 @@ public class LearningPlan {
         this.author = author;
     }
 
-    public String getProgress() {
-        return progress;
+    public String getAuthorNote() {
+        return authorNote;
     }
 
-    public void setProgress(String progress) {
-        this.progress = progress;
+    public void setAuthorNote(String authorNote) {
+        this.authorNote = authorNote;
+    }
+
+    public String getCourseCategory() {
+        return courseCategory;
+    }
+
+    public void setCourseCategory(String courseCategory) {
+        this.courseCategory = courseCategory;
+    }
+
+    public String getCourseType() {
+        return courseType;
+    }
+
+    public void setCourseType(String courseType) {
+        this.courseType = courseType;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

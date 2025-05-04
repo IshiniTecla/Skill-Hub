@@ -36,19 +36,22 @@ public class LearningPlanService {
             plan.setTitle(updatedPlan.getTitle());
             plan.setDescription(updatedPlan.getDescription());
             plan.setAuthor(updatedPlan.getAuthor());
-            plan.setProgress(updatedPlan.getProgress());
-            return repository.save(plan);  // Save updated plan
+            plan.setAuthorNote(updatedPlan.getAuthorNote());
+            plan.setCourseCategory(updatedPlan.getCourseCategory());
+            plan.setCourseType(updatedPlan.getCourseType());
+            plan.setThumbnail(updatedPlan.getThumbnail());
+            return repository.save(plan);   // Save updated plan
         }
-        return null;  // If plan not found, return null or handle as needed
+        return null;   // If plan not found, return null or handle as needed
     }
 
     // DELETE - Delete a Learning Plan by ID
     public boolean deletePlan(String id) {
         Optional<LearningPlan> plan = repository.findById(id);
         if (plan.isPresent()) {
-            repository.deleteById(id);  // Delete the plan
-            return true;  // Return true if deleted successfully
+            repository.deleteById(id);   // Delete the plan
+            return true;   // Return true if deleted successfully
         }
-        return false;  // Return false if plan not found
+        return false;   // Return false if plan not found
     }
 }

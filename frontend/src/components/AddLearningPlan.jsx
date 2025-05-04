@@ -1,27 +1,39 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import "./style.css";
 
 const AddLearningPlan = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [author, setAuthor] = useState('');
-  const [progress, setProgress] = useState(''); 
+  const [authorNote, setAuthorNote] = useState('');
+  const [courseCategory, setCourseCategory] = useState('');
+  const [courseType, setCourseType] = useState('');
+  const [thumbnail, setThumbnail] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const apiUrl = 'http://localhost:8080/api/plans'; 
+  const apiUrl = 'http://localhost:8080/api/learning-plans'; // Adjust the API endpoint as needed
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Check if any field is empty
-    if (!title || !description || !author || !progress) {
+    if (!title || !description || !author || !authorNote || !courseCategory || !courseType || !thumbnail) {
       setError('Please fill in all fields.');
       setSuccessMessage('');
       return;
     }
 
     try {
-      const newPlan = { title, description, author, progress };
+      const newPlan = {
+        title, 
+        description, 
+        author, 
+        authorNote, 
+        courseCategory, 
+        courseType, 
+        thumbnail
+      };
       const response = await axios.post(apiUrl, newPlan);
       console.log('Learning plan added successfully:', response.data);
       setError('');
@@ -30,7 +42,10 @@ const AddLearningPlan = () => {
       setTitle('');
       setDescription('');
       setAuthor('');
-      setProgress('');
+      setAuthorNote('');
+      setCourseCategory('');
+      setCourseType('');
+      setThumbnail('');
     } catch (err) {
       console.error('Error adding learning plan:', err);
       setError('Error adding learning plan. Please try again.');
@@ -49,54 +64,83 @@ const AddLearningPlan = () => {
       <h1>Add Learning Plan</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="title">Title:</label>
+          <label htmlFor="title">Plan Title:</label>
           <input
             type="text"
             id="title"
             value={title}
             onChange={handleFieldChange(setTitle)}
-            placeholder="Enter title"
+            placeholder="Enter plan title"
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="description">Description:</label>
+          <label htmlFor="description">Plan Description:</label>
           <input
             type="text"
             id="description"
             value={description}
             onChange={handleFieldChange(setDescription)}
-            placeholder="Enter description"
+            placeholder="Enter plan description"
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="author">Author:</label>
+          <label htmlFor="author">Creator:</label>
           <input
             type="text"
             id="author"
             value={author}
             onChange={handleFieldChange(setAuthor)}
-            placeholder="Enter author"
+            placeholder="Enter creator's name"
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="progress">Progress:</label>
-          <select
-            id="progress"
-            value={progress}
-            onChange={handleFieldChange(setProgress)}
-          >
-            <option value="">Select progress</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Complete">Complete</option>
-            <option value="Not Started">Not Started</option>
-            <option value="On Hold">On Hold</option>
-          </select>
+          <label htmlFor="authorNote">Author Note:</label>
+          <input
+            type="text"
+            id="authorNote"
+            value={authorNote}
+            onChange={handleFieldChange(setAuthorNote)}
+            placeholder="Enter author's note"
+          />
         </div>
 
-        <button type="submit" disabled={!title || !description || !author || !progress}>
+        <div className="form-group">
+          <label htmlFor="courseCategory">Course Category:</label>
+          <input
+            type="text"
+            id="courseCategory"
+            value={courseCategory}
+            onChange={handleFieldChange(setCourseCategory)}
+            placeholder="Enter course category"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="courseType">Course Type:</label>
+          <input
+            type="text"
+            id="courseType"
+            value={courseType}
+            onChange={handleFieldChange(setCourseType)}
+            placeholder="Enter course type"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="thumbnail">Thumbnail URL:</label>
+          <input
+            type="text"
+            id="thumbnail"
+            value={thumbnail}
+            onChange={handleFieldChange(setThumbnail)}
+            placeholder="Enter thumbnail URL"
+          />
+        </div>
+
+        <button type="submit" disabled={!title || !description || !author || !authorNote || !courseCategory || !courseType || !thumbnail}>
           Add Plan
         </button>
       </form>
