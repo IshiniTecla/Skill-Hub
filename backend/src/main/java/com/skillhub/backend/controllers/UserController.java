@@ -1,92 +1,143 @@
 package com.skillhub.backend.controllers;
 
+import com.skillhub.backend.dto.LoginRequest;
+import com.skillhub.backend.dto.LoginResponse;
+import com.skillhub.backend.dto.UserDto;
 import com.skillhub.backend.models.User;
 import com.skillhub.backend.services.UserService;
 import com.skillhub.backend.utils.JwtUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*") // Allow frontend to access APIs
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final JwtUtils jwtUtils;
+
+    public UserController(UserService userService, JwtUtils jwtUtils) {
+        this.userService = userService;
+        this.jwtUtils = jwtUtils;
+    }
 
     // Register new user
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody User user) {
-        User createdUser = userService.registerUser(user);
-        return ResponseEntity.ok(createdUser);
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+        try {
+            User createdUser = userService.registerUser(userDto);
+            return ResponseEntity.ok(createdUser);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     // Login
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody User loginRequest) {
-        User user = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
-        if (user != null) {
-            String token = JwtUtils.generateToken(user.getEmail());  // Generate JWT token
-            return ResponseEntity.ok(token);  // Return token
-        } else {
-            return ResponseEntity.status(401).body("Invalid credentials");
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
+        try {
+            User user = userService.loginUser(loginRequest.getEmail(), loginRequest.getPassword());
+            String token = jwtUtils.generateToken(user.getEmail());
+            LoginResponse response = new LoginResponse(token, user);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid credentials"));
         }
     }
 
-    // Get all users (Requires Authentication)
+
+    // Get all users
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
     // Get user by ID
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
+    public ResponseEntity<Object> getUserById(@PathVariable String id) {
         return userService.getUserById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .<ResponseEntity<Object>>map(user -> ResponseEntity.ok(user))
+                .orElseGet(() -> ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "User not found")));
+    }
+
+    // Get current user profile
+    @GetMapping("/profile")
+    public ResponseEntity<Object> getCurrentUserProfile(@RequestHeader("Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            String jwt = token.substring(7);
+            String email = jwtUtils.getEmailFromToken(jwt);
+            return userService.getUserByEmail(email)
+                    .<ResponseEntity<Object>>map(user -> ResponseEntity.ok(user))
+                    .orElseGet(() -> ResponseEntity
+                            .status(HttpStatus.NOT_FOUND)
+                            .body(Map.of("error", "User not found")));
+        }
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Invalid or missing token"));
     }
 
     // Update user
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User user) {
-        User updatedUser = userService.updateUser(id, user);
-        if (updatedUser != null) {
+    public ResponseEntity<?> updateUser(@PathVariable String id, @RequestBody UserDto userDto) {
+        try {
+            User updatedUser = userService.updateUser(id, userDto);
             return ResponseEntity.ok(updatedUser);
-        } else {
-            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
     // Delete user
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteUser(@PathVariable String id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     // Follow another user
     @PostMapping("/{userId}/follow/{targetUserId}")
-    public ResponseEntity<User> followUser(@PathVariable String userId, @PathVariable String targetUserId) {
-        User user = userService.followUser(userId, targetUserId);
-        if (user != null) {
+    public ResponseEntity<?> followUser(@PathVariable String userId, @PathVariable String targetUserId) {
+        try {
+            User user = userService.followUser(userId, targetUserId);
             return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
     // Unfollow a user
     @PostMapping("/{userId}/unfollow/{targetUserId}")
-    public ResponseEntity<User> unfollowUser(@PathVariable String userId, @PathVariable String targetUserId) {
-        User user = userService.unfollowUser(userId, targetUserId);
-        if (user != null) {
+    public ResponseEntity<?> unfollowUser(@PathVariable String userId, @PathVariable String targetUserId) {
+        try {
+            User user = userService.unfollowUser(userId, targetUserId);
             return ResponseEntity.ok(user);
-        } else {
-            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 }
