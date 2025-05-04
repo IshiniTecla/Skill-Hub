@@ -7,16 +7,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.HashSet;
 import java.util.Set;
 
-@Document(collection = "groups")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Document(collection = "groups")
 public class Group {
     @Id
     private String id;
+
     private String name;
     private String description;
-    private String createdByUserId;
-    private String groupImage;
+    private String ownerId;
+
+    @Builder.Default
     private Set<String> members = new HashSet<>();
 }
