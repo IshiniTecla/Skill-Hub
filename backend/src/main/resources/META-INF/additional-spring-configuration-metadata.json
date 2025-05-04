@@ -8,5 +8,30 @@
     "name": "jwt.expiration",
     "type": "java.lang.String",
     "description": "A description for 'jwt.expiration'"
+  },
+  {
+    "name": "spring.mvc.cors.allowed-origins",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.mvc.cors.allowed-origins'"
+  },
+  {
+    "name": "spring.mvc.cors.allowed-methods",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.mvc.cors.allowed-methods'"
+  },
+  {
+    "name": "spring.mvc.cors.allow-credentials",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.mvc.cors.allow-credentials'"
+  },
+  {
+    "name": "spring.mvc.cors.max-age",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.mvc.cors.max-age'"
+  },
+  {
+    "name": "spring.mvc.cors.allowed-headers",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.mvc.cors.allowed-headers'"
   }
 ]}
