@@ -1,19 +1,18 @@
 package com.skillhub.backend.services;
 
-
 import com.skillhub.backend.models.Group;
 import com.skillhub.backend.repository.GroupRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class GroupService {
 
-    private final GroupRepository groupRepository;
+    @Autowired
+    private GroupRepository groupRepository;
 
     public Group createGroup(Group group) {
         return groupRepository.save(group);
@@ -27,14 +26,19 @@ public class GroupService {
         return groupRepository.findById(id);
     }
 
+    public List<Group> getGroupsByOwner(String ownerId) {
+        return groupRepository.findByOwnerId(ownerId);
+    }
+
     public Group updateGroup(String id, Group updatedGroup) {
-        return groupRepository.findById(id)
-                .map(group -> {
-                    group.setName(updatedGroup.getName());
-                    group.setDescription(updatedGroup.getDescription());
-                    group.setGroupImage(updatedGroup.getGroupImage());
-                    return groupRepository.save(group);
-                }).orElseThrow(() -> new RuntimeException("Group not found"));
+        Optional<Group> optionalGroup = groupRepository.findById(id);
+        if (optionalGroup.isPresent()) {
+            Group group = optionalGroup.get();
+            group.setName(updatedGroup.getName());
+            group.setDescription(updatedGroup.getDescription());
+            return groupRepository.save(group);
+        }
+        return null;
     }
 
     public void deleteGroup(String id) {
@@ -42,9 +46,22 @@ public class GroupService {
     }
 
     public Group joinGroup(String groupId, String userId) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group not found"));
-        group.getMembers().add(userId);
-        return groupRepository.save(group);
+        Optional<Group> optionalGroup = groupRepository.findById(groupId);
+        if (optionalGroup.isPresent()) {
+            Group group = optionalGroup.get();
+            group.getMembers().add(userId);
+            return groupRepository.save(group);
+        }
+        return null;
+    }
+
+    public Group leaveGroup(String groupId, String userId) {
+        Optional<Group> optionalGroup = groupRepository.findById(groupId);
+        if (optionalGroup.isPresent()) {
+            Group group = optionalGroup.get();
+            group.getMembers().remove(userId);
+            return groupRepository.save(group);
+        }
+        return null;
     }
 }
