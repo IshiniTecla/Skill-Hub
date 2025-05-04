@@ -1,10 +1,8 @@
 package com.skillhub.backend.controllers;
 
-
 import com.skillhub.backend.models.Group;
 import com.skillhub.backend.services.GroupService;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,12 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/groups")
-@RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class GroupController {
 
-    private final GroupService groupService;
+    @Autowired
+    private GroupService groupService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<Group> createGroup(@RequestBody Group group) {
         return ResponseEntity.ok(groupService.createGroup(group));
     }
@@ -34,19 +33,27 @@ public class GroupController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/{groupId}/join/{userId}")
+    public ResponseEntity<Group> joinGroup(@PathVariable String groupId, @PathVariable String userId) {
+        Group updated = groupService.joinGroup(groupId, userId);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+    }
+
+    @PutMapping("/{groupId}/leave/{userId}")
+    public ResponseEntity<Group> leaveGroup(@PathVariable String groupId, @PathVariable String userId) {
+        Group updated = groupService.leaveGroup(groupId, userId);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Group> updateGroup(@PathVariable String id, @RequestBody Group updatedGroup) {
-        return ResponseEntity.ok(groupService.updateGroup(id, updatedGroup));
+        Group updated = groupService.updateGroup(id, updatedGroup);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable String id) {
         groupService.deleteGroup(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/{id}/join")
-    public ResponseEntity<Group> joinGroup(@PathVariable String id, @RequestParam String userId) {
-        return ResponseEntity.ok(groupService.joinGroup(id, userId));
+        return ResponseEntity.ok().build();
     }
 }
