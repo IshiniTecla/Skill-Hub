@@ -3,8 +3,6 @@ package com.skillhub.backend.services;
 import com.skillhub.backend.dto.UserDto;
 import com.skillhub.backend.models.User;
 import com.skillhub.backend.repository.UserRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,26 +16,26 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
+    // Constructor injection without @Autowired (Spring injects it automatically)
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     public User registerUser(UserDto userDto) {
-        // Check if email already exists
         if (userRepository.findByEmail(userDto.getEmail()).size() > 0) {
             throw new RuntimeException("Email already in use");
         }
-        
-        // Create user from DTO
+
         User user = User.builder()
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
-                .password(passwordEncoder.encode(userDto.getPassword())) // Encode password
+                .password(passwordEncoder.encode(userDto.getPassword()))
                 .bio(userDto.getBio())
+                .firstName(userDto.getFirstName())
+                .lastName(userDto.getLastName())
                 .build();
-        
+
         try {
             return userRepository.save(user);
         } catch (DuplicateKeyException e) {
@@ -47,16 +45,15 @@ public class UserService {
 
     public User loginUser(String email, String password) {
         List<User> users = userRepository.findByEmail(email);
-        
         if (users.isEmpty()) {
             throw new RuntimeException("User not found");
         }
-        
+
         User user = users.get(0);
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
-        
+
         return user;
     }
 
@@ -67,7 +64,7 @@ public class UserService {
     public Optional<User> getUserById(String id) {
         return userRepository.findById(id);
     }
-    
+
     public Optional<User> getUserByEmail(String email) {
         List<User> users = userRepository.findByEmail(email);
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
@@ -75,20 +72,19 @@ public class UserService {
 
     public User updateUser(String id, UserDto userDto) {
         return userRepository.findById(id)
-            .map(existingUser -> {
-                if (userDto.getUsername() != null) {
-                    existingUser.setUsername(userDto.getUsername());
-                }
-                if (userDto.getBio() != null) {
-                    existingUser.setBio(userDto.getBio());
-                }
-                if (userDto.getPassword() != null) {
-                    existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
-                }
-                // Email cannot be changed
-                return userRepository.save(existingUser);
-            })
-            .orElseThrow(() -> new RuntimeException("User not found"));
+                .map(existingUser -> {
+                    if (userDto.getUsername() != null) {
+                        existingUser.setUsername(userDto.getUsername());
+                    }
+                    if (userDto.getBio() != null) {
+                        existingUser.setBio(userDto.getBio());
+                    }
+                    if (userDto.getPassword() != null) {
+                        existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+                    }
+                    return userRepository.save(existingUser);
+                })
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public void deleteUser(String id) {
@@ -102,12 +98,12 @@ public class UserService {
         if (userId.equals(targetUserId)) {
             throw new RuntimeException("Users cannot follow themselves");
         }
-        
+
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-            
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         User targetUser = userRepository.findById(targetUserId)
-            .orElseThrow(() -> new RuntimeException("Target user not found"));
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
 
         if (user.getFollowing().contains(targetUserId)) {
             throw new RuntimeException("Already following this user");
@@ -122,10 +118,10 @@ public class UserService {
 
     public User unfollowUser(String userId, String targetUserId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-            
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         User targetUser = userRepository.findById(targetUserId)
-            .orElseThrow(() -> new RuntimeException("Target user not found"));
+                .orElseThrow(() -> new RuntimeException("Target user not found"));
 
         if (!user.getFollowing().contains(targetUserId)) {
             throw new RuntimeException("Not following this user");
