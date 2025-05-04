@@ -1,31 +1,28 @@
 package com.skillhub.backend.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import com.skillhub.backend.models.GroupMessage;
-import com.skillhub.backend.repository.GroupMessageRepository;
+import com.skillhub.backend.services.GroupMessageService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/groupMessages")
+@RequestMapping("/api/group-messages")
+@CrossOrigin
 public class GroupMessageController {
 
     @Autowired
-    private GroupMessageRepository messageRepository;
+    private GroupMessageService groupMessageService;
 
-    @PostMapping
-    public ResponseEntity<GroupMessage> sendMessage(@RequestBody GroupMessage message) {
-        GroupMessage savedMessage = messageRepository.save(message);
-        return ResponseEntity.ok(savedMessage);
+    @PostMapping("/send")
+    public GroupMessage sendMessage(@RequestBody GroupMessage message) {
+        return groupMessageService.sendMessage(message);
     }
 
-    @GetMapping("/{groupId}")
-    public ResponseEntity<List<GroupMessage>> getMessages(@PathVariable String groupId) {
-        List<GroupMessage> messages = messageRepository.findByGroupIdOrderByCreatedAtAsc(groupId);
-        return ResponseEntity.ok(messages);
+    @GetMapping("/group/{groupId}")
+    public List<GroupMessage> getMessagesByGroup(@PathVariable String groupId) {
+        return groupMessageService.getMessagesByGroup(groupId);
     }
 }
-
