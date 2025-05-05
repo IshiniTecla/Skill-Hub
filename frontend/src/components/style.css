@@ -1,32 +1,32 @@
 /* General container styling */
 .container {
   display: flex;
-  justify-content: center; /* Center the form horizontally */
-  align-items: center; /* Center the form vertically */
-  min-height: 100vh; /* Full height of the viewport */
-  background-color: #f4f6f9; /* Light background for a clean look */
-  margin: 0;
-  padding: 0;
+  justify-content: center; /* Centers the form horizontally */
+  align-items: center; /* Centers the form vertically */
+  min-height: 100vh; /* Takes the full height of the screen */
+  background-color: #f9f9f9; /* Light background for contrast */
+  margin-left: 500px; /* Removed large margin, now centered */
+  padding: 20px 50px; /* Adjusted padding */
+  box-sizing: border-box;
 }
 
 /* Form container styling */
 .form-container {
   width: 100%;
-  max-width: 500px; /* Form width limit for better readability */
-  background-color: #ffffff; /* White background for the form */
-  padding: 40px; /* Adequate padding inside the form */
+  max-width: 600px; /* Form width limit */
+  background-color: #ffffff; /* White background */
+  padding: 40px; /* Padding inside the form */
   border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-  text-align: left; /* Align text to the left */
-  margin: 0 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  text-align: left;
 }
 
 /* Heading styling */
 h1 {
-  font-size: 32px; /* Large heading */
+  font-size: 32px; /* Larger, more prominent heading */
   font-weight: 600;
-  color: #2c3e50; /* Dark text for contrast */
-  margin-bottom: 20px;
+  color: #1E90FF; /* Blue color */
+  margin-bottom: 20px; /* Reduced space below the title */
   text-align: center; /* Center the heading */
 }
 
@@ -34,60 +34,77 @@ h1 {
 form {
   display: flex;
   flex-direction: column;
-  gap: 18px; /* Space between form fields */
+  gap: 25px; /* Increased space between form elements */
 }
 
 /* Label styling */
 label {
   font-size: 16px;
   font-weight: 500;
-  color: #333; /* Darker label color for better readability */
-  margin-bottom: 8px;
+  color: #333;
+  margin-bottom: 6px;
 }
 
 /* Input and select field styling */
 input,
-select {
-  padding: 15px;
+select,
+textarea {
+  padding: 14px;
   font-size: 16px;
-  border: 1px solid #ddd; /* Light border */
-  border-radius: 8px; /* Rounded corners for input fields */
+  border: 1px solid #ddd;
+  border-radius: 6px;
   width: 100%;
-  background-color: #f7f7f7; /* Slightly grey background for input fields */
-  transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for focus */
+  background-color: #f7f7f7;
+  transition: background-color 0.3s, border-color 0.3s;
+  box-sizing: border-box;
+  color: black; /* Ensure text is black by default */
 }
 
-/* Focused input and select fields */
+/* Textarea specific styling (for description) */
+textarea {
+  height: 150px; /* Increased height for better visibility */
+  resize: vertical; /* Allow vertical resizing */
+}
+
+/* Focused input, select, and textarea fields */
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
   outline: none;
-  border-color: #3498db; /* Blue border when focused */
-  background-color: #ecf6ff; /* Light blue background on focus */
+  border-color: #1E90FF; /* Blue border on focus */
+  background-color: #eaf1fd; /* Light blue background on focus */
+  color: black; /* Text should remain black when focused */
 }
 
 /* Button styling */
 button {
-  padding: 15px;
-  background-color: #3498db; /* Blue background for the button */
-  color: #ffffff; /* White text */
+  padding: 14px;
+  background-color: #194d82; /* Blue button background */
+  color: #ffffff;
   font-size: 16px;
   font-weight: 600;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
+  width: 100%; /* Full width button */
   transition: background-color 0.3s ease-in-out;
-  width: 100%; /* Full-width button */
-  margin-top: 20px;
 }
 
 /* Button hover effect */
 button:hover {
-  background-color: #2980b9; /* Darker blue on hover */
+  background-color: #4682B4; /* Darker blue on hover */
+}
+
+/* File input styling (for thumbnail image) */
+input[type="file"] {
+  padding: 10px;
+  background-color: #f7f7f7;
+  cursor: pointer;
 }
 
 /* Error message styling */
 .error {
-  color: #e74c3c; /* Red color for error messages */
+  color: red;
   font-size: 14px;
   font-weight: 500;
   margin-top: 10px;
@@ -96,7 +113,7 @@ button:hover {
 
 /* Success message styling */
 .success-message {
-  color: #2ecc71; /* Green color for success messages */
+  color: green;
   font-size: 14px;
   font-weight: 500;
   margin-top: 10px;
