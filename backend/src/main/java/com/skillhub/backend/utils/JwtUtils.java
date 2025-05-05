@@ -1,11 +1,7 @@
 package com.skillhub.backend.utils;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.JwtParser;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,12 +17,11 @@ public class JwtUtils {
 
     @Value("${jwt.expiration:86400000}")
     private long jwtExpiration;
-    
+
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    // Generate token
     public String generateToken(String email) {
         return Jwts.builder()
                 .subject(email)
@@ -36,7 +31,6 @@ public class JwtUtils {
                 .compact();
     }
 
-    // Validate token
     public boolean validateToken(String token) {
         try {
             getParser().parseSignedClaims(token);
@@ -46,29 +40,24 @@ public class JwtUtils {
         }
     }
 
-    // Extract email (subject) from token
     public String getEmailFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
-    
-    // Extract expiration date from token
+
     public Date getExpirationDateFromToken(String token) {
         return getClaimFromToken(token, Claims::getExpiration);
     }
-    
-    // Check if token is expired
+
     public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
 
-    // Generic method to extract claims
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getParser().parseSignedClaims(token).getPayload();
         return claimsResolver.apply(claims);
     }
 
-    // Shared parser using proper SecretKey
     private JwtParser getParser() {
         return Jwts.parser()
                 .verifyWith(getSigningKey())
