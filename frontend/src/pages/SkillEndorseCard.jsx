@@ -6,6 +6,7 @@ const SkillEndorseCard = () => {
 
     useEffect(() => {
         fetchSkills();
+        fetchEndorsements();
     }, []);
 
     const fetchSkills = async () => {
@@ -18,6 +19,18 @@ const SkillEndorseCard = () => {
         }
     };
 
+    const fetchEndorsements = async () => {
+        try {
+            const res = await fetch("http://localhost:8080/api/user/endorsements", {
+                credentials: "include",
+            });
+            const data = await res.json();
+            setEndorsedSkills(data.map((endorsement) => endorsement.skillId));
+        } catch (err) {
+            console.error("Failed to fetch endorsements", err);
+        }
+    };
+
     const handleEndorse = async (skillId) => {
         try {
             const res = await fetch(`http://localhost:8080/api/skills/${skillId}/endorse`, {
@@ -27,15 +40,40 @@ const SkillEndorseCard = () => {
 
             if (!res.ok) throw new Error("Failed to endorse");
 
-            const updatedSkill = await res.json();
+            // Instead of waiting for backend response, manually update
             setSkills((prev) =>
-                prev.map((s) => (s.id === skillId ? updatedSkill : s))
+                prev.map((s) =>
+                    s.id === skillId ? { ...s, endorsements: (s.endorsements || 0) + 1 } : s
+                )
             );
+
             setEndorsedSkills((prev) => [...prev, skillId]);
         } catch (err) {
             alert("Could not endorse the skill.");
         }
     };
+
+    const handleDeleteEndorsement = async (skillId) => {
+        try {
+            const res = await fetch(`http://localhost:8080/api/skills/${skillId}/endorse`, {
+                method: "DELETE",
+                credentials: "include",
+            });
+
+            if (!res.ok) throw new Error("Failed to remove endorsement");
+
+            setSkills((prev) =>
+                prev.map((s) =>
+                    s.id === skillId ? { ...s, endorsements: Math.max(0, (s.endorsements || 1) - 1) } : s
+                )
+            );
+
+            setEndorsedSkills((prev) => prev.filter((id) => id !== skillId));
+        } catch (err) {
+            alert("Could not delete the endorsement.");
+        }
+    };
+
 
     return (
         <div style={cardStyle}>
@@ -54,24 +92,36 @@ const SkillEndorseCard = () => {
                             )}
                             <div style={skillTextGroup}>
                                 <span style={skillNameStyle}>{skill.name}</span>
-                                <span style={skillSourceStyle}>
-                                    {skill.source || "Endorsed by community"}
+
+                                {/* 🆕 Endorsement Count */}
+                                <span style={endorsementCountStyle}>
+                                    🧑‍🤝‍🧑 {skill.endorsements || 0} Endorsement{skill.endorsements !== 1 ? "s" : ""}
                                 </span>
                             </div>
                         </div>
 
-                        <button
-                            style={{
-                                ...endorseBtn,
-                                backgroundColor: endorsedSkills.includes(skill.id)
-                                    ? "#28a745"
-                                    : "#0073b1",
-                            }}
-                            onClick={() => handleEndorse(skill.id)}
-                            disabled={endorsedSkills.includes(skill.id)}
-                        >
-                            {endorsedSkills.includes(skill.id) ? "Endorsed ✅" : "Endorse"}
-                        </button>
+                        {/* Button to endorse or remove endorsement */}
+                        {endorsedSkills.includes(skill.id) ? (
+                            <button
+                                style={{
+                                    ...endorseBtn,
+                                    backgroundColor: "#28a745",
+                                }}
+                                onClick={() => handleDeleteEndorsement(skill.id)}
+                            >
+                                Remove Endorsement
+                            </button>
+                        ) : (
+                            <button
+                                style={{
+                                    ...endorseBtn,
+                                    backgroundColor: "#0073b1",
+                                }}
+                                onClick={() => handleEndorse(skill.id)}
+                            >
+                                Endorse
+                            </button>
+                        )}
                     </div>
                 ))
             )}
@@ -138,10 +188,10 @@ const skillNameStyle = {
     color: "#333",
 };
 
-const skillSourceStyle = {
+const endorsementCountStyle = {
     fontSize: "0.85rem",
     color: "#777",
-    marginTop: "0.2rem",
+    marginTop: "4px",
 };
 
 const endorseBtn = {

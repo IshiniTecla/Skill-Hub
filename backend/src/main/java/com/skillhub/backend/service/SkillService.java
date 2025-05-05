@@ -4,7 +4,6 @@ import com.skillhub.backend.model.Skill;
 import com.skillhub.backend.repository.SkillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +42,15 @@ public class SkillService {
         Skill skill = skillRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Skill not found"));
         skill.setEndorsementCount(skill.getEndorsementCount() + 1);
+        return skillRepository.save(skill);
+    }
+
+    public Skill removeEndorsement(String id) {
+        Skill skill = skillRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Skill not found"));
+
+        int currentCount = skill.getEndorsementCount(); // <- Correct getter
+        skill.setEndorsementCount(Math.max(0, currentCount - 1)); // <- Correct setter
         return skillRepository.save(skill);
     }
 
