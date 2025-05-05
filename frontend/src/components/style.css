@@ -1,90 +1,94 @@
 /* General container styling */
 .container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 60vh;
-  background-color: #f9f9f9;
-  padding: 50px;
+  justify-content: center; /* Center the form horizontally */
+  align-items: center; /* Center the form vertically */
+  min-height: 100vh; /* Full height of the viewport */
+  background-color: #f4f6f9; /* Light background for a clean look */
+  margin: 0;
+  padding: 0;
 }
 
 /* Form container styling */
-.container .max-w-2xl {
+.form-container {
   width: 100%;
-  max-width: 600px;
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  text-align: center;
+  max-width: 500px; /* Form width limit for better readability */
+  background-color: #ffffff; /* White background for the form */
+  padding: 40px; /* Adequate padding inside the form */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  text-align: left; /* Align text to the left */
+  margin: 0 20px;
 }
 
 /* Heading styling */
 h1 {
-  font-size: 10px; /* Adjusted for a more balanced size */
+  font-size: 32px; /* Large heading */
   font-weight: 600;
-  color: #007BFF; /* Blue color */
+  color: #2c3e50; /* Dark text for contrast */
   margin-bottom: 20px;
+  text-align: center; /* Center the heading */
 }
 
 /* Form styling */
 form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-top: 20px;
+  gap: 18px; /* Space between form fields */
 }
 
 /* Label styling */
 label {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
-  color: black; /* Blue color */
-  margin-bottom: 5px;
-  text-align: left;
+  color: #333; /* Darker label color for better readability */
+  margin-bottom: 8px;
 }
 
 /* Input and select field styling */
 input,
 select {
-  padding: 12px;
-  font-size: 14px;
-  border: 1px solid #a897c8;
-  border-radius: 5px;
+  padding: 15px;
+  font-size: 16px;
+  border: 1px solid #ddd; /* Light border */
+  border-radius: 8px; /* Rounded corners for input fields */
   width: 100%;
-  background-color: #f2f2f2;
-  transition: background-color 0.3s;
+  background-color: #f7f7f7; /* Slightly grey background for input fields */
+  transition: background-color 0.3s, border-color 0.3s; /* Smooth transition for focus */
 }
 
+/* Focused input and select fields */
 input:focus,
 select:focus {
   outline: none;
-  border-color: #007BFF;
-  background-color: #9daab6;
+  border-color: #3498db; /* Blue border when focused */
+  background-color: #ecf6ff; /* Light blue background on focus */
 }
 
 /* Button styling */
 button {
-  padding: 12px;
-  background-color: #5a87b8; /* Blue color */
-  color: #007BFF;
+  padding: 15px;
+  background-color: #3498db; /* Blue background for the button */
+  color: #ffffff; /* White text */
   font-size: 16px;
   font-weight: 600;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
+  cursor: pointer;
   transition: background-color 0.3s ease-in-out;
+  width: 100%; /* Full-width button */
   margin-top: 20px;
 }
 
-
+/* Button hover effect */
 button:hover {
-  background-color: #0056b3;
+  background-color: #2980b9; /* Darker blue on hover */
 }
 
 /* Error message styling */
 .error {
-  color: red;
-  font-size: 12px;
+  color: #e74c3c; /* Red color for error messages */
+  font-size: 14px;
   font-weight: 500;
   margin-top: 10px;
   text-align: left;
@@ -92,7 +96,7 @@ button:hover {
 
 /* Success message styling */
 .success-message {
-  color: green;
+  color: #2ecc71; /* Green color for success messages */
   font-size: 14px;
   font-weight: 500;
   margin-top: 10px;
