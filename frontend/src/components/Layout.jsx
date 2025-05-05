@@ -13,15 +13,62 @@ import {
   Film, 
   Bookmark, 
   Settings,
-  LogOut
+  LogOut,
+  Users
 } from 'lucide-react';
 import '../css/layout.css';
+import axios from 'axios';
 
 const Layout = ({ children }) => {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [profileData, setProfileData] = useState({
+    profilePicture: null,
+    username: '',
+    firstName: '',
+    lastName: ''
+  });
+
+  // Fetch user profile data from Spring Boot backend
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (currentUser && currentUser.id) {
+        try {
+          // Get user profile data
+          const userResponse = await axios.get(`/api/users/${currentUser.id}`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          
+          if (userResponse.data) {
+            const userData = userResponse.data;
+            
+            // Set basic profile info
+            setProfileData({
+              profilePicture: `/api/users/${currentUser.id}/profile-image?${new Date().getTime()}`, // Add timestamp to prevent caching and fixed the path with a leading slash
+              username: userData.username || 'User',
+              firstName: userData.firstName || '',
+              lastName: userData.lastName || ''
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching profile data:", error);
+          // Set default profile data on error
+          setProfileData({
+            profilePicture: null,
+            username: currentUser.username || 'User',
+            firstName: currentUser.firstName || '',
+            lastName: currentUser.lastName || ''
+          });
+        }
+      }
+    };
+    
+    fetchProfileData();
+  }, [currentUser]);
 
   const handleLogout = () => {
     logout();
@@ -49,12 +96,14 @@ const Layout = ({ children }) => {
     };
   }, [showMobileMenu]);
 
+  // Updated navigation items with Groups after Messages
   const navItems = [
     { path: '/feed', icon: Home, label: 'Feed' },
     { path: '/search', icon: Search, label: 'Search' },
     { path: '/explore', icon: Compass, label: 'Explore' },
     { path: '/reels', icon: Film, label: 'Reels' },
     { path: '/messages', icon: MessageCircle, label: 'Messages' },
+    { path: '/groups', icon: Users, label: 'Groups' },
     { path: '/notifications', icon: Heart, label: 'Notifications' },
     { path: '/create', icon: PlusSquare, label: 'Create' },
     { path: '/profile', icon: User, label: 'Profile' }
@@ -130,22 +179,26 @@ const Layout = ({ children }) => {
           <div className="user-profile">
             <Link to="/profile" className="profile-link">
               <div className="avatar-container">
-                {currentUser.profilePicture ? (
+                {profileData.profilePicture ? (
                   <img 
-                    src={currentUser.profilePicture} 
-                    alt={`${currentUser.username}'s profile`}
+                    src={profileData.profilePicture} 
+                    alt={`${profileData.username}'s profile`}
                     className="avatar-image"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/default-avatar.png'; // Fallback to default avatar with leading slash
+                    }}
                   />
                 ) : (
                   <div className="avatar-placeholder">
-                    {currentUser.firstName && currentUser.firstName[0].toUpperCase()}
+                    {profileData.firstName && profileData.firstName[0].toUpperCase()}
                   </div>
                 )}
               </div>
               <div className="user-info">
-                <p className="username">{currentUser.username}</p>
+                <p className="username">{profileData.username}</p>
                 <p className="user-fullname">
-                  {currentUser.firstName} {currentUser.lastName}
+                  {profileData.firstName} {profileData.lastName}
                 </p>
               </div>
             </Link>
@@ -178,6 +231,9 @@ const Layout = ({ children }) => {
           <Link to="/messages" className="mobile-icon-button">
             <MessageCircle size={22} />
           </Link>
+          <Link to="/groups" className="mobile-icon-button">
+            <Users size={22} />
+          </Link>
           <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="mobile-icon-button">
             {showMobileMenu ? (
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -203,22 +259,26 @@ const Layout = ({ children }) => {
               {currentUser && (
                 <Link to="/profile" className="profile-link" onClick={() => setShowMobileMenu(false)}>
                   <div className="avatar-container">
-                    {currentUser.profilePicture ? (
+                    {profileData.profilePicture ? (
                       <img 
-                        src={currentUser.profilePicture} 
-                        alt={`${currentUser.username}'s profile`}
+                        src={profileData.profilePicture} 
+                        alt={`${profileData.username}'s profile`}
                         className="avatar-image"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/default-avatar.png'; // Fallback to default avatar with leading slash
+                        }}
                       />
                     ) : (
                       <div className="avatar-placeholder">
-                        {currentUser.firstName && currentUser.firstName[0].toUpperCase()}
+                        {profileData.firstName && profileData.firstName[0].toUpperCase()}
                       </div>
                     )}
                   </div>
                   <div className="user-info">
-                    <p className="username">{currentUser.username}</p>
+                    <p className="username">{profileData.username}</p>
                     <p className="user-fullname">
-                      {currentUser.firstName} {currentUser.lastName}
+                      {profileData.firstName} {profileData.lastName}
                     </p>
                   </div>
                 </Link>
@@ -269,16 +329,26 @@ const Layout = ({ children }) => {
 
       {/* Mobile Bottom Navigation */}
       <div className="mobile-bottom-nav">
-        {navItems.slice(0, 5).map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`bottom-nav-item ${isActive(item.path) ? 'bottom-nav-item-active' : ''}`}
-          >
-            <item.icon className="bottom-nav-icon" size={22} />
-            <span className="bottom-nav-label">{item.label}</span>
-          </Link>
-        ))}
+        <Link to="/feed" className="bottom-nav-item ${isActive('/feed') ? 'bottom-nav-item-active' : ''}">
+          <Home className="bottom-nav-icon" size={22} />
+          <span className="bottom-nav-label">Feed</span>
+        </Link>
+        <Link to="/search" className="bottom-nav-item ${isActive('/search') ? 'bottom-nav-item-active' : ''}">
+          <Search className="bottom-nav-icon" size={22} />
+          <span className="bottom-nav-label">Search</span>
+        </Link>
+        <Link to="/messages" className="bottom-nav-item ${isActive('/messages') ? 'bottom-nav-item-active' : ''}">
+          <MessageCircle className="bottom-nav-icon" size={22} />
+          <span className="bottom-nav-label">Messages</span>
+        </Link>
+        <Link to="/groups" className="bottom-nav-item ${isActive('/groups') ? 'bottom-nav-item-active' : ''}">
+          <Users className="bottom-nav-icon" size={22} />
+          <span className="bottom-nav-label">Groups</span>
+        </Link>
+        <Link to="/profile" className="bottom-nav-item ${isActive('/profile') ? 'bottom-nav-item-active' : ''}">
+          <User className="bottom-nav-icon" size={22} />
+          <span className="bottom-nav-label">Profile</span>
+        </Link>
       </div>
 
       {/* Main Content */}
