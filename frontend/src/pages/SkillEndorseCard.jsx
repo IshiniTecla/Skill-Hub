@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
+import "../css/SkillEndorseCard.css";
+
 
 const SkillEndorseCard = () => {
     const [skills, setSkills] = useState([]);
     const [endorsedSkills, setEndorsedSkills] = useState([]);
+    const [popupSkill, setPopupSkill] = useState(null);
+    const [endorsementForm, setEndorsementForm] = useState({
+        workedTogether: "Yes",
+        skillRating: "Good",
+    });
 
     useEffect(() => {
         fetchSkills();
@@ -25,31 +32,34 @@ const SkillEndorseCard = () => {
                 credentials: "include",
             });
             const data = await res.json();
-            setEndorsedSkills(data.map((endorsement) => endorsement.skillId));
+            setEndorsedSkills(data.map((e) => e.skillId));
         } catch (err) {
             console.error("Failed to fetch endorsements", err);
         }
     };
 
-    const handleEndorse = async (skillId) => {
+    const handleEndorseSubmit = async () => {
         try {
-            const res = await fetch(`http://localhost:8080/api/skills/${skillId}/endorse`, {
+            const res = await fetch(`http://localhost:8080/api/skills/${popupSkill.id}/endorse`, {
                 method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 credentials: "include",
+                body: JSON.stringify(endorsementForm),
             });
 
-            if (!res.ok) throw new Error("Failed to endorse");
+            if (!res.ok) throw new Error("Endorsement failed");
 
-            // Instead of waiting for backend response, manually update
             setSkills((prev) =>
                 prev.map((s) =>
-                    s.id === skillId ? { ...s, endorsements: (s.endorsements || 0) + 1 } : s
+                    s.id === popupSkill.id ? { ...s, endorsements: (s.endorsements || 0) + 1 } : s
                 )
             );
-
-            setEndorsedSkills((prev) => [...prev, skillId]);
+            setEndorsedSkills((prev) => [...prev, popupSkill.id]);
+            setPopupSkill(null);
         } catch (err) {
-            alert("Could not endorse the skill.");
+            alert("Failed to save endorsement.");
         }
     };
 
@@ -74,132 +84,71 @@ const SkillEndorseCard = () => {
         }
     };
 
-
     return (
-        <div style={cardStyle}>
-            <div style={headerStyle}>
-                <h3 style={titleStyle}>Skills</h3>
-            </div>
-
+        <div className="endorse-card">
+            <h2>Endorse Skills</h2>
             {skills.length === 0 ? (
-                <p style={{ textAlign: "center", color: "#999" }}>No skills available to endorse.</p>
+                <p className="empty-msg">No skills available to endorse.</p>
             ) : (
                 skills.map((skill) => (
-                    <div key={skill.id} style={skillItemStyle}>
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                            {skill.iconUrl && (
-                                <img src={skill.iconUrl} alt={skill.name} style={logoStyle} />
-                            )}
-                            <div style={skillTextGroup}>
-                                <span style={skillNameStyle}>{skill.name}</span>
-
-                                {/* 🆕 Endorsement Count */}
-                                <span style={endorsementCountStyle}>
-                                    🧑‍🤝‍🧑 {skill.endorsements || 0} Endorsement{skill.endorsements !== 1 ? "s" : ""}
-                                </span>
+                    <div className="skill-item" key={skill.id}>
+                        <div className="skill-info">
+                            {skill.iconUrl && <img src={skill.iconUrl} alt={skill.name} />}
+                            <div>
+                                <h4>{skill.name}</h4>
+                                <span>{skill.endorsements || 0} Endorsement{skill.endorsements !== 1 ? "s" : ""}</span>
                             </div>
                         </div>
-
-                        {/* Button to endorse or remove endorsement */}
-                        {endorsedSkills.includes(skill.id) ? (
-                            <button
-                                style={{
-                                    ...endorseBtn,
-                                    backgroundColor: "#28a745",
-                                }}
-                                onClick={() => handleDeleteEndorsement(skill.id)}
-                            >
-                                Remove Endorsement
-                            </button>
-                        ) : (
-                            <button
-                                style={{
-                                    ...endorseBtn,
-                                    backgroundColor: "#0073b1",
-                                }}
-                                onClick={() => handleEndorse(skill.id)}
-                            >
-                                Endorse
-                            </button>
-                        )}
+                        <div className="skill-actions">
+                            {endorsedSkills.includes(skill.id) ? (
+                                <>
+                                    <button className="btn edit" onClick={() => {
+                                        setPopupSkill(skill);
+                                        setEndorsementForm({ workedTogether: "Yes", skillRating: "Good" });
+                                    }}>Edit</button>
+                                    <button className="btn delete" onClick={() => handleDeleteEndorsement(skill.id)}>Remove</button>
+                                </>
+                            ) : (
+                                <button className="btn endorse" onClick={() => {
+                                    setPopupSkill(skill);
+                                    setEndorsementForm({ workedTogether: "Yes", skillRating: "Good" });
+                                }}>Endorse</button>
+                            )}
+                        </div>
                     </div>
                 ))
+            )}
+
+            {popupSkill && (
+                <div className="popup-overlay">
+                    <div className="popup-box">
+                        <h3>Endorse {popupSkill.name}</h3>
+                        <label>Have you worked together?</label>
+                        <select
+                            value={endorsementForm.workedTogether}
+                            onChange={(e) => setEndorsementForm({ ...endorsementForm, workedTogether: e.target.value })}
+                        >
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                        <label>Rate their skill:</label>
+                        <select
+                            value={endorsementForm.skillRating}
+                            onChange={(e) => setEndorsementForm({ ...endorsementForm, skillRating: e.target.value })}
+                        >
+                            <option value="Good">Good</option>
+                            <option value="Very Good">Very Good</option>
+                            <option value="Excellent">Excellent</option>
+                        </select>
+                        <div className="popup-actions">
+                            <button className="btn save" onClick={handleEndorseSubmit}>Save</button>
+                            <button className="btn cancel" onClick={() => setPopupSkill(null)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
 };
 
 export default SkillEndorseCard;
-
-// === Inline Styles ===
-const cardStyle = {
-    background: "#fff",
-    borderRadius: "12px",
-    padding: "1.5rem",
-    boxShadow: "0 4px 14px rgba(0, 0, 0, 0.06)",
-    maxWidth: "540px",
-    margin: "2rem auto",
-    fontFamily: "'Segoe UI', sans-serif",
-    border: "1px solid #e1e4e8",
-};
-
-const headerStyle = {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "1.5rem",
-};
-
-const titleStyle = {
-    fontSize: "1.3rem",
-    fontWeight: "600",
-    color: "#222",
-};
-
-const skillItemStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "0.8rem 1rem",
-    border: "1px solid #eee",
-    borderRadius: "8px",
-    marginBottom: "0.9rem",
-    boxShadow: "0 1px 3px rgba(0, 0, 0, 0.03)",
-    backgroundColor: "#fafafa",
-};
-
-const logoStyle = {
-    width: "40px",
-    height: "40px",
-    objectFit: "contain",
-    borderRadius: "8px",
-    marginRight: "1rem",
-    border: "1px solid #ddd",
-};
-
-const skillTextGroup = {
-    display: "flex",
-    flexDirection: "column",
-};
-
-const skillNameStyle = {
-    fontWeight: 600,
-    fontSize: "1rem",
-    color: "#333",
-};
-
-const endorsementCountStyle = {
-    fontSize: "0.85rem",
-    color: "#777",
-    marginTop: "4px",
-};
-
-const endorseBtn = {
-    border: "none",
-    padding: "0.5rem 1rem",
-    fontSize: "0.95rem",
-    borderRadius: "6px",
-    color: "#fff",
-    cursor: "pointer",
-    transition: "background 0.3s ease",
-};
