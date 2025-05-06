@@ -23,7 +23,22 @@ public class EndorsementService {
             throw new RuntimeException("You have already endorsed this skill.");
         }
 
+        // Save the new endorsement and return
         return endorsementRepository.save(endorsement);
+    }
+
+    public Endorsement updateEndorsement(Endorsement endorsement) {
+        Optional<Endorsement> existing = endorsementRepository.findById(endorsement.getId());
+        if (existing.isPresent()) {
+            Endorsement updatedEndorsement = existing.get();
+            updatedEndorsement.setWorkedTogether(endorsement.getWorkedTogether());
+            updatedEndorsement.setSkillRating(endorsement.getSkillRating());
+            // If needed, update other editable fields (but not endorserUserId,
+            // endorsedUserId, or skillId)
+            return endorsementRepository.save(updatedEndorsement);
+        } else {
+            throw new RuntimeException("Endorsement not found.");
+        }
     }
 
     public List<Endorsement> getEndorsementsForSkill(String skillId) {

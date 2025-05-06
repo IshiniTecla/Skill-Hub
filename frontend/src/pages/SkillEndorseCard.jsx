@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "../css/SkillEndorseCard.css";
 
-
 const SkillEndorseCard = () => {
     const [skills, setSkills] = useState([]);
     const [endorsedSkills, setEndorsedSkills] = useState([]);
+    const [endorsementMap, setEndorsementMap] = useState({});
     const [popupSkill, setPopupSkill] = useState(null);
     const [endorsementForm, setEndorsementForm] = useState({
         workedTogether: "Yes",
         skillRating: "Good",
     });
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         fetchSkills();
@@ -33,6 +34,12 @@ const SkillEndorseCard = () => {
             });
             const data = await res.json();
             setEndorsedSkills(data.map((e) => e.skillId));
+
+            const map = {};
+            data.forEach((e) => {
+                map[e.skillId] = e.id;
+            });
+            setEndorsementMap(map);
         } catch (err) {
             console.error("Failed to fetch endorsements", err);
         }
@@ -40,8 +47,13 @@ const SkillEndorseCard = () => {
 
     const handleEndorseSubmit = async () => {
         try {
-            const res = await fetch(`http://localhost:8080/api/skills/${popupSkill.id}/endorse`, {
-                method: "POST",
+            const method = isEditing ? "PUT" : "POST";
+            const url = isEditing
+                ? `http://localhost:8080/api/endorsements/${popupSkill.endorsementId}`
+                : `http://localhost:8080/api/skills/${popupSkill.id}/endorse`;
+
+            const res = await fetch(url, {
+                method,
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -49,15 +61,26 @@ const SkillEndorseCard = () => {
                 body: JSON.stringify(endorsementForm),
             });
 
-            if (!res.ok) throw new Error("Endorsement failed");
+            if (!res.ok) throw new Error("Failed to save endorsement");
 
-            setSkills((prev) =>
-                prev.map((s) =>
-                    s.id === popupSkill.id ? { ...s, endorsements: (s.endorsements || 0) + 1 } : s
-                )
-            );
-            setEndorsedSkills((prev) => [...prev, popupSkill.id]);
+            if (!isEditing) {
+                // Increment count for new endorsements only
+                setSkills((prev) =>
+                    prev.map((s) =>
+                        s.id === popupSkill.id
+                            ? { ...s, endorsements: (s.endorsements || 0) + 1 }
+                            : s
+                    )
+                );
+                setEndorsedSkills((prev) => [...prev, popupSkill.id]);
+            }
+
             setPopupSkill(null);
+            if (isEditing && !popupSkill.endorsementId) {
+                alert("Missing endorsement ID for editing.");
+                return;
+            }
+
         } catch (err) {
             alert("Failed to save endorsement.");
         }
@@ -74,10 +97,11 @@ const SkillEndorseCard = () => {
 
             setSkills((prev) =>
                 prev.map((s) =>
-                    s.id === skillId ? { ...s, endorsements: Math.max(0, (s.endorsements || 1) - 1) } : s
+                    s.id === skillId
+                        ? { ...s, endorsements: Math.max(0, (s.endorsements || 1) - 1) }
+                        : s
                 )
             );
-
             setEndorsedSkills((prev) => prev.filter((id) => id !== skillId));
         } catch (err) {
             alert("Could not delete the endorsement.");
@@ -96,23 +120,52 @@ const SkillEndorseCard = () => {
                             {skill.iconUrl && <img src={skill.iconUrl} alt={skill.name} />}
                             <div>
                                 <h4>{skill.name}</h4>
-                                <span>{skill.endorsements || 0} Endorsement{skill.endorsements !== 1 ? "s" : ""}</span>
+                                <span>
+                                    {skill.endorsements || 0} Endorsement
+                                    {skill.endorsements !== 1 ? "s" : ""}
+                                </span>
                             </div>
                         </div>
                         <div className="skill-actions">
                             {endorsedSkills.includes(skill.id) ? (
                                 <>
-                                    <button className="btn edit" onClick={() => {
-                                        setPopupSkill(skill);
-                                        setEndorsementForm({ workedTogether: "Yes", skillRating: "Good" });
-                                    }}>Edit</button>
-                                    <button className="btn delete" onClick={() => handleDeleteEndorsement(skill.id)}>Remove</button>
+                                    <button
+                                        className="btn edit"
+                                        onClick={() => {
+                                            setPopupSkill({
+                                                ...skill,
+                                                endorsementId: endorsementMap[skill.id],
+                                            });
+                                            setEndorsementForm({
+                                                workedTogether: "Yes",
+                                                skillRating: "Good",
+                                            });
+                                            setIsEditing(true);
+                                        }}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        className="btn delete"
+                                        onClick={() => handleDeleteEndorsement(skill.id)}
+                                    >
+                                        Remove
+                                    </button>
                                 </>
                             ) : (
-                                <button className="btn endorse" onClick={() => {
-                                    setPopupSkill(skill);
-                                    setEndorsementForm({ workedTogether: "Yes", skillRating: "Good" });
-                                }}>Endorse</button>
+                                <button
+                                    className="btn endorse"
+                                    onClick={() => {
+                                        setPopupSkill(skill);
+                                        setEndorsementForm({
+                                            workedTogether: "Yes",
+                                            skillRating: "Good",
+                                        });
+                                        setIsEditing(false);
+                                    }}
+                                >
+                                    Endorse
+                                </button>
                             )}
                         </div>
                     </div>
@@ -122,27 +175,43 @@ const SkillEndorseCard = () => {
             {popupSkill && (
                 <div className="popup-overlay">
                     <div className="popup-box">
-                        <h3>Endorse {popupSkill.name}</h3>
+                        <h3>{isEditing ? "Edit" : "Endorse"} {popupSkill.name}</h3>
                         <label>Have you worked together?</label>
                         <select
                             value={endorsementForm.workedTogether}
-                            onChange={(e) => setEndorsementForm({ ...endorsementForm, workedTogether: e.target.value })}
+                            onChange={(e) =>
+                                setEndorsementForm({
+                                    ...endorsementForm,
+                                    workedTogether: e.target.value,
+                                })
+                            }
                         >
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
                         </select>
+
                         <label>Rate their skill:</label>
                         <select
                             value={endorsementForm.skillRating}
-                            onChange={(e) => setEndorsementForm({ ...endorsementForm, skillRating: e.target.value })}
+                            onChange={(e) =>
+                                setEndorsementForm({
+                                    ...endorsementForm,
+                                    skillRating: e.target.value,
+                                })
+                            }
                         >
                             <option value="Good">Good</option>
                             <option value="Very Good">Very Good</option>
                             <option value="Excellent">Excellent</option>
                         </select>
+
                         <div className="popup-actions">
-                            <button className="btn save" onClick={handleEndorseSubmit}>Save</button>
-                            <button className="btn cancel" onClick={() => setPopupSkill(null)}>Cancel</button>
+                            <button className="btn save" onClick={handleEndorseSubmit}>
+                                Save
+                            </button>
+                            <button className="btn cancel" onClick={() => setPopupSkill(null)}>
+                                Cancel
+                            </button>
                         </div>
                     </div>
                 </div>

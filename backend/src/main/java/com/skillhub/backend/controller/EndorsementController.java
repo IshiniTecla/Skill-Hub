@@ -30,6 +30,13 @@ public class EndorsementController {
         return ResponseEntity.ok(endorsementService.getEndorsementsForUser(endorsedUserId));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Endorsement> updateEndorsement(@PathVariable String id,
+            @RequestBody Endorsement endorsement) {
+        endorsement.setId(id); // Ensure the ID is set to the correct endorsement
+        return ResponseEntity.ok(endorsementService.updateEndorsement(endorsement));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEndorsement(@PathVariable String id) {
         endorsementService.deleteEndorsement(id);
