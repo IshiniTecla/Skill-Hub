@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -87,6 +88,13 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found")));
     }
 
+    @GetMapping("/username/{username}")
+    public ResponseEntity<?> getUserByUsername(@PathVariable String username) {
+        return userService.getUserByUsername(username)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found")));
+    }
+
     @GetMapping("/profile")
     public ResponseEntity<?> getCurrentUserProfile(@RequestHeader("Authorization") String token) {
         if (token != null && token.startsWith("Bearer ")) {
@@ -131,6 +139,35 @@ public class UserController {
     public ResponseEntity<?> unfollowUser(@PathVariable String userId, @PathVariable String targetUserId) {
         try {
             return ResponseEntity.ok(userService.unfollowUser(userId, targetUserId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/{userId}/remove-follower/{followerId}")
+    public ResponseEntity<?> removeFollower(@PathVariable String userId, @PathVariable String followerId) {
+        try {
+            return ResponseEntity.ok(userService.removeFollower(userId, followerId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{userId}/followers")
+    public ResponseEntity<?> getFollowers(@PathVariable String userId) {
+        try {
+            List<User> followers = userService.getUserFollowers(userId);
+            return ResponseEntity.ok(followers);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{userId}/following")
+    public ResponseEntity<?> getFollowing(@PathVariable String userId) {
+        try {
+            List<User> following = userService.getUserFollowing(userId);
+            return ResponseEntity.ok(following);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }

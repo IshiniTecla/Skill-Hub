@@ -25,6 +25,9 @@ public class User {
 
     private byte[] profileImage;
 
+    @Builder.Default
     private Set<String> followers = new HashSet<>();
+    
+    @Builder.Default
     private Set<String> following = new HashSet<>();
 }
