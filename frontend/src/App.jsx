@@ -15,7 +15,7 @@ const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const Home = lazy(() => import('./pages/Home'));
 const Feed = lazy(() => import('./pages/Feed'));
-const Profile = lazy(() => import('./pages/Profile'));
+const Profile = lazy(() => import('./pages/profilepage'));
 const Groups = lazy(() => import('./pages/Groups'));
 const GroupCreate = lazy(() => import('./pages/GroupCreate'));
 const Messages = lazy(() => import('./pages/Messages'));
