@@ -1,46 +1,81 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 const SkillsEndorseCard = () => {
     const [skills, setSkills] = useState([]);
-    const [endorsements, setEndorsements] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchSkills();
+        fetchSkillsWithEndorsements();
     }, []);
 
-    useEffect(() => {
-        fetchEndorsementCounts();
-    }, [skills]);
-
-    const fetchSkills = async () => {
+    const fetchSkillsWithEndorsements = async () => {
         try {
             const res = await fetch("/api/skills");
-            const data = await res.json();
-            setSkills(data);
+            const skillsData = await res.json();
+
+            const skillsWithCounts = await Promise.all(
+                skillsData.map(async (skill) => {
+                    try {
+                        const res = await fetch(`/api/endorsements/skill/${skill.endorseId}`);
+                        const endorsements = await res.json();
+                        return { ...skill, endorsementCount: endorsements.length, showActions: false };
+                    } catch (err) {
+                        console.error("Failed to fetch endorsements for skill", skill.id, err);
+                        return { ...skill, endorsementCount: 0, showActions: false };
+                    }
+                })
+            );
+
+            setSkills(skillsWithCounts);
         } catch (err) {
             console.error("Failed to fetch skills", err);
         }
     };
 
-    const fetchEndorsementCounts = async () => {
+    const handleEndorse = async (skillId, index) => {
         try {
-            const newEndorsements = {};
-            for (const skill of skills) {
-                const res = await fetch(`/api/endorsements/skill/${skill.id}`);
-                const data = await res.json();
-                newEndorsements[skill.id] = data.length; // Count the endorsements for the skill
-            }
-            setEndorsements(newEndorsements);
+            const res = await fetch(`/api/endorsements`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ skillId }),
+            });
+
+            if (!res.ok) throw new Error("Failed to endorse skill");
+
+            setSkills((prevSkills) => {
+                const updatedSkills = [...prevSkills];
+                updatedSkills[index] = {
+                    ...updatedSkills[index],
+                    endorsementCount: (updatedSkills[index].endorsementCount || 0) + 1,
+                    showActions: true, // show Edit/Delete after endorsement
+                };
+                return updatedSkills;
+            });
+
+            navigate(`/endorse/${skillId}`);
         } catch (err) {
-            console.error("Failed to fetch endorsements", err);
+            console.error("Error endorsing skill:", err);
         }
     };
 
-    const handleEndorse = (skillId) => {
-        // Navigate to the endorsement form or handle inline logic
-        navigate(`/endorse/${skillId}`);
+    const handleEdit = (skillId) => {
+        navigate(`/edit-skill/${skillId}`);
+    };
+
+    const handleDelete = async (skillId) => {
+        if (!window.confirm("Are you sure you want to delete this skill?")) return;
+        try {
+            const res = await fetch(`/api/skills/${skillId}`, { method: "DELETE" });
+            if (res.ok) {
+                setSkills((prev) => prev.filter((skill) => skill.id !== skillId));
+            } else {
+                console.error("Failed to delete skill");
+            }
+        } catch (err) {
+            console.error("Error deleting skill", err);
+        }
     };
 
     return (
@@ -53,26 +88,46 @@ const SkillsEndorseCard = () => {
                 {skills.length === 0 ? (
                     <p style={{ textAlign: "center", color: "#999" }}>No skills available to endorse.</p>
                 ) : (
-                    skills.map((skill) => (
+                    skills.map((skill, index) => (
                         <div key={skill.id} style={skillItemStyle}>
                             {skill.iconUrl && (
                                 <img src={skill.iconUrl} alt={skill.name} style={logoStyle} />
                             )}
                             <div style={skillTextGroup}>
-                                <span style={skillNameStyle}>{skill.name}</span>
-                                <span style={skillSourceStyle}>{skill.source || "Endorsed by community"}</span>
-                                <div style={endorsementCountStyle}>
-                                    <span>{endorsements[skill.id] || 0} Endorsements</span>
-                                </div>
+                                <span style={skillNameStyle}>
+                                    {skill.name}{" "}
+                                    <span style={endorsementCountStyle}>
+                                        ({skill.endorsementCount || 0} endorsements)
+                                    </span>
+                                </span>
                             </div>
                             <div style={skillActions}>
                                 <button
-                                    onClick={() => handleEndorse(skill.id)}
+                                    onClick={() => handleEndorse(skill.id, index)}
                                     style={endorseBtn}
                                     title="Endorse this skill"
                                 >
                                     Endorse
                                 </button>
+
+                                {skill.showActions && (
+                                    <>
+                                        <button
+                                            onClick={() => handleEdit(skill.id)}
+                                            style={iconButton}
+                                            title="Edit skill"
+                                        >
+                                            <FaEdit size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(skill.id)}
+                                            style={iconButton}
+                                            title="Delete skill"
+                                        >
+                                            <FaTrash size={18} />
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     ))
@@ -82,7 +137,12 @@ const SkillsEndorseCard = () => {
     );
 };
 
-// Styles (same as before, with new style for endorsement count)
+const endorsementCountStyle = {
+    fontWeight: "normal",
+    fontSize: "0.85rem",
+    color: "#555",
+};
+
 const cardStyle = {
     background: "#fff",
     borderRadius: "12px",
@@ -141,18 +201,6 @@ const skillNameStyle = {
     color: "#333",
 };
 
-const skillSourceStyle = {
-    fontSize: "0.85rem",
-    color: "#777",
-    marginTop: "0.2rem",
-};
-
-const endorsementCountStyle = {
-    fontSize: "0.9rem",
-    color: "#007bff",
-    marginTop: "0.4rem",
-};
-
 const skillActions = {
     display: "flex",
     gap: "0.5rem",
@@ -167,6 +215,13 @@ const endorseBtn = {
     cursor: "pointer",
     fontSize: "0.95rem",
     fontWeight: 500,
+};
+
+const iconButton = {
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    color: "#007bff",
 };
 
 export default SkillsEndorseCard;
