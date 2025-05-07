@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 
 const ManagePost = () => {
     const [posts, setPosts] = useState([]);
@@ -113,7 +114,9 @@ const ManagePost = () => {
                                         <button
                                             onClick={() => navigate(`/edit/${post.id}`)}
                                             style={{
-                                                display: "block",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "8px",
                                                 width: "100%",
                                                 padding: "10px",
                                                 border: "none",
@@ -123,12 +126,14 @@ const ManagePost = () => {
                                                 cursor: "pointer"
                                             }}
                                         >
-                                            Update
+                                            <FaEdit /> Update
                                         </button>
                                         <button
                                             onClick={() => handleDelete(post.id)}
                                             style={{
-                                                display: "block",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "8px",
                                                 width: "100%",
                                                 padding: "10px",
                                                 border: "none",
@@ -137,7 +142,7 @@ const ManagePost = () => {
                                                 cursor: "pointer"
                                             }}
                                         >
-                                            Delete
+                                            <FaTrash /> Delete
                                         </button>
                                     </div>
                                 )}
