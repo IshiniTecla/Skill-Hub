@@ -7,6 +7,7 @@ import './App.css';
 import SkillCard from './pages/SkillCard';
 import SkillEditCard from './pages/SkillEditCard';
 import SkillEndorseCard from './pages/SkillEndorseCard';
+import EditEndorsementCard from './pages/EditEndorsementCard';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/skill-card" element={<SkillCard />} />
         <Route path="/skill-endorsecard" element={<SkillEndorseCard />} />
         <Route path="/skills/edit/:id" element={<SkillEditCard />} />
+        <Route path="/edit-endorsement/:id" element={<EditEndorsementCard />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
       </Routes>

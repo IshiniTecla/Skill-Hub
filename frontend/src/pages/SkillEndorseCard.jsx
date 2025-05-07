@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 import "../css/SkillEndorseCard.css";
 
 const SkillEndorseCard = () => {
@@ -110,7 +111,7 @@ const SkillEndorseCard = () => {
 
     return (
         <div className="endorse-card">
-            <h2>Endorse Skills</h2>
+            <h2>Skills & Endorsements</h2>
             {skills.length === 0 ? (
                 <p className="empty-msg">No skills available to endorse.</p>
             ) : (
@@ -143,13 +144,13 @@ const SkillEndorseCard = () => {
                                             setIsEditing(true);
                                         }}
                                     >
-                                        Edit
+                                        <FaEdit style={{ marginRight: "5px" }} />Edit
                                     </button>
                                     <button
                                         className="btn delete"
                                         onClick={() => handleDeleteEndorsement(skill.id)}
                                     >
-                                        Remove
+                                        <FaTrash style={{ marginRight: "5px" }} />Remove
                                     </button>
                                 </>
                             ) : (
@@ -207,10 +208,10 @@ const SkillEndorseCard = () => {
 
                         <div className="popup-actions">
                             <button className="btn save" onClick={handleEndorseSubmit}>
-                                Save
+                                <FaSave style={{ marginRight: "5px" }} /> Save
                             </button>
                             <button className="btn cancel" onClick={() => setPopupSkill(null)}>
-                                Cancel
+                                <FaTimes style={{ marginRight: "5px" }} /> Cancel
                             </button>
                         </div>
                     </div>
