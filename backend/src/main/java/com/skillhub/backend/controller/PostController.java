@@ -28,7 +28,7 @@ public class PostController {
     @Autowired
     private GridFsTemplate gridFsTemplate;
 
-    // Create post with media file
+    // Create post with optional media
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<Post> createPost(
             @RequestParam("content") String content,
@@ -38,7 +38,6 @@ public class PostController {
         post.setContent(content);
         post.setCreatedAt(LocalDateTime.now());
 
-        // Save media file to MongoDB GridFS if it exists
         if (mediaFile != null && !mediaFile.isEmpty()) {
             String fileId = gridFsTemplate
                     .store(mediaFile.getInputStream(), mediaFile.getOriginalFilename(), mediaFile.getContentType())
@@ -54,13 +53,13 @@ public class PostController {
         return ResponseEntity.ok(postRepository.save(post));
     }
 
-    // Get all posts
+    // Retrieve all posts
     @GetMapping
     public ResponseEntity<List<Post>> getAllPosts() {
         return ResponseEntity.ok(postRepository.findAll());
     }
 
-    // Get single post by ID
+    // Retrieve a specific post
     @GetMapping("/{id}")
     public ResponseEntity<Post> getPostById(@PathVariable String id) {
         Optional<Post> post = postRepository.findById(id);
@@ -68,7 +67,7 @@ public class PostController {
                    .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Update a post by ID
+    // Update a post
     @PutMapping("/{id}")
     public ResponseEntity<Post> updatePost(@PathVariable String id, @RequestBody Post updatedPost) {
         return postRepository.findById(id)
@@ -80,7 +79,7 @@ public class PostController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Delete a post by ID
+    // Delete a post
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable String id) {
         if (!postRepository.existsById(id)) {
@@ -91,7 +90,7 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    // Retrieve media by file ID from GridFS
+    // Retrieve media from GridFS
     @GetMapping("/media/{id}")
     public ResponseEntity<?> getMediaById(@PathVariable String id) throws IOException {
         GridFSFile file = gridFsTemplate.findOne(

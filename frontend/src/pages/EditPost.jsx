@@ -6,6 +6,7 @@ const EditPost = () => {
     const navigate = useNavigate();
     const [content, setContent] = useState("");
     const [visibility, setVisibility] = useState("anyone");
+    const [imageUrl, setImageUrl] = useState("");
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -17,6 +18,7 @@ const EditPost = () => {
                 const data = await res.json();
                 setContent(data.content);
                 setVisibility(data.visibility);
+                setImageUrl(data.imageUrl); // assuming your backend returns imageUrl
             } catch (err) {
                 console.error("Error fetching post:", err);
                 alert("Failed to load post for editing.");
@@ -40,7 +42,7 @@ const EditPost = () => {
 
             if (res.ok) {
                 alert("Post updated successfully!");
-                navigate("/view"); // Navigate to the view page after update
+                navigate("/view");
             } else {
                 const data = await res.json();
                 alert(`Update failed: ${data.message || "Unknown error"}`);
@@ -54,6 +56,14 @@ const EditPost = () => {
     return (
         <div style={{ maxWidth: '700px', margin: '2rem auto', padding: '1rem', backgroundColor: '#f9f9f9', borderRadius: '8px' }}>
             <h2>Edit Post</h2>
+
+            {/* Image Display */}
+            {imageUrl && (
+                <div style={{ marginBottom: '1rem' }}>
+                    <img src={imageUrl} alt="Post" style={{ width: "25%", borderRadius: "8px" }} />
+                </div>
+            )}
+
             <form onSubmit={handleSubmit}>
                 <textarea
                     value={content}

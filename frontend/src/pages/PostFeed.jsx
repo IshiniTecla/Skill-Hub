@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 const PostFeed = () => {
     const [posts, setPosts] = useState([]);
@@ -13,7 +12,7 @@ const PostFeed = () => {
                 const data = await res.json();
 
                 if (res.ok) {
-                    setPosts(data.reverse()); // reverse for newest first
+                    setPosts(data.reverse()); // newest posts first
                 } else {
                     setError("Failed to fetch posts");
                 }
@@ -38,31 +37,69 @@ const PostFeed = () => {
                 <p style={{ fontSize: "18px", textAlign: "center", color: "#777" }}>No posts found.</p>
             ) : (
                 posts.map((post) => (
-                    <div key={post.id} style={{ backgroundColor: "#fff", padding: "1rem", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)", marginBottom: "20px" }}>
-                        <h3 style={{ fontSize: "20px", color: "#333", marginBottom: "0.5rem" }}>{post.title}</h3>
-                        <p style={{ fontSize: "16px", color: "#555", marginBottom: "1rem" }}>{post.content}</p>
-                        
-                        {/* Display image or video preview */}
-                        {post.media && post.media.type.startsWith("image") && (
-                            <img src={post.media.url} alt="Post Media" style={{ width: "100%", borderRadius: "8px", marginBottom: "1rem" }} />
+                    <div
+                        key={post.id}
+                        style={{
+                            backgroundColor: "#fff",
+                            padding: "1rem",
+                            borderRadius: "8px",
+                            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                            marginBottom: "20px"
+                        }}
+                    >
+                        <p style={{ fontSize: "16px", color: "#555", marginBottom: "1rem" }}>
+                            {post.content}
+                        </p>
+
+                        {/* Show image if available */}
+                        {post.imageUrl && (
+                            <img
+                                src={`http://localhost:8080${post.imageUrl}`}
+                                alt="Post"
+                                style={{
+                                    width: "25%",
+                                    height: "auto",
+                                    objectFit: "contain",
+                                    borderRadius: "8px",
+                                    marginBottom: "1rem"
+                                }}
+                            />
                         )}
-                        {post.media && post.media.type.startsWith("video") && (
-                            <video controls style={{ width: "100%", borderRadius: "8px", marginBottom: "1rem" }}>
-                                <source src={post.media.url} type={post.media.type} />
+
+                        {/* Show video if available */}
+                        {post.videoUrl && (
+                            <video
+                                controls
+                                style={{
+                                    width: "25%",
+                                    height: "auto",
+                                    borderRadius: "8px",
+                                    marginBottom: "1rem",
+                                    objectFit: "contain"
+                                }}
+                            >
+                                <source src={`http://localhost:8080${post.videoUrl}`} type="video/mp4" />
+                                Your browser does not support the video tag.
                             </video>
                         )}
-                        
-                        <Link
-                            to={`/post/${post.id}`}
+
+                        {/* Like, Comment, Share */}
+                        <div
                             style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                gap: "1.5rem",
                                 fontSize: "16px",
                                 color: "#007bff",
-                                textDecoration: "none",
-                                fontWeight: "bold",
+                                cursor: "pointer",
+                                paddingTop: "10px",
+                                textAlign: "center"
                             }}
                         >
-                            View Post
-                        </Link>
+                            <span>👍 Like</span>
+                            <span>💬 Comment</span>
+                            <span>🔗 Share</span>
+                        </div>
                     </div>
                 ))
             )}

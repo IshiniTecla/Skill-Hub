@@ -85,7 +85,7 @@ const PostForm = ({ onPostSubmit }) => {
             <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="What's on your mind?"
+                placeholder="Title"
                 required
                 rows={4}
                 style={{

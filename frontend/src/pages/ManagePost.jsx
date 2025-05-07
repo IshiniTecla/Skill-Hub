@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 const ManagePost = () => {
     const [posts, setPosts] = useState([]);
+    const [activeMenu, setActiveMenu] = useState(null);
     const navigate = useNavigate();
 
     const fetchPosts = async () => {
@@ -33,6 +34,10 @@ const ManagePost = () => {
         }
     };
 
+    const toggleMenu = (postId) => {
+        setActiveMenu(activeMenu === postId ? null : postId);
+    };
+
     useEffect(() => {
         fetchPosts();
     }, []);
@@ -44,38 +49,118 @@ const ManagePost = () => {
                 <p>No posts found.</p>
             ) : (
                 posts.map((post) => (
-                    <div key={post.id} style={{
-                        border: "1px solid #ddd",
-                        padding: "1rem",
-                        borderRadius: "8px",
-                        marginBottom: "1rem",
-                        backgroundColor: "#f9f9f9"
-                    }}>
-                        <h3>{post.title || "Untitled Post"}</h3>
+                    <div
+                        key={post.id}
+                        style={{
+                            border: "1px solid #ddd",
+                            padding: "1rem",
+                            borderRadius: "8px",
+                            marginBottom: "1rem",
+                            backgroundColor: "#f9f9f9",
+                            position: "relative",
+                            textAlign: "center"
+                        }}
+                    >
                         <p>{post.content}</p>
 
-                        {/* Optional media */}
-                        {post.media && post.media.type.startsWith("image") && (
-                            <img src={post.media.url} alt="Post" style={{ maxWidth: "100%", marginBottom: "1rem" }} />
-                        )}
-                        {post.media && post.media.type.startsWith("video") && (
-                            <video controls style={{ maxWidth: "100%", marginBottom: "1rem" }}>
-                                <source src={post.media.url} type={post.media.type} />
-                            </video>
+                        {/* Image if available */}
+                        {post.imageUrl && (
+                            <div style={{ position: "relative", display: "inline-block" }}>
+                                <img
+                                    src={`http://localhost:8080${post.imageUrl}`}
+                                    alt="Post"
+                                    style={{
+                                        width: "25%",
+                                        height: "auto",
+                                        objectFit: "contain",
+                                        borderRadius: "8px",
+                                        margin: "1rem auto",
+                                        display: "block"
+                                    }}
+                                />
+
+                                {/* 3-dot menu button */}
+                                <button
+                                    onClick={() => toggleMenu(post.id)}
+                                    style={{
+                                        position: "absolute",
+                                        top: "10px",
+                                        right: "10px",
+                                        background: "transparent",
+                                        border: "none",
+                                        fontSize: "20px",
+                                        cursor: "pointer"
+                                    }}
+                                    title="More options"
+                                >
+                                    ⋮
+                                </button>
+
+                                {/* Menu dropdown */}
+                                {activeMenu === post.id && (
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            top: "40px",
+                                            right: "10px",
+                                            backgroundColor: "#fff",
+                                            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                                            borderRadius: "6px",
+                                            overflow: "hidden",
+                                            zIndex: 999
+                                        }}
+                                    >
+                                        <button
+                                            onClick={() => navigate(`/edit/${post.id}`)}
+                                            style={{
+                                                display: "block",
+                                                width: "100%",
+                                                padding: "10px",
+                                                border: "none",
+                                                backgroundColor: "#ffc107",
+                                                color: "#000",
+                                                borderBottom: "1px solid #ccc",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            Update
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(post.id)}
+                                            style={{
+                                                display: "block",
+                                                width: "100%",
+                                                padding: "10px",
+                                                border: "none",
+                                                backgroundColor: "#dc3545",
+                                                color: "#fff",
+                                                cursor: "pointer"
+                                            }}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         )}
 
-                        <button
-                            style={{ marginRight: "1rem", padding: "0.5rem 1rem", backgroundColor: "#ffc107", border: "none", borderRadius: "4px", cursor: "pointer" }}
-                            onClick={() => navigate(`/edit/${post.id}`)}
-                        >
-                            Update
-                        </button>
-                        <button
-                            style={{ padding: "0.5rem 1rem", backgroundColor: "#dc3545", border: "none", borderRadius: "4px", color: "#fff", cursor: "pointer" }}
-                            onClick={() => handleDelete(post.id)}
-                        >
-                            Delete
-                        </button>
+                        {/* Video if available */}
+                        {post.videoUrl && (
+                            <video
+                                controls
+                                style={{
+                                    width: "25%",
+                                    height: "auto",
+                                    borderRadius: "8px",
+                                    margin: "1rem auto",
+                                    objectFit: "contain",
+                                    display: "block"
+                                }}
+                            >
+                                <source src={`http://localhost:8080${post.videoUrl}`} type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        )}
                     </div>
                 ))
             )}
