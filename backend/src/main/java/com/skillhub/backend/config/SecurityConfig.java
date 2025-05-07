@@ -11,45 +11,72 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+        // Define CORS configuration
+        @Bean
+        public CorsConfigurationSource corsConfiguration() {
+                CorsConfiguration corsConfig = new CorsConfiguration();
+                corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // React client address
+                corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Include
+                                                                                                        // OPTIONS for
+                                                                                                        // preflight
+                corsConfig.setAllowedHeaders(Arrays.asList("*")); // Allow any headers
+                corsConfig.setAllowCredentials(true); // Allow cookies if needed
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", corsConfig);
+                return source;
+        }
+
+        // Configure Spring Security
         @Bean
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
-                                .cors().and() // Ensure CORS is enabled first
-                                .csrf().disable()
+                                .cors() // Enable CORS with the configuration defined above
+                                .and()
+                                .csrf().disable() // Disable CSRF for simplicity in this example
                                 .authorizeRequests()
                                 .requestMatchers("/api/auth/**", "/oauth2/**", "/api/skills/**")
-                                .permitAll()
-                                .anyRequest().authenticated()
+                                .permitAll() // Permit certain endpoints without authentication
+                                .anyRequest().authenticated() // Require authentication for other requests
                                 .and()
                                 .oauth2Login(oauth -> oauth
-                                                .loginPage("http://localhost:5173/signin")
-                                                .defaultSuccessUrl("http://localhost:5173/skill-card", true)
-                                                .failureUrl("http://localhost:5173/signin?error=true"))
+                                                .loginPage("http://localhost:5173/signin") // Custom login page
+                                                .defaultSuccessUrl("http://localhost:5173/skill-card", true) // Redirect
+                                                                                                             // on
+                                                                                                             // successful
+                                                                                                             // login
+                                                .failureUrl("http://localhost:5173/signin?error=true")) // Redirect on
+                                                                                                        // failure
                                 .logout(logout -> logout
-                                                .logoutSuccessUrl("http://localhost:5173/signin")
+                                                .logoutSuccessUrl("http://localhost:5173/signin") // Redirect to signin
+                                                                                                  // on logout
                                                 .permitAll());
 
                 return http.build();
         }
 
+        // UserDetailsService bean
         @Bean
         public UserDetailsService userDetailsService() {
                 return new UserDetailsServiceImpl(); // Custom UserDetailsService for authentication
         }
 
+        // Password Encoder bean
         @Bean
         public PasswordEncoder passwordEncoder() {
                 return new BCryptPasswordEncoder(); // Password encoder for hashing passwords
         }
 
+        // AuthenticationManager bean
         @Bean
         public AuthenticationManager authManager(HttpSecurity http) throws Exception {
                 AuthenticationManagerBuilder authenticationManagerBuilder = http
@@ -58,17 +85,5 @@ public class SecurityConfig {
                                 .userDetailsService(userDetailsService()) // Inject custom user details service
                                 .passwordEncoder(passwordEncoder()); // Use BCrypt for password hashing
                 return authenticationManagerBuilder.build();
-        }
-
-        @Bean
-        public CorsFilter corsFilter() {
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowCredentials(true);
-                config.addAllowedOrigin("http://localhost:5173"); // React frontend URL
-                config.addAllowedHeader("*"); // Allow any headers
-                config.addAllowedMethod("*"); // Allow all HTTP methods (GET, POST, etc.)
-                source.registerCorsConfiguration("/**", config); // Apply this to all endpoints
-                return new CorsFilter(source);
         }
 }

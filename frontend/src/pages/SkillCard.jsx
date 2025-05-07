@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const SkillCard = () => {
     const [skills, setSkills] = useState([]);
@@ -20,6 +21,29 @@ const SkillCard = () => {
         }
     };
 
+    const handleDelete = async (id) => {
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "You won’t be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await fetch(`http://localhost:8080/api/skills/${id}`, {
+                    method: "DELETE",
+                });
+                fetchSkills(); // Refresh the list
+                Swal.fire("Deleted!", "The skill has been deleted.", "success");
+            } catch (err) {
+                Swal.fire("Error!", "Failed to delete skill.", "error");
+            }
+        }
+    };
 
     return (
         <div style={cardStyle}>
@@ -50,6 +74,15 @@ const SkillCard = () => {
                                     style={smallBtn}
                                     title="Edit Skill"
                                 ><FaEdit /></button>
+
+                                <button
+                                    onClick={() => handleDelete(skill.id)}
+                                    style={smallBtn}
+                                    title="Delete Skill"
+                                >
+                                    <FaTrash />
+                                </button>
+
 
                             </div>
                         </div>
@@ -152,5 +185,6 @@ const smallBtn = {
     padding: "0.2rem",
     color: "#555",
 };
+
 
 export default SkillCard;

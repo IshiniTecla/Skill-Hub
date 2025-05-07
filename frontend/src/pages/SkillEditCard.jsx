@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaSave, FaTrash, FaArrowLeft } from "react-icons/fa";
+import { FaSave, FaArrowLeft } from "react-icons/fa";
 
 const SkillEditCard = () => {
     const { id } = useParams();
@@ -37,17 +37,6 @@ const SkillEditCard = () => {
         }
     };
 
-    const handleDelete = async () => {
-        if (!window.confirm("Are you sure you want to delete this skill?")) return;
-        try {
-            await fetch(`http://localhost:8080/api/skills/${id}`, {
-                method: "DELETE",
-            });
-            navigate("/skill-card");
-        } catch (err) {
-            alert("Failed to delete skill");
-        }
-    };
 
     if (!skill) return <p>Loading...</p>;
 
@@ -71,9 +60,7 @@ const SkillEditCard = () => {
                 <button onClick={handleUpdate} disabled={loading} style={updateBtn}>
                     <FaSave /> {loading ? "Updating..." : "Update"}
                 </button>
-                <button onClick={handleDelete} style={deleteBtn}>
-                    <FaTrash /> Delete
-                </button>
+
             </div>
         </div>
     );
@@ -136,18 +123,6 @@ const btnGroup = {
 
 const updateBtn = {
     backgroundColor: "#0073b1",
-    color: "#fff",
-    padding: "0.7rem 1.2rem",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.5rem",
-};
-
-const deleteBtn = {
-    backgroundColor: "#dc3545",
     color: "#fff",
     padding: "0.7rem 1.2rem",
     border: "none",

@@ -19,7 +19,7 @@ function App() {
         <Route path="/skill-card" element={<SkillCard />} />
         <Route path="/skill-endorsecard" element={<SkillEndorseCard />} />
         <Route path="/skills/edit/:id" element={<SkillEditCard />} />
-        <Route path="/edit-endorsement/:id" element={<EditEndorsementCard />} />
+        <Route path="/edit-endorsement/:skilId" element={<EditEndorsementCard />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
       </Routes>

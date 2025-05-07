@@ -1,6 +1,8 @@
+// src/pages/SkillEndorseCard.jsx
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import "../css/SkillEndorseCard.css";
+import EditEndorsementCard from "./EditEndorsementCard";
 
 const SkillEndorseCard = () => {
     const [skills, setSkills] = useState([]);
@@ -34,57 +36,118 @@ const SkillEndorseCard = () => {
                 credentials: "include",
             });
             const data = await res.json();
-            setEndorsedSkills(data.map((e) => e.skillId));
 
             const map = {};
             data.forEach((e) => {
-                map[e.skillId] = e.id;
+                map[e.skillId] = {
+                    id: e.id,
+                    workedTogether: e.workedTogether,
+                    skillRating: e.skillRating,
+                };
             });
+
+            setEndorsedSkills(data.map((e) => e.skillId));
             setEndorsementMap(map);
         } catch (err) {
             console.error("Failed to fetch endorsements", err);
         }
     };
 
-    const handleEndorseSubmit = async () => {
-        try {
-            const method = isEditing ? "PUT" : "POST";
-            const url = isEditing
-                ? `http://localhost:8080/api/endorsements/${popupSkill.endorsementId}`
-                : `http://localhost:8080/api/skills/${popupSkill.id}/endorse`;
+    const handleEndorseClick = (skill) => {
+        setPopupSkill(skill);
+        setEndorsementForm({
+            workedTogether: "Yes",
+            skillRating: "Good",
+        });
+        setIsEditing(false);
+    };
 
-            const res = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify(endorsementForm),
+    const handleEditClick = (skill) => {
+        const saved = endorsementMap[skill.id];
+        if (!saved) {
+            console.warn("No saved endorsement found for this skill. Default values will be used.");
+            setPopupSkill(skill);
+            setEndorsementForm({
+                workedTogether: "Yes",
+                skillRating: "Good",
             });
+        } else {
+            setPopupSkill({ ...skill, endorsementId: saved.id });
+            setEndorsementForm({
+                workedTogether: saved.workedTogether,
+                skillRating: saved.skillRating,
+            });
+        }
+        setIsEditing(true);
+    };
 
-            if (!res.ok) throw new Error("Failed to save endorsement");
-
-            if (!isEditing) {
-                // Increment count for new endorsements only
-                setSkills((prev) =>
-                    prev.map((s) =>
-                        s.id === popupSkill.id
-                            ? { ...s, endorsements: (s.endorsements || 0) + 1 }
-                            : s
-                    )
-                );
-                setEndorsedSkills((prev) => [...prev, popupSkill.id]);
+    const handleSave = async () => {
+        try {
+            if (isEditing && popupSkill?.endorsementId) {
+                await updateEndorsement(popupSkill.endorsementId);
+            } else if (popupSkill?.id) {
+                await createEndorsement(popupSkill.id);
+            } else {
+                throw new Error("Invalid skill or endorsement ID.");
             }
 
-            setPopupSkill(null);
-            if (isEditing && !popupSkill.endorsementId) {
-                alert("Missing endorsement ID for editing.");
-                return;
-            }
-
+            setPopupSkill(null); // Close popup on success
         } catch (err) {
             alert("Failed to save endorsement.");
+            console.error("Save error:", err);
         }
+    };
+
+    const updateEndorsement = async (id, updatedData) => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/endorsements/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Updated endorsement:", data);
+            } else {
+                console.error("Failed to update endorsement");
+            }
+        } catch (error) {
+            console.error("Save error:", error);
+        }
+    };
+
+    const createEndorsement = async (skillId) => {
+        const res = await fetch(`http://localhost:8080/api/skills/${skillId}/endorse`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(endorsementForm),
+        });
+
+        if (!res.ok) {
+            throw new Error(`Failed to create endorsement: ${res.status}`);
+        }
+
+        const data = await res.json();
+        console.log("Created endorsement:", data);
+
+        setEndorsementMap((prev) => ({
+            ...prev,
+            [skillId]: {
+                id: data.id,
+                workedTogether: data.workedTogether,
+                skillRating: data.skillRating,
+            },
+        }));
+        setEndorsedSkills((prev) => [...prev, skillId]);
+        setSkills((prev) =>
+            prev.map((s) =>
+                s.id === skillId ? { ...s, endorsements: (s.endorsements || 0) + 1 } : s
+            )
+        );
     };
 
     const handleDeleteEndorsement = async (skillId) => {
@@ -130,41 +193,15 @@ const SkillEndorseCard = () => {
                         <div className="skill-actions">
                             {endorsedSkills.includes(skill.id) ? (
                                 <>
-                                    <button
-                                        className="btn edit"
-                                        onClick={() => {
-                                            setPopupSkill({
-                                                ...skill,
-                                                endorsementId: endorsementMap[skill.id],
-                                            });
-                                            setEndorsementForm({
-                                                workedTogether: "Yes",
-                                                skillRating: "Good",
-                                            });
-                                            setIsEditing(true);
-                                        }}
-                                    >
+                                    <button className="btn edit" onClick={() => handleEditClick(skill)}>
                                         <FaEdit style={{ marginRight: "5px" }} />Edit
                                     </button>
-                                    <button
-                                        className="btn delete"
-                                        onClick={() => handleDeleteEndorsement(skill.id)}
-                                    >
+                                    <button className="btn delete" onClick={() => handleDeleteEndorsement(skill.id)}>
                                         <FaTrash style={{ marginRight: "5px" }} />Remove
                                     </button>
                                 </>
                             ) : (
-                                <button
-                                    className="btn endorse"
-                                    onClick={() => {
-                                        setPopupSkill(skill);
-                                        setEndorsementForm({
-                                            workedTogether: "Yes",
-                                            skillRating: "Good",
-                                        });
-                                        setIsEditing(false);
-                                    }}
-                                >
+                                <button className="btn endorse" onClick={() => handleEndorseClick(skill)}>
                                     Endorse
                                 </button>
                             )}
@@ -172,50 +209,14 @@ const SkillEndorseCard = () => {
                     </div>
                 ))
             )}
-
             {popupSkill && (
-                <div className="popup-overlay">
-                    <div className="popup-box">
-                        <h3>{isEditing ? "Edit" : "Endorse"} {popupSkill.name}</h3>
-                        <label>Have you worked together?</label>
-                        <select
-                            value={endorsementForm.workedTogether}
-                            onChange={(e) =>
-                                setEndorsementForm({
-                                    ...endorsementForm,
-                                    workedTogether: e.target.value,
-                                })
-                            }
-                        >
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-
-                        <label>Rate their skill:</label>
-                        <select
-                            value={endorsementForm.skillRating}
-                            onChange={(e) =>
-                                setEndorsementForm({
-                                    ...endorsementForm,
-                                    skillRating: e.target.value,
-                                })
-                            }
-                        >
-                            <option value="Good">Good</option>
-                            <option value="Very Good">Very Good</option>
-                            <option value="Excellent">Excellent</option>
-                        </select>
-
-                        <div className="popup-actions">
-                            <button className="btn save" onClick={handleEndorseSubmit}>
-                                <FaSave style={{ marginRight: "5px" }} /> Save
-                            </button>
-                            <button className="btn cancel" onClick={() => setPopupSkill(null)}>
-                                <FaTimes style={{ marginRight: "5px" }} /> Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <EditEndorsementCard
+                    skill={popupSkill}
+                    formData={endorsementForm}
+                    onChange={setEndorsementForm}
+                    onSave={handleSave}
+                    onClose={() => setPopupSkill(null)}
+                />
             )}
         </div>
     );
