@@ -16,11 +16,7 @@ const PostForm = ({ onPostSubmit }) => {
             formData.append("media", media);
         }
 
-        try {
-            const res = await fetch("http://localhost:8080/api/posts", {
-                method: "POST",
-                body: formData,
-            });
+        
 
             const data = await res.json();
 
