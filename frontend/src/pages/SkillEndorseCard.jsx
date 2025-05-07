@@ -1,4 +1,3 @@
-// src/pages/SkillEndorseCard.jsx
 import React, { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import "../css/SkillEndorseCard.css";
@@ -54,12 +53,17 @@ const SkillEndorseCard = () => {
     };
 
     const handleEndorseClick = (skill) => {
-        setPopupSkill(skill);
-        setEndorsementForm({
-            workedTogether: "Yes",
-            skillRating: "Good",
-        });
-        setIsEditing(false);
+        // Check if the skill already has an endorsement.
+        if (endorsedSkills.includes(skill.id)) {
+            handleEditClick(skill);  // If endorsed, show the edit popup
+        } else {
+            setPopupSkill(skill);  // If not endorsed, show the add popup
+            setEndorsementForm({
+                workedTogether: "Yes",
+                skillRating: "Good",
+            });
+            setIsEditing(false); // For adding a new endorsement
+        }
     };
 
     const handleEditClick = (skill) => {
@@ -78,7 +82,7 @@ const SkillEndorseCard = () => {
                 skillRating: saved.skillRating,
             });
         }
-        setIsEditing(true);
+        setIsEditing(true);  // Set editing mode
     };
 
     const handleSave = async () => {
