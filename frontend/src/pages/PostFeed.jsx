@@ -32,76 +32,97 @@ const PostFeed = () => {
 
     return (
         <div style={{ padding: "2rem", backgroundColor: "#f4f4f9" }}>
-            <h2 style={{ textAlign: "center", marginBottom: "2rem", color: "#333" }}>Your Posts</h2>
+            <h2 style={{ textAlign: "center", marginBottom: "2rem", color: "#333" }}>
+                Your Posts
+            </h2>
             {posts.length === 0 ? (
-                <p style={{ fontSize: "18px", textAlign: "center", color: "#777" }}>No posts found.</p>
+                <p style={{ fontSize: "18px", textAlign: "center", color: "#777" }}>
+                    No posts found.
+                </p>
             ) : (
-                posts.map((post) => (
-                    <div
-                        key={post.id}
-                        style={{
-                            backgroundColor: "#fff",
-                            padding: "1rem",
-                            borderRadius: "8px",
-                            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
-                            marginBottom: "20px"
-                        }}
-                    >
-                        <p style={{ fontSize: "16px", color: "#555", marginBottom: "1rem" }}>
-                            {post.content}
-                        </p>
-
-                        {/* Show image if available */}
-                        {post.imageUrl && (
-                            <img
-                                src={`http://localhost:8080${post.imageUrl}`}
-                                alt="Post"
-                                style={{
-                                    width: "25%",
-                                    height: "auto",
-                                    objectFit: "contain",
-                                    borderRadius: "8px",
-                                    marginBottom: "1rem"
-                                }}
-                            />
-                        )}
-
-                        {/* Show video if available */}
-                        {post.videoUrl && (
-                            <video
-                                controls
-                                style={{
-                                    width: "25%",
-                                    height: "auto",
-                                    borderRadius: "8px",
-                                    marginBottom: "1rem",
-                                    objectFit: "contain"
-                                }}
-                            >
-                                <source src={`http://localhost:8080${post.videoUrl}`} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                        )}
-
-                        {/* Like, Comment, Share */}
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(4, 1fr)", // 4 columns layout
+                        gap: "1.5rem",
+                    }}
+                >
+                    {posts.map((post) => (
                         <div
+                            key={post.id}
                             style={{
-                                display: "flex",
-                                justifyContent: "center",
-                                gap: "1.5rem",
-                                fontSize: "16px",
-                                color: "#007bff",
-                                cursor: "pointer",
-                                paddingTop: "10px",
-                                textAlign: "center"
+                                backgroundColor: "#fff",
+                                padding: "1rem",
+                                borderRadius: "8px",
+                                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+                                marginBottom: "20px",
+                                position: "relative",
+                                textAlign: "center",
                             }}
                         >
-                            <span>👍 Like</span>
-                            <span>💬 Comment</span>
-                            <span>🔗 Share</span>
+                            <p style={{ fontSize: "16px", color: "#555", marginBottom: "1rem" }}>
+                                {post.content}
+                            </p>
+
+                            {/* Show image if available */}
+                            {post.imageUrl && (
+                                <div style={{ position: "relative" }}>
+                                    <img
+                                        src={`http://localhost:8080${post.imageUrl}`}
+                                        alt="Post"
+                                        style={{
+                                            width: "100%",
+                                            height: "auto",
+                                            objectFit: "contain",
+                                            borderRadius: "8px",
+                                            marginBottom: "1rem",
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Show video if available */}
+                            {post.videoUrl && (
+                                <div style={{ position: "relative" }}>
+                                    <video
+                                        controls
+                                        style={{
+                                            width: "100%",
+                                            height: "auto",
+                                            borderRadius: "8px",
+                                            marginBottom: "1rem",
+                                            objectFit: "contain",
+                                        }}
+                                    >
+                                        <source
+                                            src={`http://localhost:8080${post.videoUrl}`}
+                                            type="video/mp4"
+                                        />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            )}
+
+                            {/* Like, Comment, Share */}
+                            <div
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    gap: "1.5rem",
+                                    fontSize: "16px",
+                                    color: "#007bff",
+                                    cursor: "pointer",
+                                    paddingTop: "10px",
+                                    textAlign: "center",
+                                }}
+                            >
+                                <span>👍 Like</span>
+                                <span>💬 Comment</span>
+                                <span>🔗 Share</span>
+                            </div>
                         </div>
-                    </div>
-                ))
+                    ))}
+                </div>
             )}
         </div>
     );
