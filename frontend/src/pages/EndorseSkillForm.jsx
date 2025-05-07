@@ -43,7 +43,7 @@ const EndorseSkillForm = () => {
             if (!res.ok) throw new Error("Failed to submit endorsement");
 
             Swal.fire("Success", "Skill endorsed successfully!", "success");
-            navigate("/skills-endorsements");
+            navigate("/skill-endorsecard");
         } catch (err) {
             console.error(err);
             Swal.fire("Error", "Failed to endorse skill", "error");

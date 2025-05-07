@@ -14,7 +14,7 @@ import java.util.List;
 public class EndorsementController {
 
     @Autowired
-    private EndorsementRepository endorsementRepository;
+    private EndorsementService endorsementService;
 
     // Submit a new endorsement
     @PostMapping
@@ -22,10 +22,10 @@ public class EndorsementController {
         return ResponseEntity.ok(endorsementRepository.save(endorsement));
     }
 
-    // Get all endorsements for a skill
-    @GetMapping("/skill/{skillId}")
-    public ResponseEntity<List<Endorsement>> getEndorsementsBySkillId(@PathVariable String skillId) {
-        List<Endorsement> list = endorsementRepository.findBySkillId(skillId);
+    // Get all endorsements by skill ID
+    @GetMapping("/skill/{endorseId}")
+    public ResponseEntity<List<Endorsement>> getEndorsementsByEndorseId(@PathVariable String endorseId) {
+        List<Endorsement> list = endorsementRepository.findByEndorseId(endorseId); // Fetch by endorse ID
         return ResponseEntity.ok(list);
     }
 }

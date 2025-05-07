@@ -3,11 +3,16 @@ import { useNavigate } from "react-router-dom";
 
 const SkillsEndorseCard = () => {
     const [skills, setSkills] = useState([]);
+    const [endorsements, setEndorsements] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchSkills();
     }, []);
+
+    useEffect(() => {
+        fetchEndorsementCounts();
+    }, [skills]);
 
     const fetchSkills = async () => {
         try {
@@ -19,8 +24,22 @@ const SkillsEndorseCard = () => {
         }
     };
 
+    const fetchEndorsementCounts = async () => {
+        try {
+            const newEndorsements = {};
+            for (const skill of skills) {
+                const res = await fetch(`/api/endorsements/skill/${skill.id}`);
+                const data = await res.json();
+                newEndorsements[skill.id] = data.length; // Count the endorsements for the skill
+            }
+            setEndorsements(newEndorsements);
+        } catch (err) {
+            console.error("Failed to fetch endorsements", err);
+        }
+    };
+
     const handleEndorse = (skillId) => {
-        // Navigate to endorsement form or handle inline logic
+        // Navigate to the endorsement form or handle inline logic
         navigate(`/endorse/${skillId}`);
     };
 
@@ -42,6 +61,9 @@ const SkillsEndorseCard = () => {
                             <div style={skillTextGroup}>
                                 <span style={skillNameStyle}>{skill.name}</span>
                                 <span style={skillSourceStyle}>{skill.source || "Endorsed by community"}</span>
+                                <div style={endorsementCountStyle}>
+                                    <span>{endorsements[skill.id] || 0} Endorsements</span>
+                                </div>
                             </div>
                             <div style={skillActions}>
                                 <button
@@ -60,7 +82,7 @@ const SkillsEndorseCard = () => {
     );
 };
 
-// Styles (same as before, except button style modified)
+// Styles (same as before, with new style for endorsement count)
 const cardStyle = {
     background: "#fff",
     borderRadius: "12px",
@@ -123,6 +145,12 @@ const skillSourceStyle = {
     fontSize: "0.85rem",
     color: "#777",
     marginTop: "0.2rem",
+};
+
+const endorsementCountStyle = {
+    fontSize: "0.9rem",
+    color: "#007bff",
+    marginTop: "0.4rem",
 };
 
 const skillActions = {
