@@ -57,7 +57,7 @@ const ManagePost = () => {
 
     return (
         <div style={{ maxWidth: '1000px', margin: '2rem auto', padding: '1rem' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Manage Your Posts</h2>
+            <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}></h2>
 
             {message && (
                 <div

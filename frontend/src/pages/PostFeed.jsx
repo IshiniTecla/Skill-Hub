@@ -32,9 +32,6 @@ const PostFeed = () => {
 
     return (
         <div style={{ padding: "2rem", backgroundColor: "#f4f4f9" }}>
-            <h2 style={{ textAlign: "center", marginBottom: "2rem", color: "#333" }}>
-                Your Posts
-            </h2>
             {posts.length === 0 ? (
                 <p style={{ fontSize: "18px", textAlign: "center", color: "#777" }}>
                     No posts found.
