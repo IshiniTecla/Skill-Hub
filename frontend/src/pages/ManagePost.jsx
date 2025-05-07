@@ -63,13 +63,13 @@ const ManagePost = () => {
             {message && (
                 <div
                     style={{
-                        backgroundColor: message.type === 'success' ? "#d4edda" : "#f8d7da",
-                        color: message.type === 'success' ? "#155724" : "#721c24",
+                        backgroundColor: message.type === 'success' ? "#f8d7da" : "#f8d7da", // Red background for success too
+                        color: message.type === 'success' ? "#721c24" : "#721c24", // Red color for success
                         padding: "10px",
                         borderRadius: "6px",
                         marginBottom: "1rem",
                         textAlign: "center",
-                        border: `1px solid ${message.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+                        border: `1px solid ${message.type === 'success' ? '#f5c6cb' : '#f5c6cb'}`, // Red border for success too
                     }}
                 >
                     {message.text}
