@@ -14,12 +14,14 @@ public class LearningPlan {
     private String authorNote;
     private String courseCategory;
     private String courseType;
-    private String thumbnail;
+    private Double courseFee;  // Added field for course fee
+    private String thumbnail;  // Thumbnail file path or URL
 
     // Default constructor (required by Spring)
     public LearningPlan() {
     }
 
+    // Getters and setters for all fields
     public String getId() {
         return id;
     }
@@ -74,6 +76,14 @@ public class LearningPlan {
 
     public void setCourseType(String courseType) {
         this.courseType = courseType;
+    }
+
+    public Double getCourseFee() {
+        return courseFee;
+    }
+
+    public void setCourseFee(Double courseFee) {
+        this.courseFee = courseFee;
     }
 
     public String getThumbnail() {
