@@ -81,7 +81,7 @@ const ManagePost = () => {
                 <div
                     style={{
                         display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                        gridTemplateColumns: 'repeat(4, 1fr)', // 4 columns layout
                         gap: '1.5rem',
                     }}
                 >
