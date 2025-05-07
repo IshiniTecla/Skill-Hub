@@ -6,6 +6,8 @@ const ManagePost = () => {
     const [posts, setPosts] = useState([]);
     const [activeMenu, setActiveMenu] = useState(null);
     const [message, setMessage] = useState(null);
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+    const [postIdToDelete, setPostIdToDelete] = useState(null);
     const navigate = useNavigate();
 
     const showMessage = (text, type = 'error') => {
@@ -23,16 +25,13 @@ const ManagePost = () => {
         }
     };
 
-    const handleDelete = async (postId) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this post?");
-        if (!confirmDelete) return;
-
+    const handleDelete = async () => {
         try {
-            const res = await fetch(`http://localhost:8080/api/posts/${postId}`, {
+            const res = await fetch(`http://localhost:8080/api/posts/${postIdToDelete}`, {
                 method: 'DELETE',
             });
             if (res.ok) {
-                setPosts(posts.filter((p) => p.id !== postId));
+                setPosts(posts.filter((p) => p.id !== postIdToDelete));
                 showMessage("Post deleted successfully!", 'success');
             } else {
                 showMessage("Delete failed", 'error');
@@ -40,10 +39,16 @@ const ManagePost = () => {
         } catch (err) {
             showMessage("Server error", 'error');
         }
+        setShowConfirmDelete(false); // Close the confirmation dialog after action
     };
 
     const toggleMenu = (postId) => {
         setActiveMenu(activeMenu === postId ? null : postId);
+    };
+
+    const confirmDelete = (postId) => {
+        setPostIdToDelete(postId);
+        setShowConfirmDelete(true); // Show custom confirmation modal
     };
 
     useEffect(() => {
@@ -154,7 +159,7 @@ const ManagePost = () => {
                                             <FaEdit /> Update
                                         </button>
                                         <button
-                                            onClick={() => handleDelete(post.id)}
+                                            onClick={() => confirmDelete(post.id)} // Trigger custom delete confirmation
                                             style={{
                                                 display: "flex",
                                                 alignItems: "center",
@@ -193,6 +198,64 @@ const ManagePost = () => {
                         )}
                     </div>
                 ))
+            )}
+
+            {/* Custom Delete Confirmation Modal */}
+            {showConfirmDelete && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: "0",
+                        left: "0",
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    <div
+                        style={{
+                            backgroundColor: "#fff",
+                            padding: "2rem",
+                            borderRadius: "8px",
+                            boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+                            textAlign: "center",
+                        }}
+                    >
+                        <h3>Are you sure you want to delete this post?</h3>
+                        <div>
+                            <button
+                                onClick={handleDelete}
+                                style={{
+                                    marginRight: "10px",
+                                    padding: "10px 20px",
+                                    backgroundColor: "#dc3545",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: "5px",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                Yes, Delete
+                            </button>
+                            <button
+                                onClick={() => setShowConfirmDelete(false)}
+                                style={{
+                                    padding: "10px 20px",
+                                    backgroundColor: "#28a745",
+                                    color: "#fff",
+                                    border: "none",
+                                    borderRadius: "5px",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
