@@ -5,7 +5,13 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 const ManagePost = () => {
     const [posts, setPosts] = useState([]);
     const [activeMenu, setActiveMenu] = useState(null);
+    const [message, setMessage] = useState(null);
     const navigate = useNavigate();
+
+    const showMessage = (text, type = 'error') => {
+        setMessage({ text, type });
+        setTimeout(() => setMessage(null), 3000);  // Automatically hide message after 3 seconds
+    };
 
     const fetchPosts = async () => {
         try {
@@ -13,7 +19,7 @@ const ManagePost = () => {
             const data = await res.json();
             if (res.ok) setPosts(data.reverse());
         } catch (err) {
-            alert("Error loading posts");
+            showMessage("Error loading posts");
         }
     };
 
@@ -27,11 +33,12 @@ const ManagePost = () => {
             });
             if (res.ok) {
                 setPosts(posts.filter((p) => p.id !== postId));
+                showMessage("Post deleted successfully!", 'success');
             } else {
-                alert("Delete failed");
+                showMessage("Delete failed", 'error');
             }
         } catch (err) {
-            alert("Server error");
+            showMessage("Server error", 'error');
         }
     };
 
@@ -46,6 +53,24 @@ const ManagePost = () => {
     return (
         <div style={{ maxWidth: '700px', margin: '2rem auto', padding: '1rem' }}>
             <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Manage Your Posts</h2>
+
+            {/* Display message */}
+            {message && (
+                <div
+                    style={{
+                        backgroundColor: message.type === 'success' ? "#d4edda" : "#f8d7da",
+                        color: message.type === 'success' ? "#155724" : "#721c24",
+                        padding: "10px",
+                        borderRadius: "6px",
+                        marginBottom: "1rem",
+                        textAlign: "center",
+                        border: `1px solid ${message.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
+                    }}
+                >
+                    {message.text}
+                </div>
+            )}
+
             {posts.length === 0 ? (
                 <p>No posts found.</p>
             ) : (
