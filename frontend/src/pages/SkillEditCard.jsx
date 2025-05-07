@@ -10,7 +10,7 @@ const SkillEditCard = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/skills/${id}`)
+        fetch(`/api/skills/${id}`)
             .then((res) => res.json())
             .then((data) => {
                 setSkill(data);
@@ -23,7 +23,7 @@ const SkillEditCard = () => {
         if (!name.trim()) return;
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:8080/api/skills/${id}`, {
+            const res = await fetch(`/api/skills/${id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name }),

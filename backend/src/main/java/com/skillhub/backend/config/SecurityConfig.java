@@ -23,7 +23,8 @@ public class SecurityConfig {
 
         // Define CORS configuration
         @Bean
-        public CorsConfigurationSource corsConfiguration() {
+        public CorsConfigurationSource corsConfigurationSource() {
+
                 CorsConfiguration corsConfig = new CorsConfiguration();
                 corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // React client address
                 corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Include
@@ -44,7 +45,7 @@ public class SecurityConfig {
                                 .and()
                                 .csrf().disable() // Disable CSRF for simplicity in this example
                                 .authorizeRequests()
-                                .requestMatchers("/api/auth/**", "/oauth2/**", "/api/skills/**")
+                                .requestMatchers("/api/auth/**", "/oauth2/**", "/api/skills/**", "/api/endorsements/**")
                                 .permitAll() // Permit certain endpoints without authentication
                                 .anyRequest().authenticated() // Require authentication for other requests
                                 .and()

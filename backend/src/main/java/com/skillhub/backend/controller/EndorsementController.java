@@ -10,36 +10,22 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/endorsements")
+@CrossOrigin(origins = "*")
 public class EndorsementController {
 
     @Autowired
-    private EndorsementService endorsementService;
+    private EndorsementRepository endorsementRepository;
 
+    // Submit a new endorsement
     @PostMapping
-    public ResponseEntity<Endorsement> endorseSkill(@RequestBody Endorsement endorsement) {
-        return ResponseEntity.ok(endorsementService.endorseSkill(endorsement));
+    public ResponseEntity<Endorsement> createEndorsement(@RequestBody Endorsement endorsement) {
+        return ResponseEntity.ok(endorsementRepository.save(endorsement));
     }
 
+    // Get all endorsements for a skill
     @GetMapping("/skill/{skillId}")
-    public ResponseEntity<List<Endorsement>> getBySkill(@PathVariable String skillId) {
-        return ResponseEntity.ok(endorsementService.getEndorsementsForSkill(skillId));
-    }
-
-    @GetMapping("/user/{endorsedUserId}")
-    public ResponseEntity<List<Endorsement>> getByUser(@PathVariable String endorsedUserId) {
-        return ResponseEntity.ok(endorsementService.getEndorsementsForUser(endorsedUserId));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Endorsement> updateEndorsement(@PathVariable String id,
-            @RequestBody Endorsement endorsement) {
-        endorsement.setId(id); // Ensure the ID is set to the correct endorsement
-        return ResponseEntity.ok(endorsementService.updateEndorsement(endorsement));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEndorsement(@PathVariable String id) {
-        endorsementService.deleteEndorsement(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<List<Endorsement>> getEndorsementsBySkillId(@PathVariable String skillId) {
+        List<Endorsement> list = endorsementRepository.findBySkillId(skillId);
+        return ResponseEntity.ok(list);
     }
 }

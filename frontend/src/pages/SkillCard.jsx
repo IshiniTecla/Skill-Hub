@@ -13,7 +13,7 @@ const SkillCard = () => {
 
     const fetchSkills = async () => {
         try {
-            const res = await fetch("http://localhost:8080/api/skills");
+            const res = await fetch("/api/skills");
             const data = await res.json();
             setSkills(data);
         } catch (err) {
@@ -34,7 +34,7 @@ const SkillCard = () => {
 
         if (result.isConfirmed) {
             try {
-                await fetch(`http://localhost:8080/api/skills/${id}`, {
+                await fetch(`/api/skills/${id}`, {
                     method: "DELETE",
                 });
                 fetchSkills(); // Refresh the list

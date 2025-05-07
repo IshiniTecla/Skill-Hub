@@ -8,49 +8,25 @@ public class Endorsement {
 
     @Id
     private String id;
-
-    private String endorserUserId; // the one who endorses
-    private String endorsedUserId; // the one being endorsed
     private String skillId;
-
-    private String workedTogether; // Yes / No
-    private String skillRating; // e.g., Excellent, Good, etc.
+    private String endorserName;
+    private String comment;
+    private String level; // Beginner, Intermediate, Expert
 
     public Endorsement() {
     }
 
-    public Endorsement(String endorserUserId, String endorsedUserId, String skillId,
-            String workedTogether, String skillRating) {
-        this.endorserUserId = endorserUserId;
-        this.endorsedUserId = endorsedUserId;
+    public Endorsement(String skillId, String endorserName, String comment, String level) {
         this.skillId = skillId;
-        this.workedTogether = workedTogether;
-        this.skillRating = skillRating;
+        this.endorserName = endorserName;
+        this.comment = comment;
+        this.level = level;
     }
 
-    // Getters and Setters
+    // Getters and setters
+
     public String getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getEndorserUserId() {
-        return endorserUserId;
-    }
-
-    public void setEndorserUserId(String endorserUserId) {
-        this.endorserUserId = endorserUserId;
-    }
-
-    public String getEndorsedUserId() {
-        return endorsedUserId;
-    }
-
-    public void setEndorsedUserId(String endorsedUserId) {
-        this.endorsedUserId = endorsedUserId;
     }
 
     public String getSkillId() {
@@ -61,19 +37,27 @@ public class Endorsement {
         this.skillId = skillId;
     }
 
-    public String getWorkedTogether() {
-        return workedTogether;
+    public String getEndorserName() {
+        return endorserName;
     }
 
-    public void setWorkedTogether(String workedTogether) {
-        this.workedTogether = workedTogether;
+    public void setEndorserName(String endorserName) {
+        this.endorserName = endorserName;
     }
 
-    public String getSkillRating() {
-        return skillRating;
+    public String getComment() {
+        return comment;
     }
 
-    public void setSkillRating(String skillRating) {
-        this.skillRating = skillRating;
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
     }
 }
