@@ -1,57 +1,61 @@
 /* General container styling */
 .container {
   display: flex;
-  justify-content: center; /* Centers the form horizontally */
-  align-items: center; /* Centers the form vertically */
-  min-height: 100vh; /* Takes the full height of the screen */
-  background-color: #f1f1f1; /* Soft light gray background */
-  padding: 20px;
-  box-sizing: border-box;
-  font-family: Calibri, sans-serif; /* Calibri font applied globally */
+  justify-content: center;  /* Centers the form horizontally */
+  align-items: center;  /* Centers the form vertically */
+  height: 100vh;  /* Takes the full height of the screen */
+  background-color: #f1f3f7; /* Soft light gray background */
+    /* Light background */
+  padding: 50px;  /* Add some padding around the edges */
+  box-sizing: border-box;  /* Ensures padding is included in the width/height */
+  font-family: Calibri, sans-serif;  /* Calibri font applied globally */
+  
 }
 
 /* Form container styling */
 .form-container {
   width: 100%;
-  max-width: 500px; /* Adjusted width to match the form in the screenshot */
-  background-color: #ffffff; /* White background */
-  padding: 30px; /* Adjusted padding for the form */
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  max-width: 800px;  /* Adjusted width to match the form in the screenshot */
+  background-color: #e5e5ee;  /* White background */
+  padding: 50px;  /* Adjusted padding for the form */
+  border-radius: 8px;  /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Soft shadow around form */
   text-align: left;
+  margin-left: 400px;  /* Ensures form is centered in its container */
 }
 
 /* Heading styling */
-h1 {
-  font-size: 30px; /* Smaller heading to match the screenshot */
-  font-weight: bold; /* Bold heading */
-  color: #1E90FF; /* Blue color */
-  margin-bottom: 20px; /* Reduced space below the title */
+.form-container h1 {
+  font-size: 35px !important;  /* Forcing the font-size to 24px */
+  font-weight: bolder;
+  color: #1E90FF;
+  margin-bottom: 35px;
   text-align: center;
-  letter-spacing: 1px; /* Slight spacing between letters */
+  letter-spacing: 1px;
 }
+
 
 /* Form styling */
 form {
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Adjusted space between form elements */
+  gap: 20px;  /* Adjusted space between form elements */
 }
 
 /* Label styling */
 label {
   font-size: 16px;
-  font-weight: bold; /* Bold label */
+  font-weight: bold;  /* Bold label */
   color: #333;
-  margin-bottom: 5px; /* Reduced margin */
-  text-transform: uppercase; /* Uppercase labels for clarity */
+  margin-bottom: 5px;  /* Reduced margin */
+  text-transform: uppercase;  /* Uppercase labels for clarity */
 }
 
 /* Input and select field styling */
 input,
 select,
 textarea {
-  padding: 14px; /* Adjusted padding */
+  padding: 14px;  /* Adjusted padding */
   font-size: 16px;
   border: 2px solid #ddd;
   border-radius: 6px;
@@ -59,14 +63,14 @@ textarea {
   background-color: #f7f7f7;
   transition: background-color 0.3s, border-color 0.3s;
   box-sizing: border-box;
-  color: #333; /* Ensure text is dark for readability */
-  font-family: Calibri, sans-serif; /* Calibri font applied to input, select, and textarea */
+  color: #333;  /* Ensure text is dark for readability */
+  font-family: Calibri, sans-serif;  /* Calibri font applied to input, select, and textarea */
 }
 
 /* Textarea specific styling (for description) */
 textarea {
-  height: 120px; /* Adjusted height for better visibility */
-  resize: vertical; /* Allow vertical resizing */
+  height: 120px;  /* Adjusted height for better visibility */
+  resize: vertical;  /* Allow vertical resizing */
 }
 
 /* Focused input, select, and textarea fields */
@@ -74,47 +78,32 @@ input:focus,
 select:focus,
 textarea:focus {
   outline: none;
-  border-color: #1E90FF; /* Blue border on focus */
-  background-color: #eaf1fd; /* Light blue background on focus */
+  border-color: #1E90FF;  /* Blue border on focus */
+  background-color: #eaf1fd;  /* Light blue background on focus */
   color: #333;
 }
 
 /* Button styling */
 button {
   padding: 14px;
-  background-color: #194d82; /* Blue button background */
+  background-color: #194d82;  /* Blue button background */
   color: #ffffff;
   font-size: 18px;
   font-weight: bold;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  width: 100%; /* Full width button */
-  transition: background-color 0.3s ease-in-out;
+  width: 100%;  /* Full width button */
 }
 
 button:hover {
-  background-color: #4682B4; /* Darker blue on hover */
+  background-color: #4682B4;  /* Darker blue on hover */
 }
 
 button:disabled {
-  background-color: #ccc; /* Light gray button when disabled */
+  background-color: #4682B4;  /* Light gray button when disabled */
   cursor: not-allowed;
   opacity: 0.6;
-}
-
-/* File input styling (for thumbnail image) */
-input[type="file"] {
-  padding: 12px;
-  background-color: #f7f7f7;
-  cursor: pointer;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  transition: border-color 0.3s ease-in-out;
-}
-
-input[type="file"]:focus {
-  border-color: #1E90FF;
 }
 
 /* Error message styling */

@@ -24,7 +24,7 @@ public class LearningPlanControl {
             @RequestParam String courseType,
             @RequestParam(required = false) Double courseFee) {
 
-        // Validate required fields
+        // 1. Validate required fields
         if (title == null || title.isEmpty()) {
             return ResponseEntity.badRequest().body("Title is required.");
         }
@@ -35,9 +35,16 @@ public class LearningPlanControl {
             return ResponseEntity.badRequest().body("Author is required.");
         }
 
-        // Validate course fee for 'paid' courses
-        if ("paid".equals(courseType) && (courseFee == null || courseFee <= 0)) {
-            return ResponseEntity.badRequest().body("Course fee is required and should be greater than 0 for paid courses.");
+        // 2. Validate if the author is a number
+        if (author.matches("\\d+")) {
+            return ResponseEntity.badRequest().body("Author name cannot be a number.");
+        }
+
+        // 3. Validate course fee for 'paid' courses
+        if ("paid".equals(courseType)) {
+            if (courseFee == null || courseFee <= 0) {
+                return ResponseEntity.badRequest().body("Course fee is required and should be greater than 0 for paid courses.");
+            }
         }
 
         try {
@@ -49,14 +56,14 @@ public class LearningPlanControl {
             newPlan.setAuthorNote(authorNote);
             newPlan.setCourseCategory(courseCategory);
             newPlan.setCourseType(courseType);
-            newPlan.setCourseFee("paid".equals(courseType) ? courseFee : null);
+            newPlan.setCourseFee("paid".equals(courseType) ? courseFee : null);  // Set course fee if paid
 
             // Save the Learning Plan and return the saved object
             LearningPlan savedPlan = service.createPlan(newPlan);
             return ResponseEntity.ok(savedPlan); // Return saved plan
 
         } catch (IllegalArgumentException e) {
-            // Return client-side error if input is invalid
+            // Handle invalid argument exceptions and return the error message
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             // General error handling
