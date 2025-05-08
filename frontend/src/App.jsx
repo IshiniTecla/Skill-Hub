@@ -8,7 +8,6 @@ const App = () => {
   return (
     <Router>
       <div>
-        <h1>Learning Plans</h1>
         <Routes>
           <Route path="/" element={<AddLearningPlan />} />
           {/* Uncomment the following routes when you're ready */}

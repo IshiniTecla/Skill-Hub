@@ -4,6 +4,7 @@ import com.skillhub.backend.model.LearningPlan;
 import com.skillhub.backend.repository.LearningPlanRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -39,19 +40,19 @@ public class LearningPlanService {
             plan.setAuthorNote(updatedPlan.getAuthorNote());
             plan.setCourseCategory(updatedPlan.getCourseCategory());
             plan.setCourseType(updatedPlan.getCourseType());
-            plan.setThumbnail(updatedPlan.getThumbnail());
-            return repository.save(plan);   // Save updated plan
+            plan.setCourseFee(updatedPlan.getCourseFee());
+            return repository.save(plan);
         }
-        return null;   // If plan not found, return null or handle as needed
+        throw new IllegalArgumentException("Plan not found for ID: " + id); // Custom exception for better error handling
     }
 
     // DELETE - Delete a Learning Plan by ID
     public boolean deletePlan(String id) {
         Optional<LearningPlan> plan = repository.findById(id);
         if (plan.isPresent()) {
-            repository.deleteById(id);   // Delete the plan
-            return true;   // Return true if deleted successfully
+            repository.deleteById(id);
+            return true;
         }
-        return false;   // Return false if plan not found
+        throw new IllegalArgumentException("Plan not found for ID: " + id); // Custom exception for better error handling
     }
 }

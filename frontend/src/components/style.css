@@ -4,65 +4,68 @@
   justify-content: center; /* Centers the form horizontally */
   align-items: center; /* Centers the form vertically */
   min-height: 100vh; /* Takes the full height of the screen */
-  background-color: #f9f9f9; /* Light background for contrast */
-  margin-left: 500px; /* Removed large margin, now centered */
-  padding: 20px 50px; /* Adjusted padding */
+  background-color: #f1f1f1; /* Soft light gray background */
+  padding: 20px;
   box-sizing: border-box;
+  font-family: Calibri, sans-serif; /* Calibri font applied globally */
 }
 
 /* Form container styling */
 .form-container {
   width: 100%;
-  max-width: 600px; /* Form width limit */
+  max-width: 500px; /* Adjusted width to match the form in the screenshot */
   background-color: #ffffff; /* White background */
-  padding: 40px; /* Padding inside the form */
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  padding: 30px; /* Adjusted padding for the form */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
   text-align: left;
 }
 
 /* Heading styling */
 h1 {
-  font-size: 32px; /* Larger, more prominent heading */
-  font-weight: 600;
+  font-size: 30px; /* Smaller heading to match the screenshot */
+  font-weight: bold; /* Bold heading */
   color: #1E90FF; /* Blue color */
   margin-bottom: 20px; /* Reduced space below the title */
-  text-align: center; /* Center the heading */
+  text-align: center;
+  letter-spacing: 1px; /* Slight spacing between letters */
 }
 
 /* Form styling */
 form {
   display: flex;
   flex-direction: column;
-  gap: 25px; /* Increased space between form elements */
+  gap: 20px; /* Adjusted space between form elements */
 }
 
 /* Label styling */
 label {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: bold; /* Bold label */
   color: #333;
-  margin-bottom: 6px;
+  margin-bottom: 5px; /* Reduced margin */
+  text-transform: uppercase; /* Uppercase labels for clarity */
 }
 
 /* Input and select field styling */
 input,
 select,
 textarea {
-  padding: 14px;
+  padding: 14px; /* Adjusted padding */
   font-size: 16px;
-  border: 1px solid #ddd;
+  border: 2px solid #ddd;
   border-radius: 6px;
   width: 100%;
   background-color: #f7f7f7;
   transition: background-color 0.3s, border-color 0.3s;
   box-sizing: border-box;
-  color: black; /* Ensure text is black by default */
+  color: #333; /* Ensure text is dark for readability */
+  font-family: Calibri, sans-serif; /* Calibri font applied to input, select, and textarea */
 }
 
 /* Textarea specific styling (for description) */
 textarea {
-  height: 150px; /* Increased height for better visibility */
+  height: 120px; /* Adjusted height for better visibility */
   resize: vertical; /* Allow vertical resizing */
 }
 
@@ -73,7 +76,7 @@ textarea:focus {
   outline: none;
   border-color: #1E90FF; /* Blue border on focus */
   background-color: #eaf1fd; /* Light blue background on focus */
-  color: black; /* Text should remain black when focused */
+  color: #333;
 }
 
 /* Button styling */
@@ -81,8 +84,8 @@ button {
   padding: 14px;
   background-color: #194d82; /* Blue button background */
   color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: bold;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -90,32 +93,52 @@ button {
   transition: background-color 0.3s ease-in-out;
 }
 
-/* Button hover effect */
 button:hover {
   background-color: #4682B4; /* Darker blue on hover */
 }
 
+button:disabled {
+  background-color: #ccc; /* Light gray button when disabled */
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* File input styling (for thumbnail image) */
 input[type="file"] {
-  padding: 10px;
+  padding: 12px;
   background-color: #f7f7f7;
   cursor: pointer;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  transition: border-color 0.3s ease-in-out;
+}
+
+input[type="file"]:focus {
+  border-color: #1E90FF;
 }
 
 /* Error message styling */
 .error {
-  color: red;
+  color: #721c24;
+  background-color: #f8d7da;
+  padding: 12px;
   font-size: 14px;
-  font-weight: 500;
-  margin-top: 10px;
+  font-weight: bold;
+  border: 1px solid #f5c6cb;
+  margin-top: 15px;
+  border-radius: 6px;
   text-align: left;
 }
 
 /* Success message styling */
 .success-message {
-  color: green;
+  color: #155724;
+  background-color: #d4edda;
+  padding: 12px;
   font-size: 14px;
-  font-weight: 500;
-  margin-top: 10px;
+  font-weight: bold;
+  border: 1px solid #c3e6cb;
+  margin-top: 15px;
+  border-radius: 6px;
   text-align: center;
 }

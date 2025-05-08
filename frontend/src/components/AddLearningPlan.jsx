@@ -8,18 +8,18 @@ const AddLearningPlan = () => {
   const [author, setAuthor] = useState('');
   const [authorNote, setAuthorNote] = useState('');
   const [courseCategory, setCourseCategory] = useState('');
-  const [courseType, setCourseType] = useState(''); // Added state for course type
-  const [courseFee, setCourseFee] = useState(''); // Added state for course fee (visible when 'Paid' is selected)
-  const [thumbnail, setThumbnail] = useState(null);  // Changed to handle image file
+  const [courseType, setCourseType] = useState('');
+  const [courseFee, setCourseFee] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  const apiUrl = 'http://localhost:8080/api/learning-plans';  // Make sure this endpoint is correct
+
+  const apiUrl = 'http://localhost:8080/api/plans'; // Your backend API URL
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Check if any required field is empty
-    if (!title || !description || !author || !courseCategory || !courseType || !thumbnail || (courseType === 'paid' && !courseFee)) {
+    if (!title || !description || !author || !courseCategory || !courseType || (courseType === 'paid' && !courseFee)) {
       setError('Please fill in all required fields.');
       setSuccessMessage('');
       return;
@@ -29,14 +29,15 @@ const AddLearningPlan = () => {
     formData.append('title', title);
     formData.append('description', description);
     formData.append('author', author);
-    formData.append('authorNote', authorNote);  // Optional field
+    formData.append('authorNote', authorNote); // Optional field
     formData.append('courseCategory', courseCategory);
     formData.append('courseType', courseType);
-    formData.append('courseFee', courseFee);  // Add course fee when 'Paid' is selected
-    formData.append('thumbnail', thumbnail);  // Add the file
+    formData.append('courseFee', courseFee); // Add course fee when 'Paid' is selected
 
     try {
-      const response = await axios.post(apiUrl, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      const response = await axios.post(apiUrl, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
       setError('');
       setSuccessMessage('Learning plan added successfully!');
       // Reset the form after successful submission
@@ -47,9 +48,9 @@ const AddLearningPlan = () => {
       setCourseCategory('');
       setCourseType('');
       setCourseFee('');
-      setThumbnail(null);
     } catch (err) {
-      setError('Error adding learning plan. Please try again.');
+      console.error("Error:", err.response ? err.response.data : err.message);
+      setError('Error adding learning plan: ' + (err.response ? err.response.data : err.message));
       setSuccessMessage('');
     }
   };
@@ -60,14 +61,10 @@ const AddLearningPlan = () => {
     setSuccessMessage('');
   };
 
-  const handleFileChange = (e) => {
-    setThumbnail(e.target.files[0]);  // Store the uploaded file
-  };
-
   return (
     <div className="container">
       <div className="form-container">
-        <h1>Add Learning Plan</h1>
+        <h1>ADD LEARNING PLAN</h1>
         {error && <div className="error">{error}</div>}
         {successMessage && <div className="success-message">{successMessage}</div>}
 
@@ -90,7 +87,7 @@ const AddLearningPlan = () => {
               value={description}
               onChange={handleFieldChange(setDescription)}
               placeholder="Enter plan description"
-              rows="5"  // Larger input
+              rows="5"
             />
           </div>
 
@@ -136,7 +133,7 @@ const AddLearningPlan = () => {
             <select
               id="courseType"
               value={courseType}
-              onChange={(e) => { setCourseType(e.target.value); setCourseFee(''); }} // Reset courseFee when courseType changes
+              onChange={(e) => { setCourseType(e.target.value); setCourseFee(''); }}
             >
               <option value="">Select type</option>
               <option value="free">Free</option>
@@ -157,17 +154,7 @@ const AddLearningPlan = () => {
             </div>
           )}
 
-          <div className="form-group">
-            <label htmlFor="thumbnail">Thumbnail Image:</label>
-            <input
-              type="file"
-              id="thumbnail"
-              onChange={handleFileChange}
-              accept="image/*"  // Only allow image files
-            />
-          </div>
-
-          <button type="submit" disabled={!title || !description || !author || !courseCategory || !courseType || !thumbnail || (courseType === 'paid' && !courseFee)}>
+          <button type="submit" disabled={!title || !description || !author || !courseCategory || !courseType || (courseType === 'paid' && !courseFee)}>
             Add Plan
           </button>
         </form>

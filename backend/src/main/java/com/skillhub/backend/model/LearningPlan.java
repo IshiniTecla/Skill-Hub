@@ -5,21 +5,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "learning_plans")
 public class LearningPlan {
+
     @Id
     private String id;
-
     private String title;
     private String description;
     private String author;
     private String authorNote;
     private String courseCategory;
     private String courseType;
-    private Double courseFee;  // Added field for course fee
-    private String thumbnail;  // Thumbnail file path or URL
+    private Double courseFee;
 
     // Default constructor (required by Spring)
-    public LearningPlan() {
-    }
+    public LearningPlan() {}
 
     // Getters and setters for all fields
     public String getId() {
@@ -84,13 +82,5 @@ public class LearningPlan {
 
     public void setCourseFee(Double courseFee) {
         this.courseFee = courseFee;
-    }
-
-    public String getThumbnail() {
-        return thumbnail;
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
     }
 }
