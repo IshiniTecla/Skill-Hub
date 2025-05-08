@@ -4,21 +4,17 @@ import com.skillhub.backend.dto.UserDto;
 import com.skillhub.backend.models.User;
 import com.skillhub.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     public User registerUser(UserDto userDto) {
@@ -33,7 +29,7 @@ public class UserService {
         User user = User.builder()
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
-                .password(passwordEncoder.encode(userDto.getPassword()))
+                .password(userDto.getPassword()) // Store password directly without hashing
                 .firstName(userDto.getFirstName())
                 .lastName(userDto.getLastName())
                 .bio("")
@@ -49,7 +45,7 @@ public class UserService {
         }
 
         User user = optionalUser.get();
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        if (!password.equals(user.getPassword())) { // Direct string comparison
             throw new RuntimeException("Invalid password");
         }
 
@@ -105,9 +101,9 @@ public class UserService {
                     user.setEmail(userDto.getEmail());
                 }
                 
-                // Only update the password if it's provided
+                // Only update the password if it's provided - store as plain text
                 if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-                    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+                    user.setPassword(userDto.getPassword());
                 }
                 
                 // Update bio if it exists in the request
