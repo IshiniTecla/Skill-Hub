@@ -138,7 +138,7 @@ const AddLearningPlan = () => {
 
         {courseType === 'paid' && (
           <div className="form-group">
-            <label htmlFor="courseFee">Course Fee:</label>
+            <label htmlFor="courseFee">Course Fee ($):</label>
             <input
               type="number"
               id="courseFee"

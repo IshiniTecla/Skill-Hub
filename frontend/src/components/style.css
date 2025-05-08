@@ -3,9 +3,8 @@
   display: flex;
   justify-content: center;  /* Centers the form horizontally */
   align-items: center;  /* Centers the form vertically */
-  height: 100vh;  /* Takes the full height of the screen */
+  height: 300vh;  /* Takes the full height of the screen */
   background-color: #f1f3f7; /* Soft light gray background */
-    /* Light background */
   padding: 50px;  /* Add some padding around the edges */
   box-sizing: border-box;  /* Ensures padding is included in the width/height */
   font-family: Calibri, sans-serif;  /* Calibri font applied globally */
@@ -106,28 +105,63 @@ button:disabled {
   opacity: 0.6;
 }
 
+
 /* Error message styling */
 .error {
-  color: #721c24;
-  background-color: #f8d7da;
-  padding: 12px;
+  color: #fff;
+  background-color: #da716a; 
+  padding: 15px;
   font-size: 14px;
   font-weight: bold;
-  border: 1px solid #f5c6cb;
-  margin-top: 15px;
-  border-radius: 6px;
-  text-align: left;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.5s ease-out; 
 }
 
-/* Success message styling */
+.success-message {
+  color: #fff;
+  background-color: #4caf50;
+  padding: 15px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.5s ease-out; 
+}
+
+/* Error and Success Message Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Error message specific field styling */
+.error-message {
+  color: #721c24;
+  background-color: #f8d7da;
+  padding: 8px;
+  font-size: 13px;
+  margin-top: 5px;
+  border-radius: 5px;
+  border: 1px solid #f5c6cb;
+  transition: all 0.3s ease-in-out;
+}
+
 .success-message {
   color: #155724;
   background-color: #d4edda;
-  padding: 12px;
-  font-size: 14px;
-  font-weight: bold;
+  padding: 8px;
+  font-size: 13px;
+  margin-top: 5px;
+  border-radius: 5px;
   border: 1px solid #c3e6cb;
-  margin-top: 15px;
-  border-radius: 6px;
-  text-align: center;
+  transition: all 0.3s ease-in-out;
 }
