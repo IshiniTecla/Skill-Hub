@@ -1,167 +1,138 @@
-/* General container styling */
+/* Global Styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f6fc;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container Styling for Centering the Form */
 .container {
   display: flex;
-  justify-content: center;  /* Centers the form horizontally */
-  align-items: center;  /* Centers the form vertically */
-  height: 300vh;  /* Takes the full height of the screen */
-  background-color: #f1f3f7; /* Soft light gray background */
-  padding: 50px;  /* Add some padding around the edges */
-  box-sizing: border-box;  /* Ensures padding is included in the width/height */
-  font-family: Calibri, sans-serif;  /* Calibri font applied globally */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;  /* Full viewport height */
+  padding: 20px;
   
 }
 
-/* Form container styling */
+/* Form Container Styling */
 .form-container {
   width: 100%;
-  max-width: 800px;  /* Adjusted width to match the form in the screenshot */
-  background-color: #e5e5ee;  /* White background */
-  padding: 50px;  /* Adjusted padding for the form */
-  border-radius: 8px;  /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Soft shadow around form */
+  max-width: 600px;
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: left;
-  margin-left: 400px;  /* Ensures form is centered in its container */
+  margin-top: 20px;
+  margin-left: 550px;
 }
 
-/* Heading styling */
-.form-container h1 {
-  font-size: 35px !important;  /* Forcing the font-size to 24px */
-  font-weight: bolder;
-  color: #1E90FF;
-  margin-bottom: 35px;
+h1 {
+  color: #4E7DD9;
+  font-size: 30px;
   text-align: center;
-  letter-spacing: 1px;
+  margin-bottom: 20px;
 }
 
-
-/* Form styling */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;  /* Adjusted space between form elements */
+/* Form Elements Styling */
+.form-group {
+  margin-bottom: 20px;
 }
 
-/* Label styling */
 label {
-  font-size: 16px;
-  font-weight: bold;  /* Bold label */
+  font-size: 14px;
+  font-weight: bold;
   color: #333;
-  margin-bottom: 5px;  /* Reduced margin */
-  text-transform: uppercase;  /* Uppercase labels for clarity */
+  display: block;
+  margin-bottom: 5px;
 }
 
-/* Input and select field styling */
-input,
-select,
-textarea {
-  padding: 14px;  /* Adjusted padding */
-  font-size: 16px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
+input, select, textarea {
   width: 100%;
-  background-color: #f7f7f7;
-  transition: background-color 0.3s, border-color 0.3s;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 5px;
   box-sizing: border-box;
-  color: #333;  /* Ensure text is dark for readability */
-  font-family: Calibri, sans-serif;  /* Calibri font applied to input, select, and textarea */
+  background-color: #f7f7f7;
+  transition: all 0.3s ease;
 }
 
-/* Textarea specific styling (for description) */
-textarea {
-  height: 120px;  /* Adjusted height for better visibility */
-  resize: vertical;  /* Allow vertical resizing */
-}
-
-/* Focused input, select, and textarea fields */
-input:focus,
-select:focus,
-textarea:focus {
+/* Input Focus Effect */
+input:focus, select:focus, textarea:focus {
+  border-color: #4E7DD9;
   outline: none;
-  border-color: #1E90FF;  /* Blue border on focus */
-  background-color: #eaf1fd;  /* Light blue background on focus */
-  color: #333;
+  background-color: #eaf3fc;
 }
 
-/* Button styling */
+/* Error Message Styling */
+.error {
+  color: #d9534f;
+  background-color: #f2dede;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-top: 15px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  transition: opacity 0.3s ease;
+}
+
+/* Success Message Styling */
+.success-message {
+  color: #267759;
+  background-color: #d9edf7;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  transition: opacity 0.3s ease;
+}
+
+/* Submit Button Styling */
 button {
-  padding: 14px;
-  background-color: #194d82;  /* Blue button background */
+  width: 100%;
+  padding: 15px;
+  background-color: #2c5986;
   color: #ffffff;
   font-size: 18px;
   font-weight: bold;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  width: 100%;  /* Full width button */
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #4682B4;  /* Darker blue on hover */
+  background-color: #007BFF;
 }
 
 button:disabled {
-  background-color: #4682B4;  /* Light gray button when disabled */
+  background-color: #ddd;
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
-
-/* Error message styling */
-.error {
-  color: #fff;
-  background-color: #da716a; 
-  padding: 15px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  animation: slideIn 0.5s ease-out; 
+/* Button "More Learning Plans" Styling */
+.more-plans-btn {
+  background-color: #FF5733;
+  color: white;
+  font-size: 18px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  transition: background-color 0.3s ease;
 }
 
-.success-message {
-  color: #fff;
-  background-color: #4caf50;
-  padding: 15px;
-  font-size: 14px;
-  font-weight: bold;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  animation: slideIn 0.5s ease-out; 
-}
-
-/* Error and Success Message Animation */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Error message specific field styling */
-.error-message {
-  color: #721c24;
-  background-color: #f8d7da;
-  padding: 8px;
-  font-size: 13px;
-  margin-top: 5px;
-  border-radius: 5px;
-  border: 1px solid #f5c6cb;
-  transition: all 0.3s ease-in-out;
-}
-
-.success-message {
-  color: #155724;
-  background-color: #d4edda;
-  padding: 8px;
-  font-size: 13px;
-  margin-top: 5px;
-  border-radius: 5px;
-  border: 1px solid #c3e6cb;
-  transition: all 0.3s ease-in-out;
+.more-plans-btn:hover {
+  background-color: #FF3C1D;
 }

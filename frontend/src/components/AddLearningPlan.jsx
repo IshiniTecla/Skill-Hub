@@ -58,7 +58,11 @@ const AddLearningPlan = () => {
   };
 
   return (
+
+     
+
     <div className="form-container">
+      <button>Browse our learning plans</button>
       <h1>ADD LEARNING PLAN</h1>
       {error && <div className="error">{error}</div>}
       {successMessage && <div className="success-message">{successMessage}</div>}
@@ -153,8 +157,17 @@ const AddLearningPlan = () => {
           Add Plan
         </button>
       </form>
+
+
+      
     </div>
+    
+
+    
   );
+
+
+  
 };
 
 export default AddLearningPlan;
