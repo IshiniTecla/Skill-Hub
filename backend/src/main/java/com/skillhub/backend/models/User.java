@@ -30,4 +30,12 @@ public class User {
     
     @Builder.Default
     private Set<String> following = new HashSet<>();
+    
+    // Groups that this user owns
+    @Builder.Default
+    private Set<String> ownedGroups = new HashSet<>();
+    
+    // Groups that this user is a member of
+    @Builder.Default
+    private Set<String> memberGroups = new HashSet<>();
 }

@@ -9,79 +9,70 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CorsFilter corsFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CorsFilter corsFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.corsFilter = corsFilter;
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(cors -> {}) // Use default CORS configuration from corsFilter
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints
-                .requestMatchers("/api/users/register", "/api/users/login").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow pre-flight requests
                 
-                // Protected endpoints
-                .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
+                // Protected endpoints - specify HTTP methods explicitly
+                .requestMatchers(HttpMethod.GET, "/api/groups/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/groups", "/api/groups/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/groups/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/groups/**").authenticated()
+                
                 .requestMatchers("/api/users/profile").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/users/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/users/**").authenticated()
                 .requestMatchers("/api/files/**").authenticated()
                 .requestMatchers("/api/skills/**").authenticated()
                 .requestMatchers("/api/projects/**").authenticated()
+                .requestMatchers("/api/group-messages/**").authenticated()
+                .requestMatchers("/api/group-posts/**").authenticated()
                 
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )
+            .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Update the allowed origin to match your React frontend URL
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Changed from 3000 to 5173
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
-        configuration.setExposedHeaders(List.of("Authorization"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-        
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
     
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        // Using NoOpPasswordEncoder which does not perform any encoding
+        return NoOpPasswordEncoder.getInstance();
     }
     
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
-    
 }

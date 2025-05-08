@@ -3,6 +3,7 @@ package com.skillhub.backend.services;
 import com.skillhub.backend.dto.UserDto;
 import com.skillhub.backend.models.User;
 import com.skillhub.backend.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,9 +13,11 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User registerUser(UserDto userDto) {
@@ -29,10 +32,10 @@ public class UserService {
         User user = User.builder()
                 .username(userDto.getUsername())
                 .email(userDto.getEmail())
-                .password(userDto.getPassword()) // Store password directly without hashing
+                .password(passwordEncoder.encode(userDto.getPassword())) // Encode the password
                 .firstName(userDto.getFirstName())
                 .lastName(userDto.getLastName())
-                .bio("")
+                .bio(userDto.getBio() != null ? userDto.getBio() : "")
                 .build();
 
         return userRepository.save(user);
@@ -45,7 +48,7 @@ public class UserService {
         }
 
         User user = optionalUser.get();
-        if (!password.equals(user.getPassword())) { // Direct string comparison
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid password");
         }
 
@@ -81,29 +84,37 @@ public class UserService {
         return userRepository.findById(id)
             .map(user -> {
                 // Check if the new username is already taken by another user
-                if (!user.getUsername().equals(userDto.getUsername()) && 
+                if (userDto.getUsername() != null && !user.getUsername().equals(userDto.getUsername()) && 
                     userRepository.findByUsername(userDto.getUsername()).isPresent()) {
                     throw new RuntimeException("Username already in use");
                 }
                 
                 // Check if the new email is already taken by another user
-                if (!user.getEmail().equals(userDto.getEmail()) && 
+                if (userDto.getEmail() != null && !user.getEmail().equals(userDto.getEmail()) && 
                     userRepository.findByEmail(userDto.getEmail()).isPresent()) {
                     throw new RuntimeException("Email already in use");
                 }
                 
-                user.setUsername(userDto.getUsername());
-                user.setFirstName(userDto.getFirstName());
-                user.setLastName(userDto.getLastName());
+                if (userDto.getUsername() != null) {
+                    user.setUsername(userDto.getUsername());
+                }
+                
+                if (userDto.getFirstName() != null) {
+                    user.setFirstName(userDto.getFirstName());
+                }
+                
+                if (userDto.getLastName() != null) {
+                    user.setLastName(userDto.getLastName());
+                }
                 
                 // Only update the email if it's provided
                 if (userDto.getEmail() != null && !userDto.getEmail().isEmpty()) {
                     user.setEmail(userDto.getEmail());
                 }
                 
-                // Only update the password if it's provided - store as plain text
+                // Only update the password if it's provided - encode it first
                 if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-                    user.setPassword(userDto.getPassword());
+                    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
                 }
                 
                 // Update bio if it exists in the request
@@ -191,5 +202,50 @@ public class UserService {
         }
         
         return following;
+    }
+    
+    public User addOwnedGroup(String userId, String groupId) {
+        return userRepository.findById(userId)
+            .map(user -> {
+                if (!user.getOwnedGroups().contains(groupId)) {
+                    user.getOwnedGroups().add(groupId);
+                }
+                if (!user.getMemberGroups().contains(groupId)) {
+                    user.getMemberGroups().add(groupId); // Owner is also a member
+                }
+                return userRepository.save(user);
+            })
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    
+    public User addMemberGroup(String userId, String groupId) {
+        return userRepository.findById(userId)
+            .map(user -> {
+                if (!user.getMemberGroups().contains(groupId)) {
+                    user.getMemberGroups().add(groupId);
+                }
+                return userRepository.save(user);
+            })
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    
+    public User removeOwnedGroup(String userId, String groupId) {
+        return userRepository.findById(userId)
+            .map(user -> {
+                user.getOwnedGroups().remove(groupId);
+                // When removing owned group, also remove from member groups if present
+                user.getMemberGroups().remove(groupId);
+                return userRepository.save(user);
+            })
+            .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+    
+    public User removeMemberGroup(String userId, String groupId) {
+        return userRepository.findById(userId)
+            .map(user -> {
+                user.getMemberGroups().remove(groupId);
+                return userRepository.save(user);
+            })
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
