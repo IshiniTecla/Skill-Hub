@@ -119,20 +119,120 @@ button:disabled {
   opacity: 0.7;
 }
 
-/* Button "More Learning Plans" Styling */
-.more-plans-btn {
-  background-color: #FF5733;
-  color: white;
-  font-size: 18px;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  display: block;
-  margin: 20px auto;
-  transition: background-color 0.3s ease;
+
+
+
+
+
+
+
+
+
+
+
+
+.learning-plans-container {
+  padding: 80px;
+  background-color: #f4f8fe; /* Soft light blue background */
+  
 }
 
-.more-plans-btn:hover {
-  background-color: #FF3C1D;
+/* Header Section */
+.header-section {
+  background-color: #5489be; /* Blue background for header */
+  color: white;
+  padding: 40px 20px;
+  text-align: center;
+  border-radius: 10px;
+  margin-bottom: 40px;
+}
+
+.header-title {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.header-subtitle {
+  font-size: 18px;
+  font-weight: normal;
+  margin-top: 10px;
+  opacity: 0.9;
+}
+
+.card-container {
+  display: flex;
+  /* justify-content: space-between; */
+  flex-wrap: wrap;
+  gap: 100px;
+}
+
+.learning-plan-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+
+.learning-plan-card:hover {
+  transform: scale(1.05);
+}
+
+.card-header {
+  width: 100%;
+  height: 200px;
+  background-color: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-thumbnail {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+.card-title {
+  font-size: 20px;
+  color: #1E90FF;
+  margin-bottom: 10px;
+}
+
+.card-description {
+  font-size: 14px;
+  color: #3f3d3d;
+  margin-bottom: 30px;
+}
+
+.card-creator,
+.card-category,
+.card-status {
+  font-size: 14px;
+  color: #312a2afd;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.card-btn {
+  background-color: #194d82;
+  color: white;
+  font-size: 14px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+}
+
+.card-btn:hover {
+  background-color: #4682b4;
 }

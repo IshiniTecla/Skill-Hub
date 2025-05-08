@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import './style.css';
 
 const AddLearningPlan = () => {
@@ -11,6 +13,13 @@ const AddLearningPlan = () => {
   const [courseFee, setCourseFee] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  const navigate = useNavigate();  // Initialize useNavigate
+
+  // Function to navigate to the Learning Plans page
+  const navigateToLearningPlans = () => {
+    navigate('/learning-plans');  // Navigate to the /learning-plans route
+  };
 
   const validateForm = () => {
     if (!title || !description || !author || !courseCategory || !courseType) {
@@ -62,7 +71,10 @@ const AddLearningPlan = () => {
      
 
     <div className="form-container">
-      <button>Browse our learning plans</button>
+      <button onClick={navigateToLearningPlans}>Browse our learning plans</button>
+
+
+
       <h1>ADD LEARNING PLAN</h1>
       {error && <div className="error">{error}</div>}
       {successMessage && <div className="success-message">{successMessage}</div>}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import LearningPlansList from './components/LearningPlansList';
+import LearningPlanList from './components/LearningPlanList';
 import AddLearningPlan from './components/AddLearningPlan';
 // import UpdateLearningPlan from './components/UpdateLearningPlan';
 
@@ -10,8 +10,7 @@ const App = () => {
       <div>
         <Routes>
           <Route path="/" element={<AddLearningPlan />} />
-          {/* Uncomment the following routes when you're ready */}
-          {/* <Route exact path="/" element={<LearningPlansList />} /> */}
+           <Route exact path="/learning-plans" element={<LearningPlanList />} />
           {/* <Route path="/update/:id" element={<UpdateLearningPlan />} /> */}
         </Routes>
       </div>

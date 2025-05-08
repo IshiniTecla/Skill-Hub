@@ -2,10 +2,13 @@ package com.skillhub.backend.controller;
 
 import com.skillhub.backend.model.LearningPlan;
 import com.skillhub.backend.service.LearningPlanService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/plans")
@@ -14,59 +17,44 @@ public class LearningPlanControl {
     @Autowired
     private LearningPlanService service;
 
-    @PostMapping
-    public ResponseEntity<?> createPlan(
-            @RequestParam String title,
-            @RequestParam String description,
-            @RequestParam String author,
-            @RequestParam(required = false) String authorNote,
-            @RequestParam String courseCategory,
-            @RequestParam String courseType,
-            @RequestParam(required = false) Double courseFee) {
+    // GET - Retrieve all Learning Plans
+    @GetMapping
+    public ResponseEntity<List<LearningPlan>> getAllPlans() {
+        List<LearningPlan> plans = service.getAllPlans();
+        return ResponseEntity.ok(plans);
+    }
 
+    // POST - Create a new Learning Plan
+    @PostMapping
+    public ResponseEntity<?> createPlan(@RequestBody LearningPlan learningPlan) {
         // 1. Validate required fields
-        if (title == null || title.isEmpty()) {
+        if (learningPlan.getTitle() == null || learningPlan.getTitle().isEmpty()) {
             return ResponseEntity.badRequest().body("Title is required.");
         }
-        if (description == null || description.isEmpty()) {
+        if (learningPlan.getDescription() == null || learningPlan.getDescription().isEmpty()) {
             return ResponseEntity.badRequest().body("Description is required.");
         }
-        if (author == null || author.isEmpty()) {
+        if (learningPlan.getAuthor() == null || learningPlan.getAuthor().isEmpty()) {
             return ResponseEntity.badRequest().body("Author is required.");
         }
 
         // 2. Validate if the author is a number
-        if (author.matches("\\d+")) {
+        if (learningPlan.getAuthor().matches("\\d+")) {
             return ResponseEntity.badRequest().body("Author name cannot be a number.");
         }
 
         // 3. Validate course fee for 'paid' courses
-        if ("paid".equals(courseType)) {
-            if (courseFee == null || courseFee <= 0) {
+        if ("paid".equals(learningPlan.getCourseType())) {
+            if (learningPlan.getCourseFee() == null || learningPlan.getCourseFee() <= 0) {
                 return ResponseEntity.badRequest().body("Course fee is required and should be greater than 0 for paid courses.");
             }
         }
 
         try {
-            // Create and populate the LearningPlan object
-            LearningPlan newPlan = new LearningPlan();
-            newPlan.setTitle(title);
-            newPlan.setDescription(description);
-            newPlan.setAuthor(author);
-            newPlan.setAuthorNote(authorNote);
-            newPlan.setCourseCategory(courseCategory);
-            newPlan.setCourseType(courseType);
-            newPlan.setCourseFee("paid".equals(courseType) ? courseFee : null);  // Set course fee if paid
-
             // Save the Learning Plan and return the saved object
-            LearningPlan savedPlan = service.createPlan(newPlan);
+            LearningPlan savedPlan = service.createPlan(learningPlan);
             return ResponseEntity.ok(savedPlan); // Return saved plan
-
-        } catch (IllegalArgumentException e) {
-            // Handle invalid argument exceptions and return the error message
-            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            // General error handling
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while processing the request: " + e.getMessage());
         }
