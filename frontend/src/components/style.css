@@ -1,7 +1,7 @@
 /* Global Styles */
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #e5e7f0;
+  background-color: #e2e3e7;
   margin: 0;
   padding: 0;
 }
@@ -133,7 +133,7 @@ button:disabled {
 
 .learning-plans-container {
   padding: 80px;
-  background-color: #c8cee1;
+  background-color: #e5e7f0;
    /* Soft light blue background */
   
 }
@@ -185,11 +185,18 @@ button:disabled {
 .card-header {
   width: 100%;
   height: 200px;
-  background-color: #ddd;
+  background-color: #5c6a78;
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
 }
+
+.card-header h1{
+  color: white;
+  margin-left: 10px;
+  font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
 
 .card-thumbnail {
   max-width: 100%;
@@ -236,4 +243,138 @@ button:disabled {
 
 .card-btn:hover {
   background-color: #4682b4;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Main Container */
+.learning-plan-detail-container {
+  padding: 40px;
+  max-width: 900px;
+  margin: auto;
+  background-color: #f4f7fb;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Back Button */
+.back-btn {
+  background-color: #0056b3;
+  color: #fff;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.back-btn:hover {
+  background-color: #004085;
+}
+
+/* Header with Plan Title */
+.learning-plan-header {
+  text-align: center;
+  background: linear-gradient(135deg, #f5f7fa, #e4eff6);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.learning-plan-header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.status {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.status-label {
+  font-weight: bold;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.status.paid .status-label {
+  background-color: #f44336; /* Red for Paid */
+}
+
+.status.free .status-label {
+  background-color: #4caf50; /* Green for Free */
+}
+
+.fee {
+  font-size: 18px;
+  color: #f44336;
+  margin-left: 10px;
+}
+
+/* Description and Other Info */
+.plan-description {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.plan-meta h3 {
+  font-size: 18px;
+  color: #333;
+}
+
+.plan-meta span {
+  font-weight: normal;
+  color: #555;
+}
+
+/* Course Content Section */
+.course-content {
+  margin-top: 30px;
+}
+
+.course-content h3 {
+  font-size: 22px;
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.course-content ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.course-content li {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+/* Enroll Button */
+.enroll-btn {
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.enroll-btn:hover {
+  background-color: #0056b3;
 }

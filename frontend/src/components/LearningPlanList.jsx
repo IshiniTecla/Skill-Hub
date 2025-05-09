@@ -38,7 +38,7 @@ const LearningPlansList = () => {
         {learningPlans.map((plan) => (
           <div className="learning-plan-card" key={plan.id}>
             <div className="card-header">
-              
+              <h1>{plan.title}</h1>
             </div>
             <div className="card-body">
               <h2 className="card-title">{plan.title}</h2>
