@@ -27,7 +27,9 @@ public class LearningPlanControl {
 
 
 
+    
 
+    //Get one learning plan
     @GetMapping("/{id}")
     public ResponseEntity<LearningPlan> getPlanById(@PathVariable("id") String id) {
         Optional<LearningPlan> plan = service.getPlanById(id);
@@ -37,6 +39,35 @@ public class LearningPlanControl {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Return 404 if plan not found
     }
     
+
+
+
+
+    //update learning plan
+    @PutMapping("/{id}")
+public ResponseEntity<LearningPlan> updatePlan(@PathVariable("id") String id, @RequestBody LearningPlan updatedPlan) {
+    Optional<LearningPlan> plan = service.getPlanById(id);
+
+    if (plan.isPresent()) {
+        LearningPlan existingPlan = plan.get();
+        existingPlan.setTitle(updatedPlan.getTitle());
+        existingPlan.setDescription(updatedPlan.getDescription());
+        existingPlan.setAuthor(updatedPlan.getAuthor());
+        existingPlan.setAuthorNote(updatedPlan.getAuthorNote());
+        existingPlan.setCourseCategory(updatedPlan.getCourseCategory());
+        existingPlan.setCourseType(updatedPlan.getCourseType());
+        existingPlan.setCourseFee(updatedPlan.getCourseFee());
+
+        // // Save updated plan in the database
+        // LearningPlan savedPlan = service.updatePlan(existingPlan);
+        // return ResponseEntity.ok(savedPlan);
+    }
+
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Return 404 if plan not found
+}
+
+    
+
 
 
     // POST - Create a new Learning Plan

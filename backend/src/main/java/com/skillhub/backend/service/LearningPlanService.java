@@ -3,6 +3,8 @@ package com.skillhub.backend.service;
 import com.skillhub.backend.model.LearningPlan;
 import com.skillhub.backend.repository.LearningPlanRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,21 +32,24 @@ public class LearningPlanService {
     }
 
     // UPDATE - Update an existing Learning Plan by ID
-    public LearningPlan updatePlan(String id, LearningPlan updatedPlan) {
-        Optional<LearningPlan> existingPlan = repository.findById(id);
-        if (existingPlan.isPresent()) {
-            LearningPlan plan = existingPlan.get();
-            plan.setTitle(updatedPlan.getTitle());
-            plan.setDescription(updatedPlan.getDescription());
-            plan.setAuthor(updatedPlan.getAuthor());
-            plan.setAuthorNote(updatedPlan.getAuthorNote());
-            plan.setCourseCategory(updatedPlan.getCourseCategory());
-            plan.setCourseType(updatedPlan.getCourseType());
-            plan.setCourseFee(updatedPlan.getCourseFee());
-            return repository.save(plan);
-        }
-        throw new IllegalArgumentException("Plan not found for ID: " + id); // Custom exception for better error handling
+public ResponseEntity<LearningPlan> updatePlan(String id, LearningPlan updatedPlan) {
+    Optional<LearningPlan> existingPlan = repository.findById(id);
+    if (existingPlan.isPresent()) {
+        LearningPlan plan = existingPlan.get();
+        plan.setTitle(updatedPlan.getTitle());
+        plan.setDescription(updatedPlan.getDescription());
+        plan.setAuthor(updatedPlan.getAuthor());
+        plan.setAuthorNote(updatedPlan.getAuthorNote());
+        plan.setCourseCategory(updatedPlan.getCourseCategory());
+        plan.setCourseType(updatedPlan.getCourseType());
+        plan.setCourseFee(updatedPlan.getCourseFee());
+        
+        // Save and return the updated plan with status OK
+        return ResponseEntity.ok(repository.save(plan));
     }
+    // Return NOT FOUND status if the plan is not found
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+}
 
     // DELETE - Delete a Learning Plan by ID
     public boolean deletePlan(String id) {
