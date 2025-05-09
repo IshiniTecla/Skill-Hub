@@ -1,0 +1,138 @@
+.group-edit-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .group-edit-back-link {
+    display: flex;
+    align-items: center;
+    color: #3b82f6;
+    margin-bottom: 1.5rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+  
+  .group-edit-back-link:hover {
+    color: #1d4ed8;
+  }
+  
+  .group-edit-back-icon {
+    margin-right: 0.25rem;
+  }
+  
+  .group-edit-form-container {
+    max-width: 42rem;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .group-edit-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #111827;
+  }
+  
+  .group-edit-form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .group-edit-form-group:last-of-type {
+    margin-bottom: 1.5rem;
+  }
+  
+  .group-edit-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+  
+  .group-edit-required {
+    color: #ef4444;
+  }
+  
+  .group-edit-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .group-edit-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
+  
+  .group-edit-textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    outline: none;
+    resize: vertical;
+    min-height: 6rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .group-edit-textarea:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
+  
+  .group-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .group-edit-button-cancel {
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    color: #4b5563;
+    background-color: transparent;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+  
+  .group-edit-button-cancel:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .group-edit-button-save {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .group-edit-button-save:hover:not(:disabled) {
+    background-color: #2563eb;
+  }
+  
+  .group-edit-button-save:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .group-edit-save-icon {
+    margin-right: 0.25rem;
+  }
