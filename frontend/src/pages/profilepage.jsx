@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Grid, Settings, Bookmark, Heart, MessageCircle, PlusSquare, 
   Trash2, Edit, UserX, LogOut } from 'lucide-react';
 import { toast } from 'react-toastify';
 import UserModel from '../models/UserModel';
-import '../css/Profile.css';
+// Import the custom API modules
+import { userApi, postApi } from '../api/axios';
+import "../css/Profile.css";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -35,7 +36,6 @@ const Profile = () => {
   
   // Get current user from local storage
   const currentUser = JSON.parse(localStorage.getItem('user'));
-  const token = localStorage.getItem('token');
   
   useEffect(() => {
     fetchProfileData();
@@ -44,20 +44,19 @@ const Profile = () => {
   const fetchProfileData = async () => {
     setIsLoading(true);
     try {
-      let response;
+      let userData;
       
       // If no username is provided, fetch current user's profile
       if (!username) {
-        response = await axios.get('/api/users/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await userApi.getCurrentProfile();
+        userData = new UserModel(response.data);
         setIsOwnProfile(true);
       } else {
-        response = await axios.get(`/api/users/username/${username}`);
+        const response = await userApi.getUserByUsername(username);
+        userData = new UserModel(response.data);
         setIsOwnProfile(currentUser && currentUser.username === username);
       }
       
-      const userData = new UserModel(response.data);
       setProfile(userData);
       setEditForm({
         firstName: userData.firstName || '',
@@ -67,12 +66,37 @@ const Profile = () => {
         bio: userData.bio || ''
       });
       
-      // Fetch posts
-      if (response.data.id) {
-        fetchUserPosts(response.data.id);
-        fetchSavedPosts(response.data.id);
-        fetchFollowers(response.data.id);
-        fetchFollowing(response.data.id);
+      // Fetch additional data - wrapped in try/catch to handle errors
+      if (userData.id) {
+        try {
+          await fetchUserPosts(userData.id);
+        } catch (err) {
+          console.warn('Could not fetch posts:', err);
+          setPosts([]);
+        }
+        
+        if (isOwnProfile && currentUser) {
+          try {
+            await fetchSavedPosts();
+          } catch (err) {
+            console.warn('Could not fetch saved posts:', err);
+            setSavedPosts([]);
+          }
+        }
+        
+        try {
+          await fetchFollowers(userData.id);
+        } catch (err) {
+          console.warn('Could not fetch followers:', err);
+          setFollowers([]);
+        }
+        
+        try {
+          await fetchFollowing(userData.id);
+        } catch (err) {
+          console.warn('Could not fetch following:', err);
+          setFollowing([]);
+        }
       }
     } catch (err) {
       setError('Failed to load profile data');
@@ -84,41 +108,49 @@ const Profile = () => {
   
   const fetchUserPosts = async (userId) => {
     try {
-      const response = await axios.get(`/api/posts/user/${userId}`);
-      setPosts(response.data);
+      const response = await postApi.getUserPosts(userId);
+      // Check if response.data exists and is an array before setting state
+      setPosts(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error('Error fetching posts:', err);
+      // Set empty array on error to prevent UI issues
+      setPosts([]);
+      throw err; // Re-throw to be caught by caller
     }
   };
   
-  const fetchSavedPosts = async (userId) => {
-    if (!isOwnProfile) return;
+  const fetchSavedPosts = async () => {
+    if (!isOwnProfile || !currentUser) return;
     
     try {
-      const response = await axios.get('/api/posts/saved', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setSavedPosts(response.data);
+      const response = await postApi.getSavedPosts();
+      setSavedPosts(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error('Error fetching saved posts:', err);
+      setSavedPosts([]);
+      throw err; // Re-throw to be caught by caller
     }
   };
   
   const fetchFollowers = async (userId) => {
     try {
-      const response = await axios.get(`/api/users/${userId}/followers`);
-      setFollowers(response.data);
+      const response = await userApi.getFollowers(userId);
+      setFollowers(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error('Error fetching followers:', err);
+      setFollowers([]);
+      throw err; // Re-throw to be caught by caller
     }
   };
   
   const fetchFollowing = async (userId) => {
     try {
-      const response = await axios.get(`/api/users/${userId}/following`);
-      setFollowing(response.data);
+      const response = await userApi.getFollowing(userId);
+      setFollowing(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error('Error fetching following:', err);
+      setFollowing([]);
+      throw err; // Re-throw to be caught by caller
     }
   };
   
@@ -131,22 +163,13 @@ const Profile = () => {
   };
   
   const uploadProfileImage = async (file) => {
-    if (!file) return;
+    if (!file || !currentUser) return;
     
     const formData = new FormData();
     formData.append('file', file);
     
     try {
-      const response = await axios.post(
-        `/api/users/${currentUser.id}/upload-profile-image`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      const response = await userApi.uploadProfileImage(currentUser.id, formData);
       
       const updatedUser = new UserModel(response.data);
       setProfile(updatedUser);
@@ -163,15 +186,10 @@ const Profile = () => {
   
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+    if (!currentUser) return;
     
     try {
-      const response = await axios.put(
-        `/api/users/${currentUser.id}`,
-        editForm,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      const response = await userApi.updateUser(currentUser.id, editForm);
       
       const updatedUser = new UserModel(response.data);
       setProfile(updatedUser);
@@ -205,20 +223,19 @@ const Profile = () => {
       return;
     }
     
+    if (!profile) return;
+    
     try {
-      await axios.post(
-        `/api/users/${currentUser.id}/follow/${profile.id}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await userApi.followUser(currentUser.id, profile.id);
       
       // Update followers list
       const updatedProfile = {...profile};
-      updatedProfile.followers = [...updatedProfile.followers, currentUser.id];
+      updatedProfile.followers = [...(updatedProfile.followers || []), currentUser.id];
+      updatedProfile.followersCount = (updatedProfile.followersCount || 0) + 1;
       setProfile(updatedProfile);
       
       // Refresh followers list
-      fetchFollowers(profile.id);
+      fetchFollowers(profile.id).catch(err => console.warn("Failed to refresh followers:", err));
       toast.success(`You are now following ${profile.username}`);
     } catch (err) {
       console.error('Error following user:', err);
@@ -227,20 +244,19 @@ const Profile = () => {
   };
   
   const handleUnfollow = async () => {
+    if (!currentUser || !profile) return;
+    
     try {
-      await axios.post(
-        `/api/users/${currentUser.id}/unfollow/${profile.id}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await userApi.unfollowUser(currentUser.id, profile.id);
       
       // Update followers list
       const updatedProfile = {...profile};
-      updatedProfile.followers = updatedProfile.followers.filter(id => id !== currentUser.id);
+      updatedProfile.followers = (updatedProfile.followers || []).filter(id => id !== currentUser.id);
+      updatedProfile.followersCount = Math.max((updatedProfile.followersCount || 0) - 1, 0);
       setProfile(updatedProfile);
       
       // Refresh followers list
-      fetchFollowers(profile.id);
+      fetchFollowers(profile.id).catch(err => console.warn("Failed to refresh followers:", err));
       toast.info(`You unfollowed ${profile.username}`);
     } catch (err) {
       console.error('Error unfollowing user:', err);
@@ -249,19 +265,18 @@ const Profile = () => {
   };
   
   const handleRemoveFollower = async (followerId) => {
+    if (!currentUser || !profile) return;
+    
     try {
-      await axios.post(
-        `/api/users/${profile.id}/remove-follower/${followerId}`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await userApi.removeFollower(profile.id, followerId);
       
       // Update followers list
       setFollowers(prev => prev.filter(user => user.id !== followerId));
       
       // Update profile
       const updatedProfile = {...profile};
-      updatedProfile.followers = updatedProfile.followers.filter(id => id !== followerId);
+      updatedProfile.followers = (updatedProfile.followers || []).filter(id => id !== followerId);
+      updatedProfile.followersCount = Math.max((updatedProfile.followersCount || 0) - 1, 0);
       setProfile(updatedProfile);
       
       toast.info('Follower removed');
@@ -272,10 +287,10 @@ const Profile = () => {
   };
   
   const handleDeleteAccount = async () => {
+    if (!currentUser) return;
+    
     try {
-      await axios.delete(`/api/users/${currentUser.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await userApi.deleteUser(currentUser.id);
       
       // Clear local storage and redirect to login
       localStorage.removeItem('user');
@@ -293,12 +308,10 @@ const Profile = () => {
     localStorage.removeItem('token');
     navigate('/login');
   };
-  
+  /*
   const handleDeletePost = async (postId) => {
     try {
-      await axios.delete(`/api/posts/${postId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await postApi.deletePost(postId);
       
       // Update posts list
       setPosts(prev => prev.filter(post => post.id !== postId));
@@ -311,14 +324,10 @@ const Profile = () => {
   
   const handleSavePost = async (postId) => {
     try {
-      await axios.post(
-        `/api/posts/${postId}/save`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await postApi.savePost(postId);
       
       toast.success('Post saved');
-      fetchSavedPosts(currentUser.id);
+      fetchSavedPosts().catch(err => console.warn("Failed to refresh saved posts:", err));
     } catch (err) {
       console.error('Error saving post:', err);
       toast.error('Failed to save post');
@@ -327,11 +336,7 @@ const Profile = () => {
   
   const handleUnsavePost = async (postId) => {
     try {
-      await axios.post(
-        `/api/posts/${postId}/unsave`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await postApi.unsavePost(postId);
       
       toast.info('Post removed from saved items');
       setSavedPosts(prev => prev.filter(post => post.id !== postId));
@@ -340,6 +345,18 @@ const Profile = () => {
       toast.error('Failed to remove post from saved items');
     }
   };
+  */
+  
+  // Helper function to generate image URL with timestamp to prevent caching
+  const getImageUrl = (path) => {
+    if (!path) return '';
+    // Add timestamp parameter for cache busting
+    return `${path}?t=${Date.now()}`;
+  };
+  
+  // Fallback image for profile and posts
+  const fallbackProfileImage = "https://via.placeholder.com/150?text=No+Image";
+  const fallbackPostImage = "https://via.placeholder.com/300x300?text=Image+Not+Available";
   
   if (isLoading) {
     return <div className="loading-container"><div className="loading-spinner"></div></div>;
@@ -353,7 +370,8 @@ const Profile = () => {
     return <div className="error-message">Profile not found</div>;
   }
   
-  const isFollowing = currentUser && profile.followers && profile.followers.includes(currentUser.id);
+  const isFollowing = currentUser && profile.followers && Array.isArray(profile.followers) && 
+    profile.followers.includes(currentUser.id);
   
   return (
     <div className="profile-container">
@@ -362,14 +380,18 @@ const Profile = () => {
         {/* Profile Image */}
         <div className="profile-image-container">
           <div className="profile-image">
-            {profile.profileImage ? (
+            {profile && profile.profileImage ? (
               <img 
-                src={`/api/users/${profile.id}/profile-image`} 
+                src={getImageUrl(`/api/users/${profile.id}/profile-image`)}
                 alt={`${profile.username}'s profile`} 
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = fallbackProfileImage;
+                }}
               />
             ) : (
               <div className="profile-initials">
-                {profile.initials}
+                {profile && (profile.initials || profile.username?.charAt(0)?.toUpperCase() || '?')}
               </div>
             )}
           </div>
@@ -451,20 +473,20 @@ const Profile = () => {
               className="stat-item clickable"
               onClick={() => setIsFollowersModalOpen(true)}
             >
-              <span className="stat-number">{profile.followersCount}</span>
+              <span className="stat-number">{profile.followersCount || 0}</span>
               <span className="stat-label">followers</span>
             </div>
             <div 
               className="stat-item clickable"
               onClick={() => setIsFollowingModalOpen(true)}
             >
-              <span className="stat-number">{profile.followingCount}</span>
+              <span className="stat-number">{profile.followingCount || 0}</span>
               <span className="stat-label">following</span>
             </div>
           </div>
           
           <div className="profile-details">
-            <h2 className="profile-name">{profile.fullName}</h2>
+            <h2 className="profile-name">{profile.fullName || profile.username}</h2>
             <p className="profile-email">{profile.email}</p>
             <p className="profile-bio">{profile.bio || 'No bio yet.'}</p>
           </div>
@@ -497,7 +519,14 @@ const Profile = () => {
           posts.length > 0 ? (
             posts.map(post => (
               <div className="post-item" key={post.id}>
-                <img src={post.imageUrl || `/api/posts/${post.id}/image`} alt="Post" />
+                <img 
+                  src={post.imageUrl || getImageUrl(`/api/posts/${post.id}/image`)} 
+                  alt="Post" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = fallbackPostImage;
+                  }}
+                />
                 <div className="post-overlay">
                   <div className="post-stats">
                     <div className="post-stat">
@@ -538,7 +567,14 @@ const Profile = () => {
           savedPosts.length > 0 ? (
             savedPosts.map(post => (
               <div className="post-item" key={post.id}>
-                <img src={post.imageUrl || `/api/posts/${post.id}/image`} alt="Post" />
+                <img 
+                  src={post.imageUrl || getImageUrl(`/api/posts/${post.id}/image`)} 
+                  alt="Post" 
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = fallbackPostImage;
+                  }}
+                />
                 <div className="post-overlay">
                   <div className="post-stats">
                     <div className="post-stat">
@@ -747,7 +783,8 @@ const Profile = () => {
                       ) : (
                         <div className="user-initials">
                           {((follower.firstName ? follower.firstName[0] : '') + 
-                            (follower.lastName ? follower.lastName[0] : '')).toUpperCase()}
+                            (follower.lastName ? follower.lastName[0] : '')).toUpperCase() || 
+                            follower.username?.charAt(0)?.toUpperCase() || '?'}
                         </div>
                       )}
                     </div>
@@ -757,7 +794,10 @@ const Profile = () => {
                       navigate(`/profile/${follower.username}`);
                     }}>
                       <div className="user-username">{follower.username}</div>
-                      <div className="user-name">{follower.firstName} {follower.lastName}</div>
+                      <div className="user-name">
+                        {follower.firstName || follower.lastName ? 
+                          `${follower.firstName || ''} ${follower.lastName || ''}`.trim() : ''}
+                      </div>
                     </div>
                     
                     {isOwnProfile && (
@@ -809,7 +849,8 @@ const Profile = () => {
                       ) : (
                         <div className="user-initials">
                           {((user.firstName ? user.firstName[0] : '') + 
-                            (user.lastName ? user.lastName[0] : '')).toUpperCase()}
+                            (user.lastName ? user.lastName[0] : '')).toUpperCase() || 
+                            user.username?.charAt(0)?.toUpperCase() || '?'}
                         </div>
                       )}
                     </div>
@@ -819,7 +860,10 @@ const Profile = () => {
                       navigate(`/profile/${user.username}`);
                     }}>
                       <div className="user-username">{user.username}</div>
-                      <div className="user-name">{user.firstName} {user.lastName}</div>
+                      <div className="user-name">
+                        {user.firstName || user.lastName ? 
+                          `${user.firstName || ''} ${user.lastName || ''}`.trim() : ''}
+                      </div>
                     </div>
                     
                     {isOwnProfile && (

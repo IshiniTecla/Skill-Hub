@@ -14,22 +14,26 @@ import {
   Bookmark, 
   Settings,
   LogOut,
-  Users
+  Users,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import '../css/layout.css';
-import axios from 'axios';
+import api from '../api/axios'; // Use your API instance instead of axios directly
 
 const Layout = ({ children }) => {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileData, setProfileData] = useState({
     profilePicture: null,
     username: '',
     firstName: '',
     lastName: ''
   });
+  const [profileImageError, setProfileImageError] = useState(false);
 
   // Fetch user profile data from Spring Boot backend
   useEffect(() => {
@@ -37,38 +41,54 @@ const Layout = ({ children }) => {
       if (currentUser && currentUser.id) {
         try {
           // Get user profile data
-          const userResponse = await axios.get(`/api/users/${currentUser.id}`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-          });
+          const userResponse = await api.get(`/api/users/${currentUser.id}`);
           
           if (userResponse.data) {
             const userData = userResponse.data;
             
-            // Set basic profile info
+            // Set profile picture URL directly - we'll handle errors with onError event
+            // Add cache-busting parameter to prevent browser caching of profile images
             setProfileData({
-              profilePicture: `/api/users/${currentUser.id}/profile-image?${new Date().getTime()}`, // Add timestamp to prevent caching and fixed the path with a leading slash
+              profilePicture: `${api.defaults.baseURL}/api/users/${currentUser.id}/profile-image?t=${new Date().getTime()}`,
               username: userData.username || 'User',
               firstName: userData.firstName || '',
               lastName: userData.lastName || ''
             });
+            
+            // Reset any previous errors
+            setProfileImageError(false);
           }
         } catch (error) {
           console.error("Error fetching profile data:", error);
           // Set default profile data on error
           setProfileData({
             profilePicture: null,
-            username: currentUser.username || 'User',
-            firstName: currentUser.firstName || '',
-            lastName: currentUser.lastName || ''
+            username: currentUser?.username || 'User',
+            firstName: currentUser?.firstName || '',
+            lastName: currentUser?.lastName || ''
           });
+          setProfileImageError(true);
         }
       }
     };
     
     fetchProfileData();
   }, [currentUser]);
+
+  // Toggle sidebar collapsed state
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+    // Save preference to localStorage
+    localStorage.setItem('sidebarCollapsed', !sidebarCollapsed);
+  };
+
+  // Load sidebar preference from localStorage on initial render
+  useEffect(() => {
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState !== null) {
+      setSidebarCollapsed(savedState === 'true');
+    }
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -114,29 +134,69 @@ const Layout = ({ children }) => {
     { path: '/settings', icon: Settings, label: 'Settings' }
   ];
 
+  // Generate profile avatar component with fallback
+  const ProfileAvatar = ({ className = "avatar-image", size = "normal" }) => {
+    if (profileData.profilePicture && !profileImageError) {
+      return (
+        <img 
+          src={profileData.profilePicture} 
+          alt={`${profileData.username}'s profile`}
+          className={className}
+          onError={(e) => {
+            // Set error flag so we fall back to initials
+            setProfileImageError(true);
+            // Prevent infinite error loop
+            e.target.onerror = null;
+          }}
+        />
+      );
+    } else {
+      // If no profile picture or error loading it, show initials
+      const initials = profileData.firstName ? profileData.firstName[0].toUpperCase() : 
+                      (profileData.username ? profileData.username[0].toUpperCase() : 'U');
+      
+      return (
+        <div className={`avatar-placeholder ${size === "small" ? "avatar-placeholder-small" : ""}`}>
+          {initials}
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="layout-container">
-      {/* Desktop Sidebar */}
-      <div className="sidebar">
-        <div className="sidebar-logo-container">
-          <Link to="/feed" className="sidebar-logo-link">
-            <svg width="32" height="32" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" className="logo-svg">
-              <defs>
-                <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#4f46e5" />
-                  <stop offset="100%" stopColor="#10b981" />
-                </linearGradient>
-              </defs>
-              <circle cx="25" cy="25" r="22" fill="none" stroke="url(#logo-gradient)" strokeWidth="5" />
-              <circle cx="25" cy="12" r="5" fill="#4f46e5" />
-              <circle cx="15" cy="30" r="5" fill="#6366f1" />
-              <circle cx="35" cy="30" r="5" fill="#10b981" />
-              <line x1="25" y1="12" x2="15" y2="30" stroke="#6366f1" strokeWidth="2" />
-              <line x1="25" y1="12" x2="35" y2="30" stroke="#10b981" strokeWidth="2" />
-              <line x1="15" y1="30" x2="35" y2="30" stroke="#8b5cf6" strokeWidth="2" />
-            </svg>
-            <span className="logo-text">Skill Hub</span>
-          </Link>
+      {/* Desktop Sidebar with collapsible feature */}
+      <div className={`sidebar ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <div className="sidebar-header">
+          <div className="sidebar-logo-container">
+            <Link to="/feed" className="sidebar-logo-link">
+              <svg width="32" height="32" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" className="logo-svg">
+                <defs>
+                  <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#4f46e5" />
+                    <stop offset="100%" stopColor="#10b981" />
+                  </linearGradient>
+                </defs>
+                <circle cx="25" cy="25" r="22" fill="none" stroke="url(#logo-gradient)" strokeWidth="5" />
+                <circle cx="25" cy="12" r="5" fill="#4f46e5" />
+                <circle cx="15" cy="30" r="5" fill="#6366f1" />
+                <circle cx="35" cy="30" r="5" fill="#10b981" />
+                <line x1="25" y1="12" x2="15" y2="30" stroke="#6366f1" strokeWidth="2" />
+                <line x1="25" y1="12" x2="35" y2="30" stroke="#10b981" strokeWidth="2" />
+                <line x1="15" y1="30" x2="35" y2="30" stroke="#8b5cf6" strokeWidth="2" />
+              </svg>
+              {!sidebarCollapsed && <span className="logo-text">Skill Hub</span>}
+            </Link>
+          </div>
+          
+          {/* Toggle button for sidebar */}
+          <button 
+            onClick={toggleSidebar} 
+            className="sidebar-toggle-btn"
+            aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </button>
         </div>
 
         <nav className="sidebar-nav">
@@ -145,10 +205,11 @@ const Layout = ({ children }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`nav-item ${isActive(item.path) ? 'nav-item-active' : 'nav-item-inactive'}`}
+                className={`nav-item ${isActive(item.path) ? 'nav-item-active' : 'nav-item-inactive'} ${sidebarCollapsed ? 'nav-item-collapsed' : ''}`}
+                title={sidebarCollapsed ? item.label : ''}
               >
                 <item.icon className={`nav-icon ${isActive(item.path) ? 'nav-icon-active' : 'nav-icon-inactive'}`} size={20} />
-                <span className="nav-text">{item.label}</span>
+                {!sidebarCollapsed && <span className="nav-text">{item.label}</span>}
               </Link>
             ))}
 
@@ -158,48 +219,47 @@ const Layout = ({ children }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`nav-item ${isActive(item.path) ? 'nav-item-active' : 'nav-item-inactive'}`}
+                className={`nav-item ${isActive(item.path) ? 'nav-item-active' : 'nav-item-inactive'} ${sidebarCollapsed ? 'nav-item-collapsed' : ''}`}
+                title={sidebarCollapsed ? item.label : ''}
               >
                 <item.icon className={`nav-icon ${isActive(item.path) ? 'nav-icon-active' : 'nav-icon-inactive'}`} size={20} />
-                <span className="nav-text">{item.label}</span>
+                {!sidebarCollapsed && <span className="nav-text">{item.label}</span>}
               </Link>
             ))}
             
             <button
               onClick={handleLogout}
-              className="logout-button"
+              className={`logout-button ${sidebarCollapsed ? 'logout-button-collapsed' : ''}`}
+              title={sidebarCollapsed ? "Logout" : ''}
             >
               <LogOut className="logout-icon" size={20} />
-              <span>Logout</span>
+              {!sidebarCollapsed && <span>Logout</span>}
             </button>
           </div>
         </nav>
 
-        {currentUser && (
+        {currentUser && !sidebarCollapsed && (
           <div className="user-profile">
             <Link to="/profile" className="profile-link">
               <div className="avatar-container">
-                {profileData.profilePicture ? (
-                  <img 
-                    src={profileData.profilePicture} 
-                    alt={`${profileData.username}'s profile`}
-                    className="avatar-image"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/default-avatar.png'; // Fallback to default avatar with leading slash
-                    }}
-                  />
-                ) : (
-                  <div className="avatar-placeholder">
-                    {profileData.firstName && profileData.firstName[0].toUpperCase()}
-                  </div>
-                )}
+                <ProfileAvatar />
               </div>
               <div className="user-info">
                 <p className="username">{profileData.username}</p>
                 <p className="user-fullname">
                   {profileData.firstName} {profileData.lastName}
                 </p>
+              </div>
+            </Link>
+          </div>
+        )}
+        
+        {/* Mini profile for collapsed sidebar */}
+        {currentUser && sidebarCollapsed && (
+          <div className="user-profile-collapsed">
+            <Link to="/profile" className="profile-link-collapsed" title={`${profileData.username}'s Profile`}>
+              <div className="avatar-container-collapsed">
+                <ProfileAvatar size="small" className="avatar-image-small" />
               </div>
             </Link>
           </div>
@@ -259,21 +319,7 @@ const Layout = ({ children }) => {
               {currentUser && (
                 <Link to="/profile" className="profile-link" onClick={() => setShowMobileMenu(false)}>
                   <div className="avatar-container">
-                    {profileData.profilePicture ? (
-                      <img 
-                        src={profileData.profilePicture} 
-                        alt={`${profileData.username}'s profile`}
-                        className="avatar-image"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = '/default-avatar.png'; // Fallback to default avatar with leading slash
-                        }}
-                      />
-                    ) : (
-                      <div className="avatar-placeholder">
-                        {profileData.firstName && profileData.firstName[0].toUpperCase()}
-                      </div>
-                    )}
+                    <ProfileAvatar />
                   </div>
                   <div className="user-info">
                     <p className="username">{profileData.username}</p>
@@ -329,30 +375,30 @@ const Layout = ({ children }) => {
 
       {/* Mobile Bottom Navigation */}
       <div className="mobile-bottom-nav">
-        <Link to="/feed" className="bottom-nav-item ${isActive('/feed') ? 'bottom-nav-item-active' : ''}">
+        <Link to="/feed" className={`bottom-nav-item ${isActive('/feed') ? 'bottom-nav-item-active' : ''}`}>
           <Home className="bottom-nav-icon" size={22} />
           <span className="bottom-nav-label">Feed</span>
         </Link>
-        <Link to="/search" className="bottom-nav-item ${isActive('/search') ? 'bottom-nav-item-active' : ''}">
+        <Link to="/search" className={`bottom-nav-item ${isActive('/search') ? 'bottom-nav-item-active' : ''}`}>
           <Search className="bottom-nav-icon" size={22} />
           <span className="bottom-nav-label">Search</span>
         </Link>
-        <Link to="/messages" className="bottom-nav-item ${isActive('/messages') ? 'bottom-nav-item-active' : ''}">
+        <Link to="/messages" className={`bottom-nav-item ${isActive('/messages') ? 'bottom-nav-item-active' : ''}`}>
           <MessageCircle className="bottom-nav-icon" size={22} />
           <span className="bottom-nav-label">Messages</span>
         </Link>
-        <Link to="/groups" className="bottom-nav-item ${isActive('/groups') ? 'bottom-nav-item-active' : ''}">
+        <Link to="/groups" className={`bottom-nav-item ${isActive('/groups') ? 'bottom-nav-item-active' : ''}`}>
           <Users className="bottom-nav-icon" size={22} />
           <span className="bottom-nav-label">Groups</span>
         </Link>
-        <Link to="/profile" className="bottom-nav-item ${isActive('/profile') ? 'bottom-nav-item-active' : ''}">
+        <Link to="/profile" className={`bottom-nav-item ${isActive('/profile') ? 'bottom-nav-item-active' : ''}`}>
           <User className="bottom-nav-icon" size={22} />
           <span className="bottom-nav-label">Profile</span>
         </Link>
       </div>
 
-      {/* Main Content */}
-      <div className="main-content">
+      {/* Main Content - Adjust to accommodate collapsed sidebar */}
+      <div className={`main-content ${sidebarCollapsed ? 'main-content-expanded' : ''}`}>
         {children}
       </div>
     </div>
