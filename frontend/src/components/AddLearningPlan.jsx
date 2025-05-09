@@ -125,12 +125,13 @@ const AddLearningPlan = () => {
 
         <div className="form-group">
           <label htmlFor="authorNote">Author Note (Optional):</label>
-          <input
+          <textarea
             type="text"
             id="authorNote"
             value={authorNote}
             onChange={(e) => setAuthorNote(e.target.value)}
             placeholder="Enter author's note"
+            rows="5"
           />
         </div>
 

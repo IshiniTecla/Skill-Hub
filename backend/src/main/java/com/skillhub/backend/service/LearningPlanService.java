@@ -3,8 +3,6 @@ package com.skillhub.backend.service;
 import com.skillhub.backend.model.LearningPlan;
 import com.skillhub.backend.repository.LearningPlanRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,8 +29,9 @@ public class LearningPlanService {
         return repository.findById(id);
     }
 
-    // UPDATE - Update an existing Learning Plan by ID
-public ResponseEntity<LearningPlan> updatePlan(String id, LearningPlan updatedPlan) {
+ // Service: LearningPlanService.java
+
+public LearningPlan updatePlan(String id, LearningPlan updatedPlan) {
     Optional<LearningPlan> existingPlan = repository.findById(id);
     if (existingPlan.isPresent()) {
         LearningPlan plan = existingPlan.get();
@@ -44,12 +43,17 @@ public ResponseEntity<LearningPlan> updatePlan(String id, LearningPlan updatedPl
         plan.setCourseType(updatedPlan.getCourseType());
         plan.setCourseFee(updatedPlan.getCourseFee());
         
-        // Save and return the updated plan with status OK
-        return ResponseEntity.ok(repository.save(plan));
+        // Save and return the updated plan
+        return repository.save(plan);
     }
-    // Return NOT FOUND status if the plan is not found
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+
+    throw new IllegalArgumentException("Plan not found for ID: " + id); // Return error if plan not found
 }
+
+
+
+
+
 
     // DELETE - Delete a Learning Plan by ID
     public boolean deletePlan(String id) {

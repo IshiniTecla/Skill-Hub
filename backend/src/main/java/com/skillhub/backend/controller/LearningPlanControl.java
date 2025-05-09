@@ -21,7 +21,6 @@ public class LearningPlanControl {
 
 
 
-    //delete learning plan
     // DELETE - Delete a Learning Plan by ID
 @DeleteMapping("/{id}")
 public ResponseEntity<?> deletePlan(@PathVariable("id") String id) {
@@ -63,28 +62,22 @@ public ResponseEntity<?> deletePlan(@PathVariable("id") String id) {
 
 
 
-    //update learning plan
-    @PutMapping("/{id}")
+ // Controller: LearningPlanControl.java
+
+@PutMapping("/{id}")
 public ResponseEntity<LearningPlan> updatePlan(@PathVariable("id") String id, @RequestBody LearningPlan updatedPlan) {
-    Optional<LearningPlan> plan = service.getPlanById(id);
-
-    if (plan.isPresent()) {
-        LearningPlan existingPlan = plan.get();
-        existingPlan.setTitle(updatedPlan.getTitle());
-        existingPlan.setDescription(updatedPlan.getDescription());
-        existingPlan.setAuthor(updatedPlan.getAuthor());
-        existingPlan.setAuthorNote(updatedPlan.getAuthorNote());
-        existingPlan.setCourseCategory(updatedPlan.getCourseCategory());
-        existingPlan.setCourseType(updatedPlan.getCourseType());
-        existingPlan.setCourseFee(updatedPlan.getCourseFee());
-
-        // // Save updated plan in the database
-        // LearningPlan savedPlan = service.updatePlan(existingPlan);
-        // return ResponseEntity.ok(savedPlan);
+    try {
+        // Call service method to update the plan
+        LearningPlan updated = service.updatePlan(id, updatedPlan);
+        
+        // Return the updated plan with HTTP 200 OK
+        return ResponseEntity.ok(updated);
+    } catch (IllegalArgumentException e) {
+        // Return 404 if plan not found
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
-
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Return 404 if plan not found
 }
+
 
 
 

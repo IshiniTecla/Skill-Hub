@@ -5,6 +5,7 @@ import axios from 'axios';
 const DeleteLearningPlan = () => {
   const { id } = useParams();  // Get the id from the URL
   const [plan, setPlan] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');  // State for success message
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,15 +21,17 @@ const DeleteLearningPlan = () => {
   const handleDelete = () => {
     axios.delete(`http://localhost:8080/api/plans/${id}`)
       .then(response => {
-        console.log('Plan deleted:', response.data);
-        navigate('/learning-plans');  // Redirect to the learning plans list
+        setSuccessMessage('Learning Plan Deleted Successfully'); // Set success message
+        setTimeout(() => {
+          navigate('/learning-plans');  // Redirect to the learning plans list after a short delay
+        }, 2000);  // 2 seconds delay before redirect
       })
       .catch(error => console.error('Error deleting plan:', error));
   };
 
   // Handle cancel and navigate back
   const handleCancel = () => {
-    navigate(`/plan/${id}`);  // Navigate back to the list of plans
+    navigate(`/plan/${id}`);  // Navigate back to the individual plan view
   };
 
   if (!plan) return <div>Loading...</div>;
@@ -38,6 +41,9 @@ const DeleteLearningPlan = () => {
       <div className="delete-plan-header">
         <h2>DELETE LEARNING PLAN</h2>
       </div>
+
+      {/* Show success message if available */}
+      {successMessage && <div className="success-message">{successMessage}</div>}
 
       <div className="delete-plan-details">
         <p><strong>Are you sure you want to delete this learning plan?</strong></p>

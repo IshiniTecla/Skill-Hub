@@ -114,7 +114,7 @@ button:hover {
 }
 
 button:disabled {
-  background-color: #ddd;
+  background-color: #585d97;
   cursor: not-allowed;
   opacity: 0.7;
 }
@@ -239,6 +239,7 @@ button:disabled {
   cursor: pointer;
   width: 100%;
   text-align: center;
+  margin-left: 1px;
 }
 
 .card-btn:hover {
@@ -306,6 +307,9 @@ button:disabled {
 .delete-btn:hover {
   background-color: #e53935;
 }
+
+
+
 
 /* Styling for the learning plan container and details section */
 .learning-plan-detail-container {
@@ -396,6 +400,8 @@ button:disabled {
 
 
 
+
+
 /* style.css */
 .form-container {
    width: 100%;
@@ -453,6 +459,7 @@ button {
   cursor: pointer;
   border-radius: 5px;
   transition: background-color 0.3s ease;
+  margin-left: 10px;
 }
 
 button[type="submit"] {
@@ -564,9 +571,14 @@ button:focus {
 
 
 
-
-
-
-
-
-
+.success-message {
+  color: #155724;
+  background-color: #d4edda;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border: 1px solid #c3e6cb;
+  margin-top: 15px;
+  border-radius: 6px;
+  text-align: center;
+}

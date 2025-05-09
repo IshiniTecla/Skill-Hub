@@ -35,16 +35,16 @@ const UpdateLearningPlan = () => {
       courseFee,
     };
 
-    // Update the plan via PUT request
     axios.put(`http://localhost:8080/api/plans/${id}`, updatedPlan)
-      .then(response => {
-        console.log('Plan updated:', response.data);
-        navigate(`/plan/${id}`);  // Navigate to the detailed view of the updated plan
-      })
-      .catch(error => console.log('Error updating plan:', error));
-  };
-
-  if (!plan) return <div>Loading...</div>;
+    .then(response => {
+      console.log('Plan updated:', response.data);
+      navigate(`/learning-plan/${id}`);  // Navigate to the detailed view of the updated plan
+    })
+    .catch(error => {
+      console.log('Error updating plan:', error);
+      alert('Failed to update the learning plan');
+    });
+};
 
   return (
     <div className="form-container">
