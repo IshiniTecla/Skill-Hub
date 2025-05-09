@@ -1,8 +1,12 @@
+// src/api/axios.js
 import axios from 'axios';
-import { getToken, removeToken } from '../utils/auth';
+
+// Helper functions for token management
+const getToken = () => localStorage.getItem('token');
+const removeToken = () => localStorage.removeItem('token');
 
 // Create axios instance with base URL
-const instance = axios.create({
+const api = axios.create({
   baseURL: 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json',
@@ -11,22 +15,24 @@ const instance = axios.create({
 });
 
 // Request interceptor for adding token to requests
-instance.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
     const token = getToken();
+    
+    // Add cache-busting parameter for image requests to prevent 404s due to caching
+    if (config.url && (config.url.includes('/profile-image') || config.url.includes('/image'))) {
+      // For image requests, set responseType to blob
+      config.responseType = 'blob';
+      
+      // Add timestamp to URL to prevent caching
+      const separator = config.url.includes('?') ? '&' : '?';
+      config.url = `${config.url}${separator}t=${Date.now()}`;
+    }
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      
-      // Debug token for development
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('Request with token:', config.url);
-      }
-    } else {
-      // Debug missing token
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('Request without token:', config.url);
-      }
     }
+    
     return config;
   },
   (error) => {
@@ -36,7 +42,7 @@ instance.interceptors.request.use(
 );
 
 // Response interceptor for handling errors
-instance.interceptors.response.use(
+api.interceptors.response.use(
   (response) => {
     return response;
   },
@@ -52,26 +58,37 @@ instance.interceptors.response.use(
     switch (status) {
       case 401:
         console.error('Authentication error:', data);
-        removeToken();
-        localStorage.removeItem('user');
-        window.dispatchEvent(new CustomEvent('auth:expired'));
-        return Promise.reject(new Error('Your session has expired. Please login again.'));
+        // Only clear auth and redirect if this isn't already a login request
+        if (!error.config.url.includes('/api/auth/')) {
+          removeToken();
+          localStorage.removeItem('user');
+          window.dispatchEvent(new CustomEvent('auth:expired'));
+        }
+        return Promise.reject(new Error(data?.message || 'Your session has expired. Please login again.'));
         
       case 403:
-        console.error('Authorization error:', data);
-        // Check if token is invalid or just insufficient permissions
-        const errorMessage = data?.message || 'You do not have permission to perform this action.';
-        
-        // Log the full error response for debugging
-        console.log('Full 403 response:', error.response);
-        
-        return Promise.reject(new Error(errorMessage));
+        console.error('Authorization error:', error.config.url);
+        // For 403 errors, we'll still return an empty result rather than rejecting
+        if (error.config.url.includes('/api/posts/user/')) {
+          console.warn('Handling 403 for posts request by returning empty array');
+          return Promise.resolve({ data: [] });
+        }
+        return Promise.reject(new Error(data?.message || 'You do not have permission to perform this action.'));
         
       case 404:
-        return Promise.reject(new Error('The requested resource was not found.'));
+        console.error('Not found error:', error.config.url);
+        // For 404 on image requests, return a default image or empty blob
+        if (error.config.url.includes('/profile-image') || error.config.url.includes('/image')) {
+          console.warn('Image not found, returning empty response');
+          return Promise.resolve({ 
+            data: new Blob(),
+            status: 200
+          });
+        }
+        return Promise.reject(new Error(data?.message || 'The requested resource was not found.'));
         
       case 500:
-        return Promise.reject(new Error('Server error. Please try again later.'));
+        return Promise.reject(new Error(data?.message || 'Server error. Please try again later.'));
         
       default:
         return Promise.reject(error);
@@ -79,4 +96,59 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance;
+// User APIs
+const userApi = {
+  getCurrentProfile: () => api.get('/api/users/profile'),
+  getUserById: (id) => api.get(`/api/users/${id}`),
+  getUserByUsername: (username) => api.get(`/api/users/username/${username}`),
+  updateUser: (id, userData) => api.put(`/api/users/${id}`, userData),
+  deleteUser: (id) => api.delete(`/api/users/${id}`),
+  getProfileImage: (id) => api.get(`/api/users/${id}/profile-image`, { responseType: 'blob' }),
+  uploadProfileImage: (id, formData) => api.post(`/api/users/${id}/upload-profile-image`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    }
+  }),
+  getFollowers: (id) => api.get(`/api/users/${id}/followers`),
+  getFollowing: (id) => api.get(`/api/users/${id}/following`),
+  followUser: (userId, targetId) => api.post(`/api/users/${userId}/follow/${targetId}`),
+  unfollowUser: (userId, targetId) => api.post(`/api/users/${userId}/unfollow/${targetId}`),
+  removeFollower: (userId, followerId) => api.post(`/api/users/${userId}/remove-follower/${followerId}`)
+};
+
+// Posts APIs
+const postApi = {
+  getUserPosts: async (userId) => {
+    try {
+      return await api.get(`/api/posts/user/${userId}`);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      // Return empty array instead of rejecting to prevent breaking the UI
+      return { data: [] };
+    }
+  },
+  getSavedPosts: async () => {
+    try {
+      return await api.get('/api/posts/saved');
+    } catch (error) {
+      console.error('Error fetching saved posts:', error);
+      return { data: [] };
+    }
+  },
+  savePost: (postId) => api.post(`/api/posts/${postId}/save`),
+  unsavePost: (postId) => api.post(`/api/posts/${postId}/unsave`),
+  deletePost: (postId) => api.delete(`/api/posts/${postId}`),
+  getPostImage: (postId) => api.get(`/api/posts/${postId}/image`, { responseType: 'blob' })
+};
+
+// Auth APIs
+const authApi = {
+  login: (credentials) => api.post('/api/auth/login', credentials),
+  register: (userData) => api.post('/api/auth/register', userData),
+  logout: () => {
+    removeToken();
+    localStorage.removeItem('user');
+  }
+};
+
+export { api as default, userApi, postApi, authApi };
