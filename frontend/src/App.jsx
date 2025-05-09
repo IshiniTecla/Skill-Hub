@@ -6,7 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import Layout from "./components/Layout"; // Make sure this import is present
+import Layout from "./components/Layout";
 
 // Loading Component
 const LoadingFallback = () => (
@@ -24,7 +24,7 @@ const Profile = lazy(() => import("./pages/profilepage"));
 const Groups = lazy(() => import("./pages/Group/Groups"));
 const GroupCreate = lazy(() => import("./pages/Group/GroupCreate"));
 const GroupDetail = lazy(() => import("./pages/Group/GroupDetail"));
-const GroupSettings = lazy(() => import("./pages/GroupSettings"));
+const GroupManage = lazy(() => import("./pages/Group/GroupManage")); // Corrected import
 const Messages = lazy(() => import("./pages/Messages"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const Explore = lazy(() => import("./pages/Explore"));
@@ -33,7 +33,7 @@ const Reels = lazy(() => import("./pages/Reels"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Saved = lazy(() => import("./pages/Saved"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const CreatePost = lazy(() => import("./pages/CreatePost")); // New page for creating posts
+const CreatePost = lazy(() => import("./pages/CreatePost"));
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -156,7 +156,6 @@ function App() {
               }
             />
 
-            {/* Added new group routes */}
             <Route
               path="/groups/:groupId"
               element={
@@ -167,13 +166,13 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
+            
             <Route
-              path="/groups/:groupId/settings"
+              path="/groups/:groupId/manage"
               element={
                 <ProtectedRoute>
                   <Layout>
-                    <GroupSettings />
+                    <GroupManage />
                   </Layout>
                 </ProtectedRoute>
               }
