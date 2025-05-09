@@ -492,6 +492,79 @@ button:focus {
 
 
 
+.delete-confirmation-container {
+  background-color: #f7f7f7;
+  border-radius: 10px;
+  padding: 30px;
+  width: 80%;
+  margin: auto;
+  max-width: 600px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.delete-plan-header {
+  text-align: center;
+}
+
+.delete-plan-header h2 {
+  color: #007bff;
+  font-size: 2rem;
+}
+
+.delete-plan-details {
+  margin-top: 20px;
+}
+
+.delete-plan-details h3 {
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.delete-plan-details p {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.5;
+}
+
+.delete-plan-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.delete-btn,
+.cancel-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+.cancel-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.cancel-btn:hover {
+  background-color: #218838;
+}
+
+
+
+
+
+
 
 
 

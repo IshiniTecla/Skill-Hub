@@ -18,6 +18,26 @@ public class LearningPlanControl {
     @Autowired
     private LearningPlanService service;
 
+
+
+
+    //delete learning plan
+    // DELETE - Delete a Learning Plan by ID
+@DeleteMapping("/{id}")
+public ResponseEntity<?> deletePlan(@PathVariable("id") String id) {
+    try {
+        boolean isDeleted = service.deletePlan(id); // Call delete service method
+        if (isDeleted) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null); // 204 No Content if deleted
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Plan not found for the given ID."); // 404 if plan not found
+        }
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting the plan.");
+    }
+}
+
+
     // GET - Retrieve all Learning Plans
     @GetMapping
     public ResponseEntity<List<LearningPlan>> getAllPlans() {
@@ -66,7 +86,6 @@ public ResponseEntity<LearningPlan> updatePlan(@PathVariable("id") String id, @R
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Return 404 if plan not found
 }
 
-    
 
 
 
