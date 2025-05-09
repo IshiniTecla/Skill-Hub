@@ -491,13 +491,13 @@ button:focus {
 
 
 
-
 .delete-confirmation-container {
   background-color: #f7f7f7;
   border-radius: 10px;
   padding: 30px;
   width: 80%;
   margin: auto;
+  margin-top: 50px;
   max-width: 600px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
@@ -554,6 +554,7 @@ button:focus {
   background-color: #28a745;
   color: white;
   border: none;
+  margin-left: 10px;
 }
 
 .cancel-btn:hover {

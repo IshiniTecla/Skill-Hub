@@ -28,7 +28,7 @@ const DeleteLearningPlan = () => {
 
   // Handle cancel and navigate back
   const handleCancel = () => {
-    navigate('/learning-plans');  // Navigate back to the list of plans
+    navigate(`/plan/${id}`);  // Navigate back to the list of plans
   };
 
   if (!plan) return <div>Loading...</div>;

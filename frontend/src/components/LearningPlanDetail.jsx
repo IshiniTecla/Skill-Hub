@@ -19,15 +19,7 @@ const LearningPlanDetail = () => {
 
   const handleDelete = () => {
     // Send a DELETE request to the API to delete the plan
-    axios.delete(`http://localhost:8080/api/plans/${id}`)
-      .then(response => {
-        alert('Learning Plan Deleted Successfully');
-        navigate("/learning-plans");  // Navigate back to the list of learning plans
-      })
-      .catch(error => {
-        console.log(error);
-        alert('Failed to delete the learning plan');
-      });
+    navigate(`/delete-learning-plan/${id}`);
   };
 
   const handleUpdate = () => {
