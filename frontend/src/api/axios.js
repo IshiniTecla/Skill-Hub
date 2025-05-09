@@ -91,7 +91,7 @@ api.interceptors.response.use(
         return Promise.reject(new Error(data?.message || 'Server error. Please try again later.'));
         
       default:
-        return Promise.reject(error);
+        return Promise.reject(new Error(data?.message || 'An error occurred. Please try again.'));
     }
   }
 );
@@ -101,8 +101,14 @@ const userApi = {
   getCurrentProfile: () => api.get('/api/users/profile'),
   getUserById: (id) => api.get(`/api/users/${id}`),
   getUserByUsername: (username) => api.get(`/api/users/username/${username}`),
-  updateUser: (id, userData) => api.put(`/api/users/${id}`, userData),
-  deleteUser: (id) => api.delete(`/api/users/${id}`),
+  updateUser: (id, userData) => {
+    console.log(`Updating user ${id} with data:`, userData); // Debug log
+    return api.put(`/api/users/${id}`, userData);
+  },
+  deleteUser: (id) => {
+    console.log(`Deleting user ${id}`); // Debug log
+    return api.delete(`/api/users/${id}`);
+  },
   getProfileImage: (id) => api.get(`/api/users/${id}/profile-image`, { responseType: 'blob' }),
   uploadProfileImage: (id, formData) => api.post(`/api/users/${id}/upload-profile-image`, formData, {
     headers: {
