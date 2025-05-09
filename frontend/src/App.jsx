@@ -8,6 +8,7 @@ import SkillCard from './pages/SkillCard';
 import SkillEditCard from './pages/SkillEditCard';
 import SkillEndorseCard from './pages/SkillEndorseCard';
 import EndorseSkillForm from "./pages/EndorseSkillForm";
+import UserProfile from './pages/UserProfile';
 
 function App() {
   return (
@@ -15,6 +16,8 @@ function App() {
       <Routes>
         {/* Use '/' for the root route */}
         <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<UserProfile />} />
+
         <Route path="/skills/add" element={<SkillFormCard />} />
         <Route path="/skill-card" element={<SkillCard />} />
         <Route path="/skill-endorsecard" element={<SkillEndorseCard />} />

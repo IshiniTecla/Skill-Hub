@@ -51,10 +51,10 @@ public class SecurityConfig {
                                 .and()
                                 .oauth2Login(oauth -> oauth
                                                 .loginPage("http://localhost:5173/signin") // Custom login page
-                                                .defaultSuccessUrl("http://localhost:5173/skill-card", true) // Redirect
-                                                                                                             // on
-                                                                                                             // successful
-                                                                                                             // login
+                                                .defaultSuccessUrl("http://localhost:5173/profile", true) // Redirect
+                                                                                                          // on
+                                                                                                          // successful
+                                                                                                          // login
                                                 .failureUrl("http://localhost:5173/signin?error=true")) // Redirect on
                                                                                                         // failure
                                 .logout(logout -> logout

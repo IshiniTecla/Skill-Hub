@@ -13,31 +13,34 @@ const SignIn = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch("http://localhost:8080/api/auth/signin", {
+            const res = await fetch("/api/auth/signin", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(form),
                 credentials: "include", // In case you later send cookies
             });
 
-            const data = await res.json();
-
+            // Check if the response is OK and if it returns JSON
             if (res.ok) {
+                const data = await res.json();
                 alert("Login successful");
 
                 // OPTIONAL: Save user info to localStorage
                 localStorage.setItem("user", JSON.stringify(data.user)); // or "data", depending on your backend
 
                 // Redirect to dashboard or skills page
-                navigate("/skill-card");
+                navigate("/profile");
             } else {
-                alert(data.message || "Invalid credentials");
+                // If response is not OK, attempt to parse the error response
+                const errorData = await res.json();
+                alert(errorData.message || "Invalid credentials");
             }
         } catch (error) {
             console.error("Login error:", error);
             alert("Server error");
         }
     };
+
 
     const styles = {
         container: {
