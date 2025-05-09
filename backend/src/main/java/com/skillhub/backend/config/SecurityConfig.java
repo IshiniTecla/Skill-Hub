@@ -30,26 +30,43 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors(cors -> {}) // Use default CORS configuration from corsFilter
+            // Apply CORS configuration first - this is critical
+            .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+            .cors(cors -> {})
+            // Disable CSRF for REST API
             .csrf(csrf -> csrf.disable())
+            // Use stateless session management
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // Allow all OPTIONS requests (needed for CORS preflight)
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                
                 // Public endpoints
                 .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                
+                // Explicitly allow access to profile images without authentication
+                .requestMatchers(HttpMethod.GET, "/api/users/*/profile-image").permitAll()
+                
+                // Allow public user lookups by ID for profile access
                 .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow pre-flight requests
                 
-                // Protected endpoints - specify HTTP methods explicitly
-                .requestMatchers(HttpMethod.GET, "/api/groups/**").authenticated()
-                .requestMatchers(HttpMethod.POST, "/api/groups", "/api/groups/**").authenticated()
-                .requestMatchers(HttpMethod.PUT, "/api/groups/**").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/groups/**").authenticated()
-                
+                // Protected endpoints
                 .requestMatchers("/api/users/profile").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/users/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/users/**").authenticated()
                 .requestMatchers(HttpMethod.DELETE, "/api/users/**").authenticated()
+                
+                // Group endpoints
+                .requestMatchers(HttpMethod.GET, "/api/groups/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/groups/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/groups/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/groups/**").authenticated()
+                
+                // Posts endpoints
+                .requestMatchers("/api/posts/**").authenticated()
+                
+                // Other protected endpoints
                 .requestMatchers("/api/files/**").authenticated()
                 .requestMatchers("/api/skills/**").authenticated()
                 .requestMatchers("/api/projects/**").authenticated()
@@ -59,7 +76,7 @@ public class SecurityConfig {
                 // All other requests require authentication
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+            // Add JWT filter to validate tokens
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -67,7 +84,7 @@ public class SecurityConfig {
     
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Using NoOpPasswordEncoder which does not perform any encoding
+        // Note: In production, use a stronger password encoder like BCryptPasswordEncoder
         return NoOpPasswordEncoder.getInstance();
     }
     

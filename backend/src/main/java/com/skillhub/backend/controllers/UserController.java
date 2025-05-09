@@ -62,7 +62,7 @@ public class UserController {
     @GetMapping("/{id}/profile-image")
     public ResponseEntity<byte[]> getProfileImage(@PathVariable String id) {
         Optional<User> optionalUser = userService.getUserById(id);
-
+    
         if (optionalUser.isPresent()) {
             byte[] image = optionalUser.get().getProfileImage();
             if (image == null || image.length == 0) {
@@ -70,6 +70,15 @@ public class UserController {
             }
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_JPEG);
+            
+            // Add cache control headers to prevent aggressive caching
+            headers.setCacheControl("no-cache, no-store, must-revalidate");
+            headers.setPragma("no-cache");
+            headers.setExpires(0);
+            
+            // Add CORS headers specifically for this endpoint
+            headers.add("Access-Control-Allow-Origin", "*");
+            
             return new ResponseEntity<>(image, headers, HttpStatus.OK);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
