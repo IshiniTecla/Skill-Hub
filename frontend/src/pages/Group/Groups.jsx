@@ -8,6 +8,8 @@ import {
   User,
   Crown,
   Clock,
+  Search,
+  X
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import GroupService from "../../services/GroupService";
@@ -20,6 +22,8 @@ const Groups = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all"); // all, joined, owned, new
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -89,18 +93,38 @@ const Groups = () => {
     return diffDays <= NEW_GROUP_DAYS;
   };
 
+  const toggleSearch = () => {
+    setShowSearch(!showSearch);
+    if (showSearch) {
+      setSearchTerm("");
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   const filteredGroups = () => {
+    // First filter by search term if present
+    let filtered = searchTerm
+      ? groups.filter(group => 
+          group.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (group.description && group.description.toLowerCase().includes(searchTerm.toLowerCase()))
+        )
+      : groups;
+
+    // Then apply category filters
     switch (filter) {
       case "joined":
-        return groups.filter(
+        return filtered.filter(
           (group) => isUserMember(group) && !isUserOwner(group)
         );
       case "owned":
-        return groups.filter((group) => isUserOwner(group));
+        return filtered.filter((group) => isUserOwner(group));
       case "new":
-        return groups.filter((group) => isNewGroup(group));
+        return filtered.filter((group) => isNewGroup(group) && !isUserOwner(group));
       default:
-        return groups;
+        return filtered; // "all" shows all groups
     }
   };
 
@@ -108,10 +132,31 @@ const Groups = () => {
     <div className="groups-container">
       <div className="groups-header">
         <h1 className="groups-title">Groups</h1>
-        <Link to="/groups/create" className="groups-create-button">
-          <Plus size={18} />
-          <span>Create Group</span>
-        </Link>
+        <div className="groups-header-actions">
+          {showSearch ? (
+            <div className="groups-search-container">
+              <input
+                type="text"
+                className="groups-search-input"
+                placeholder="Search groups..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                autoFocus
+              />
+              <button className="groups-search-close" onClick={toggleSearch}>
+                <X size={18} />
+              </button>
+            </div>
+          ) : (
+            <button className="groups-search-button" onClick={toggleSearch}>
+              <Search size={18} />
+            </button>
+          )}
+          <Link to="/groups/create" className="groups-create-button">
+            <Plus size={18} />
+            <span>Create Group</span>
+          </Link>
+        </div>
       </div>
 
       <div className="groups-filter">
@@ -161,7 +206,11 @@ const Groups = () => {
             <div className="groups-empty">
               <Users size={48} className="groups-empty-icon" />
               <h3 className="groups-empty-title">No Groups Found</h3>
-              {filter === "all" ? (
+              {searchTerm ? (
+                <p className="groups-empty-message">
+                  No groups match your search term
+                </p>
+              ) : filter === "all" ? (
                 <p className="groups-empty-message">
                   Create a new group or join existing ones
                 </p>
@@ -178,10 +227,14 @@ const Groups = () => {
                   No new groups have been created recently
                 </p>
               )}
-              {filter !== "all" && (
+              {(filter !== "all" || searchTerm) && (
                 <button
                   className="groups-empty-action"
-                  onClick={() => setFilter("all")}
+                  onClick={() => {
+                    setFilter("all");
+                    setSearchTerm("");
+                    setShowSearch(false);
+                  }}
                 >
                   Show all groups
                 </button>
