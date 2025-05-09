@@ -257,16 +257,6 @@ button:disabled {
 
 
 
-/* Main Container */
-.learning-plan-detail-container {
-  padding: 40px;
-  max-width: 900px;
-  margin: auto;
-  background-color: #f4f7fb;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
 /* Back Button */
 .back-btn {
   background-color: #0056b3;
@@ -283,7 +273,50 @@ button:disabled {
   background-color: #004085;
 }
 
-/* Header with Plan Title */
+/* Update and Delete Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.update-btn,
+.delete-btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 45%;
+}
+
+.update-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.update-btn:hover {
+  background-color: #45a049;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #e53935;
+}
+
+/* Styling for the learning plan container and details section */
+.learning-plan-detail-container {
+  padding: 40px;
+  max-width: 900px;
+  margin: auto;
+  background-color: #f4f7fb;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
 .learning-plan-header {
   text-align: center;
   background: linear-gradient(135deg, #f5f7fa, #e4eff6);
@@ -315,7 +348,7 @@ button:disabled {
 }
 
 .status.free .status-label {
-  background-color: #4caf50; /* Green for Free */
+  background-color: #437445; /* Green for Free */
 }
 
 .fee {
@@ -324,13 +357,11 @@ button:disabled {
   margin-left: 10px;
 }
 
-/* Description and Other Info */
 .plan-description {
   background-color: #ffffff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
 }
 
 .plan-meta h3 {
@@ -343,9 +374,8 @@ button:disabled {
   color: #555;
 }
 
-/* Course Content Section */
-.course-content {
-  margin-top: 30px;
+.additional-notes {
+  margin-top: 20px;
 }
 
 .course-content h3 {
@@ -364,17 +394,3 @@ button:disabled {
   margin-bottom: 10px;
 }
 
-/* Enroll Button */
-.enroll-btn {
-  background-color: #007bff;
-  color: white;
-  font-size: 16px;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.enroll-btn:hover {
-  background-color: #0056b3;
-}

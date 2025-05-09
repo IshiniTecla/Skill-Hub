@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const LearningPlanDetail = () => {
   const { id } = useParams();  // Get the plan ID from the URL
   const [plan, setPlan] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get(`http://localhost:8080/api/plans/${id}`)  // Fetch details of the selected plan
@@ -15,6 +16,23 @@ const LearningPlanDetail = () => {
   }, [id]);
 
   if (!plan) return <div>Loading...</div>;
+
+  const handleDelete = () => {
+    // Send a DELETE request to the API to delete the plan
+    axios.delete(`http://localhost:8080/api/plans/${id}`)
+      .then(response => {
+        alert('Learning Plan Deleted Successfully');
+        navigate("/learning-plans");  // Navigate back to the list of learning plans
+      })
+      .catch(error => {
+        console.log(error);
+        alert('Failed to delete the learning plan');
+      });
+  };
+
+  const handleUpdate = () => {
+    navigate(`/update-learning-plan/${id}`); // Navigate to the update page
+  };
 
   return (
     <div className="learning-plan-detail-container">
@@ -30,7 +48,7 @@ const LearningPlanDetail = () => {
               <span className="fee">- ${plan.courseFee}</span>
             </>
           ) : (
-            <span className="status-label free">Free</span>
+            <span className="status-label free">FREE</span>
           )}
         </div>
       </div>
@@ -51,9 +69,10 @@ const LearningPlanDetail = () => {
           <p>{plan.authorNote || 'No additional notes'}</p>
         </div>
 
-        {/* Enroll Button */}
-        <div className="enroll-section">
-          <button className="enroll-btn">Enroll Now</button>
+        {/* Update and Delete Buttons */}
+        <div className="action-buttons">
+          <button className="update-btn" onClick={handleUpdate}>Update</button>
+          <button className="delete-btn" onClick={handleDelete}>Delete</button>
         </div>
       </div>
 
