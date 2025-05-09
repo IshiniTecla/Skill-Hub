@@ -23,34 +23,28 @@ const UserProfile = () => {
                 </div>
             </div>
 
-            {/* Navigation Buttons */}
-            <div style={styles.nav}>
-                <button
-                    style={activeTab === "overview" ? styles.activeTab : styles.tab}
-                    onClick={() => setActiveTab("overview")}
-                >
-                    Overview
-                </button>
-                <button
-                    style={activeTab === "skills" ? styles.activeTab : styles.tab}
-                    onClick={() => setActiveTab("skills")}
-                >
-                    Skills
-                </button>
-                <button
-                    style={activeTab === "projects" ? styles.activeTab : styles.tab}
-                    onClick={() => setActiveTab("projects")}
-                >
-                    Projects
-                </button>
-                {/* Add more tabs as needed */}
+            {/* Tab Navigation */}
+            <div style={styles.tabWrapper}>
+                {["overview", "skills", "posts", "learning"].map(tab => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        style={activeTab === tab ? styles.activeTab : styles.tab}
+                    >
+                        {tab === "overview" && "Overview"}
+                        {tab === "skills" && "Skills"}
+                        {tab === "posts" && "Posts & Feed"}
+                        {tab === "learning" && "Learning Plans"}
+                    </button>
+                ))}
             </div>
 
             {/* Tab Content */}
-            <div style={styles.tabContent}>
+            <div style={styles.sectionWrapper}>
                 {activeTab === "overview" && <p style={styles.placeholder}>Welcome to your profile overview.</p>}
                 {activeTab === "skills" && <SkillCard />}
-                {activeTab === "projects" && <p style={styles.placeholder}>Your projects will be displayed here.</p>}
+                {activeTab === "posts" && <Feed />}
+                {activeTab === "learning" && <LearningPlans />}
             </div>
         </div>
     );
@@ -93,31 +87,40 @@ const styles = {
         fontSize: "1rem",
         color: "#444",
     },
-    nav: {
+    tabWrapper: {
         display: "flex",
         gap: "1rem",
-        marginBottom: "1.5rem",
+        padding: "0.5rem 1rem",
+        background: "#f0f4f8",
+        borderRadius: "12px",
+        boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.1)",
+        marginBottom: "2rem",
+        justifyContent: "center",
     },
     tab: {
-        padding: "0.5rem 1rem",
-        border: "1px solid #ccc",
+        padding: "0.6rem 1.2rem",
+        border: "none",
         borderRadius: "8px",
-        background: "#f9f9f9",
+        background: "#e0e0e0",
         cursor: "pointer",
         fontSize: "1rem",
-        transition: "all 0.3s ease",
+        transition: "all 0.3s",
     },
     activeTab: {
-        padding: "0.5rem 1rem",
-        border: "1px solid #007bff",
+        padding: "0.6rem 1.2rem",
         borderRadius: "8px",
         background: "#007bff",
         color: "#fff",
+        fontWeight: "bold",
         cursor: "pointer",
         fontSize: "1rem",
+        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
     },
-    tabContent: {
-        minHeight: "200px",
+    sectionWrapper: {
+        background: "#fff",
+        padding: "2rem",
+        borderRadius: "12px",
+        boxShadow: "0 4px 16px rgba(0, 0, 0, 0.05)",
     },
     placeholder: {
         textAlign: "center",
