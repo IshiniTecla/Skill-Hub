@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 import './style.css';
 
 const AddLearningPlan = () => {
@@ -13,13 +13,8 @@ const AddLearningPlan = () => {
   const [courseFee, setCourseFee] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-
+  
   const navigate = useNavigate();  // Initialize useNavigate
-
-  // Function to navigate to the Learning Plans page
-  const navigateToLearningPlans = () => {
-    navigate('/learning-plans');  // Navigate to the /learning-plans route
-  };
 
   const validateForm = () => {
     if (!title || !description || !author || !courseCategory || !courseType) {
@@ -54,7 +49,27 @@ const AddLearningPlan = () => {
     e.preventDefault();
     
     if (validateForm()) {
-      setSuccessMessage('Learning plan added successfully!');
+      const newPlan = {
+        title,
+        description,
+        author,
+        authorNote,
+        courseCategory,
+        courseType,
+        courseFee: courseType === 'paid' ? courseFee : null, // Only include courseFee if it's a paid course
+      };
+
+      // Send a POST request to the backend
+      axios.post('http://localhost:8080/api/plans', newPlan)
+        .then((response) => {
+          setSuccessMessage('Learning plan added successfully!');
+          
+        })
+        .catch((error) => {
+          setError('Failed to add the learning plan. Please try again later.');
+          console.log(error);
+        });
+
       // Reset form after submission
       setTitle('');
       setDescription('');
@@ -67,18 +82,13 @@ const AddLearningPlan = () => {
   };
 
   return (
-
-     
-
     <div className="form-container">
-      <button onClick={navigateToLearningPlans}>Browse our learning plans</button>
-
-
-
+      <button onClick={() => navigate('/learning-plans')}>Browse our learning plans</button>
+      
       <h1>ADD LEARNING PLAN</h1>
       {error && <div className="error">{error}</div>}
       {successMessage && <div className="success-message">{successMessage}</div>}
-
+      
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="title">Plan Title:</label>
@@ -165,21 +175,12 @@ const AddLearningPlan = () => {
           </div>
         )}
 
-        <button type="submit"  enable={!title || !description || !author || !courseCategory || !courseType}>
+        <button type="submit" disabled={!title || !description || !author || !courseCategory || !courseType}>
           Add Plan
         </button>
       </form>
-
-
-      
     </div>
-    
-
-    
   );
-
-
-  
 };
 
 export default AddLearningPlan;

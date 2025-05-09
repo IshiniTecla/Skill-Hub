@@ -28,7 +28,7 @@ const LearningPlanDetail = () => {
 
   return (
     <div className="learning-plan-detail-container">
-      <button className="back-btn" onClick={() => window.history.back()}>← Back to Plans</button>
+      <button className="back-btn" onClick={() => navigate(`/learning-plans`)}>← Back to Plans</button>
       
       <div className="learning-plan-header">
         {/* Plan Title and Status */}
