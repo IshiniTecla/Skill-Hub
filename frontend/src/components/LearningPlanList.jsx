@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './style.css';
 
 const LearningPlansList = () => {
   const [learningPlans, setLearningPlans] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetching learning plans from backend
@@ -11,6 +13,13 @@ const LearningPlansList = () => {
       .then((data) => setLearningPlans(data))
       .catch((error) => console.error('Error fetching learning plans:', error));
   }, []);
+
+
+
+  const navigateToPlan = (id) => {
+    navigate(`/plan/${id}`);
+  };
+
 
   return (
     <div className="learning-plans-container">
@@ -29,11 +38,7 @@ const LearningPlansList = () => {
         {learningPlans.map((plan) => (
           <div className="learning-plan-card" key={plan.id}>
             <div className="card-header">
-              <img
-                src="https://via.placeholder.com/150"
-                alt="Course Thumbnail"
-                className="card-thumbnail"
-              />
+              
             </div>
             <div className="card-body">
               <h2 className="card-title">{plan.title}</h2>
@@ -41,7 +46,7 @@ const LearningPlansList = () => {
               <p className="card-creator">Creator: {plan.author}</p>
               <p className="card-category">Category: {plan.courseCategory}</p>
               <p className="card-status">Status: {plan.courseType === 'paid' ? `Paid - $${plan.courseFee}` : 'Free'}</p>
-              <button className="card-btn">View Plan</button>
+              <button className="card-btn" onClick={() => navigateToPlan(plan.id)}>View Plan</button>
             </div>
           </div>
         ))}

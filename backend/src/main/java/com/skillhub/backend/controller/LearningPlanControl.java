@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import java.util.Optional; 
 
 import java.util.List;
 
@@ -23,6 +24,20 @@ public class LearningPlanControl {
         List<LearningPlan> plans = service.getAllPlans();
         return ResponseEntity.ok(plans);
     }
+
+
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<LearningPlan> getPlanById(@PathVariable("id") String id) {
+        Optional<LearningPlan> plan = service.getPlanById(id);
+        if (plan.isPresent()) {
+            return ResponseEntity.ok(plan.get());
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Return 404 if plan not found
+    }
+    
+
 
     // POST - Create a new Learning Plan
     @PostMapping
