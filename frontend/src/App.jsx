@@ -1,3 +1,33 @@
+
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import SignIn from './pages/SignIn';
+import SignUp from './pages/SignUp';
+import Home from './pages/Home';
+import SkillFormCard from './pages/SkillFormCard';
+import './App.css';
+import SkillCard from './pages/SkillCard';
+import SkillEditCard from './pages/SkillEditCard';
+import SkillEndorseCard from './pages/SkillEndorseCard';
+import EndorseSkillForm from "./pages/EndorseSkillForm";
+import UserProfile from './pages/UserProfile';
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* Use '/' for the root route */}
+        <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<UserProfile />} />
+
+        <Route path="/skills/add" element={<SkillFormCard />} />
+        <Route path="/skill-card" element={<SkillCard />} />
+        <Route path="/skill-endorsecard" element={<SkillEndorseCard />} />
+        <Route path="/skills/edit/:id" element={<SkillEditCard />} />
+        <Route path="/endorse/:skillId" element={<EndorseSkillForm />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Routes>
+
 import React, { useEffect, lazy, Suspense } from "react";
 import {
   BrowserRouter as Router,
@@ -271,8 +301,13 @@ function App() {
           </Routes>
         </Suspense>
       </AuthProvider>
+
     </Router>
   );
 }
 
+
 export default App;
+
+export default App;
+
