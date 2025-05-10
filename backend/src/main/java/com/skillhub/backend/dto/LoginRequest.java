@@ -1,5 +1,6 @@
 package com.skillhub.backend.dto;
 
+
 public class LoginRequest {
     private String email;
     private String password;
@@ -20,4 +21,16 @@ public class LoginRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoginRequest {
+    private String email;
+    private String password;
+
 }

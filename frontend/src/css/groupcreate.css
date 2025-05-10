@@ -1,0 +1,174 @@
+/* GroupCreate.css */
+
+/* Container layout */
+.groupCreate-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  .groupCreate-back-button {
+    display: flex;
+    align-items: center;
+    color: #2563eb;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .groupCreate-back-button:hover {
+    color: #1d4ed8;
+  }
+  
+  .groupCreate-back-icon {
+    margin-right: 0.25rem;
+  }
+  
+  /* Form container */
+  .groupCreate-form-container {
+    max-width: 42rem;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    padding: 1.5rem;
+  }
+  
+  .groupCreate-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #1f2937;
+  }
+  
+  /* Error message */
+  .groupCreate-error {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Form fields */
+  .groupCreate-form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .groupCreate-form-group:last-of-type {
+    margin-bottom: 1.5rem;
+  }
+  
+  .groupCreate-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+  
+  .groupCreate-required {
+    color: #ef4444;
+  }
+  
+  .groupCreate-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+  }
+  
+  .groupCreate-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+  
+  .groupCreate-textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 6rem;
+  }
+  
+  .groupCreate-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+  
+  /* Button containers */
+  .groupCreate-button-container {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  /* Buttons */
+  .groupCreate-cancel-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    color: #374151;
+    background-color: white;
+    margin-right: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .groupCreate-cancel-button:hover {
+    background-color: #f9fafb;
+  }
+  
+  .groupCreate-cancel-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .groupCreate-submit-button {
+    padding: 0.5rem 1rem;
+    background-color: #2563eb;
+    color: white;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .groupCreate-submit-button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .groupCreate-submit-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #93c5fd;
+  }
+  
+  .groupCreate-submit-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  .groupCreate-success {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: 1px solid #c3e6cb;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: fadeIn 0.3s ease-in;
+  }
+  
+  .groupCreate-success-icon {
+    color: #28a745;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
