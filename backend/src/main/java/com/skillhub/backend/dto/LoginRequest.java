@@ -22,6 +22,7 @@ public class LoginRequest {
         this.password = password;
     }
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
