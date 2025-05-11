@@ -1,9 +1,16 @@
 import React, { useState } from "react";
+
 import { Link } from "react-router-dom";
+
+import { Link, useNavigate } from "react-router-dom";
+
 import SocialLogin from "../components/SocialLogin";
 
 const SignIn = () => {
     const [form, setForm] = useState({ email: "", password: "" });
+
+    const navigate = useNavigate();
+
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -12,6 +19,7 @@ const SignIn = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+
             const res = await fetch("http://localhost:8080/api/auth/signin", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -24,12 +32,36 @@ const SignIn = () => {
                 console.log("Response:", data);
             } else {
                 alert("Invalid credentials");
+
+            const res = await fetch("/api/auth/signin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(form),
+                credentials: "include", // In case you later send cookies
+            });
+
+            // Check if the response is OK and if it returns JSON
+            if (res.ok) {
+                const data = await res.json();
+                alert("Login successful");
+
+                // OPTIONAL: Save user info to localStorage
+                localStorage.setItem("user", JSON.stringify(data.user)); // or "data", depending on your backend
+
+                // Redirect to dashboard or skills page
+                navigate("/profile");
+            } else {
+                // If response is not OK, attempt to parse the error response
+                const errorData = await res.json();
+                alert(errorData.message || "Invalid credentials");
+
             }
         } catch (error) {
             console.error("Login error:", error);
             alert("Server error");
         }
     };
+
 
     const styles = {
         container: {
